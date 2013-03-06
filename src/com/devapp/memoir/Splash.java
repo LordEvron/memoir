@@ -2,8 +2,10 @@ package com.devapp.memoir;
 import com.devapp.memoir.R;
 
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 
 public class Splash extends Activity {
 
@@ -13,6 +15,7 @@ public class Splash extends Activity {
 		setContentView(R.layout.activity_splash);
 		
 		final int splashtime = 3000;
+		final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		Thread splashthread =  new Thread() {
 			int wait = 0;
 			
@@ -27,7 +30,18 @@ public class Splash extends Activity {
 				} catch (Exception e) {
 					System.out.println ("Exception = " + e);
 				} finally {
-					startActivity (new Intent (Splash.this, Welcome.class));
+					Intent i;
+			        if(!prefs.getBoolean("first_time", false))
+			        {
+			            i = new Intent(Splash.this, Welcome.class);
+			            i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			        }
+			        else
+			        {
+			        	i = new Intent(Splash.this, MainActivity.class);
+			        	i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			        }
+					startActivity (i);
 					finish();
 				}
 			}
