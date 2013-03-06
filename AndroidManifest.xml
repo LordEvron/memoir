@@ -24,7 +24,7 @@
         </activity>
         <activity android:name="com.devapp.memoir.Welcome" >
         </activity>
-        <activity android:name=".MainActivity">
+        <activity android:name="com.devapp.memoir.MainActivity" >
         </activity>
     </application>
 
