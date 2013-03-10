@@ -45,7 +45,7 @@ public class Splash extends Activity {
 			        }
 			        else
 			        {
-			        	i = new Intent(Splash.this, CameraActivity.class);
+			        	i = new Intent(Splash.this, MainActivity.class);
 			        	i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			        }
 					startActivity (i);

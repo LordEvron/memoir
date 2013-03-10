@@ -1,15 +1,17 @@
 package com.devapp.memoir;
 
-import android.app.Activity;
 import android.content.Context;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
@@ -77,9 +79,9 @@ class RecorderPreview extends SurfaceView implements SurfaceHolder.Callback {
 	}
 }
 
-public class CameraActivity extends Activity {
-	private MediaRecorder mMediaRecorder;
-	private RecorderPreview preview;
+public class CameraFragment extends Fragment {
+	MediaRecorder mMediaRecorder;
+	RecorderPreview preview;
 	Camera mCamera;
 	boolean start = true;
 
@@ -95,9 +97,11 @@ public class CameraActivity extends Activity {
 	}
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.camera_activity);
+		View rootView = inflater.inflate(R.layout.camera_activity, container,
+				false);
 
 		mCamera = getCameraInstance();
 		mMediaRecorder = new MediaRecorder();
@@ -106,11 +110,13 @@ public class CameraActivity extends Activity {
 			mCamera.unlock();
 			mMediaRecorder.setCamera(mCamera);
 
-			preview = new RecorderPreview(this, mMediaRecorder);
-			FrameLayout framelayout = (FrameLayout) findViewById(R.id.camera_preview);
+			preview = new RecorderPreview(this.getActivity(), mMediaRecorder);
+			FrameLayout framelayout = (FrameLayout) getActivity().findViewById(
+					R.id.camera_preview);
 			framelayout.addView(preview);
 
-			Button captureButton = (Button) findViewById(R.id.button_capture);
+			Button captureButton = (Button) getActivity().findViewById(
+					R.id.button_capture);
 			captureButton.setOnClickListener(new View.OnClickListener() {
 				boolean isRecording = false;
 
@@ -141,11 +147,13 @@ public class CameraActivity extends Activity {
 				}
 			});
 		} else
-			Log.d ("CameraActivity", "Camera is null");
+			Log.d("CameraActivity", "Camera is null");
+
+		return rootView;
 	}
 
 	@Override
-	protected void onPause() {
+	public void onPause() {
 		super.onPause();
 		releaseMediaRecorder(); // if you are using MediaRecorder, release it
 								// first
@@ -157,7 +165,8 @@ public class CameraActivity extends Activity {
 			mMediaRecorder.reset(); // clear recorder configuration
 			mMediaRecorder.release(); // release the recorder object
 			mMediaRecorder = null;
-			mCamera.lock(); // lock camera for later use
+			if (mCamera != null)
+				mCamera.lock(); // lock camera for later use
 		}
 	}
 

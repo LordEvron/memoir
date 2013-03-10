@@ -34,7 +34,7 @@
         </activity>
         <activity android:name="com.devapp.memoir.MainActivity" >
         </activity>
-        <activity android:name="com.devapp.memoir.CameraActivity" >
+        <activity android:name="com.devapp.memoir.CameraFragment" >
         </activity>
     </application>
 
