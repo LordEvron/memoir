@@ -3,6 +3,9 @@ import com.devapp.memoir.R;
 
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.TextView;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,6 +16,10 @@ public class Splash extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_splash);
+		
+		Animation animation = AnimationUtils.loadAnimation(this, R.anim.splashanimations);
+		TextView tv = (TextView) findViewById(R.id.splashtitle);
+		tv.startAnimation(animation);
 		
 		final int splashtime = 3000;
 		final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);

@@ -7,12 +7,15 @@
     tools:context=".Splash" >
 
     <TextView
+        android:id="@+id/splashtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:layout_marginTop="130dp"
-        android:text="@string/splash_text"
-        android:textColor="#fff"
-        android:textSize="50sp"
-        android:textStyle="bold|italic" />
+        android:background="@drawable/memoir"
+        android:gravity="center"
+        android:textColor="#ffffff"
+        android:textSize="40sp"
+        android:textStyle="bold" />
 
 </LinearLayout>
