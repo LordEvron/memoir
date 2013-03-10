@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="#6B8AAD"
+    android:background="@drawable/background"
     android:gravity="center"
     android:orientation="vertical"
     tools:context=".Splash" >
@@ -10,18 +10,24 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="#AA000000"
         android:gravity="center"
+        android:paddingTop="35dp"
         android:text="@string/welcome_text"
         android:textColor="#fff"
         android:textSize="30sp"
-        android:textStyle="bold" />
+        android:textStyle="bold|italic" />
 
     <Button
         android:id="@+id/button1"
-        android:layout_width="wrap_content"
+        android:layout_width="176dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50px"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/buttongo"
         android:onClick="LaunchTabView"
-        android:text="@string/start_movie" />
+        android:text="@string/start_movie"
+        android:textColor="#fff"
+        android:textSize="30dp"
+        android:textStyle="bold" />
 
 </LinearLayout>
