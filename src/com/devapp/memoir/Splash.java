@@ -38,14 +38,14 @@ public class Splash extends Activity {
 					System.out.println ("Exception = " + e);
 				} finally {
 					Intent i;
-			        if(true/*!prefs.getBoolean("first_time", false)*/)
+			        if(!prefs.getBoolean("first_time", false))
 			        {
 			            i = new Intent(Splash.this, Welcome.class);
 			            i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			        }
 			        else
 			        {
-			        	i = new Intent(Splash.this, MainActivity.class);
+			        	i = new Intent(Splash.this, CameraActivity.class);
 			        	i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			        }
 					startActivity (i);
