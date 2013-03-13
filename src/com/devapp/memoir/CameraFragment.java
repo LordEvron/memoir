@@ -1,6 +1,8 @@
 package com.devapp.memoir;
 
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
@@ -20,14 +22,16 @@ class RecorderPreview extends SurfaceView implements SurfaceHolder.Callback {
 	MediaRecorder recorder;
 	SurfaceHolder holder;
 	boolean mrecorderInitialized = true;
+	Context context = null;
 
 	// Create constructor of Preview Class. In this, get an object of
 	// surfaceHolder class by calling getHolder() method. After that add
 	// callback to the surfaceHolder. The callback will inform when surface is
 	// created/changed/destroyed. Also set surface not to have its own buffers.
 
-	public RecorderPreview(Context context, MediaRecorder temprecorder) {
-		super(context);
+	public RecorderPreview(Context cxt, MediaRecorder temprecorder) {
+		super(cxt);
+		context = cxt;
 		recorder = temprecorder;
 		holder = getHolder();
 		holder.addCallback(this);
@@ -49,7 +53,7 @@ class RecorderPreview extends SurfaceView implements SurfaceHolder.Callback {
 		recorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH));
 
 		// Step 4: Set output file
-		recorder.setOutputFile("/sdcard/recordvideooutput.3gpp");
+		recorder.setOutputFile(MemoirApplication.getOutputMediaFile());
 
 		recorder.setPreviewDisplay(holder.getSurface());
 
@@ -111,12 +115,10 @@ public class CameraFragment extends Fragment {
 			mMediaRecorder.setCamera(mCamera);
 
 			preview = new RecorderPreview(this.getActivity(), mMediaRecorder);
-			FrameLayout framelayout = (FrameLayout) getActivity().findViewById(
-					R.id.camera_preview);
+			FrameLayout framelayout = (FrameLayout) rootView.findViewById( R.id.camera_preview);
 			framelayout.addView(preview);
 
-			Button captureButton = (Button) getActivity().findViewById(
-					R.id.button_capture);
+			Button captureButton = (Button) rootView.findViewById( R.id.button_capture);
 			captureButton.setOnClickListener(new View.OnClickListener() {
 				boolean isRecording = false;
 
@@ -146,6 +148,14 @@ public class CameraFragment extends Fragment {
 					}
 				}
 			});
+			
+			Intent intent = new Intent(this.getActivity(), TranscodingService.class);
+			//Intent doneIntent = new Intent(this.getActivity(), MainActivity.class);
+			//PendingIntent pendingIntent = PendingIntent.getBroadcast(this.getActivity(), 0, doneIntent, PendingIntent.FLAG_ONE_SHOT);
+			intent.putExtra("StartDate", "01/02/2013");
+			intent.putExtra("EndDate", "01/03/2013");
+//			this.getActivity().startService(intent);
+
 		} else
 			Log.d("CameraActivity", "Camera is null");
 
