@@ -4,6 +4,7 @@ package com.devapp.memoir;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.List;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -24,7 +25,7 @@ public class MemoirDBA  {
 		mMDBHelper = new MemoirDBHelper(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}
 	
-	public ArrayList<ArrayList<Video>> getVideos(long startDate, long endDate, boolean selected) {
+	public List<List<Video>> getVideos(long startDate, long endDate, boolean selected) {
 		return mMDBHelper.getVideos(startDate, endDate, selected);
 	}
 	
@@ -70,7 +71,7 @@ public class MemoirDBA  {
 			onCreate(db);
 		}
 	
-		public ArrayList<ArrayList<Video>> getVideos(long startDate, long endDate, boolean selected) {
+		public List<List<Video>> getVideos(long startDate, long endDate, boolean selected) {
 			SQLiteDatabase db = this.getReadableDatabase();
 			
 			long t1, t2;
@@ -84,12 +85,12 @@ public class MemoirDBA  {
 			Log.d("asd", "Selection Query = " + selection);
 			Cursor c = db.query(VIDEOS_TABLE_NAME, null, selection, null, null, null, null);
 
-			ArrayList<ArrayList<Video>> dateList = null;
+			List<List<Video>> dateList = null;
 			long currentDate = 0;
-			ArrayList<Video> currentVideoList = null;
+			List<Video> currentVideoList = null;
 			
 			if(c.getCount() > 0) {
-				dateList = new ArrayList<ArrayList<Video>>();
+				dateList = new ArrayList<List<Video>>();
 			}
 			
 			if (c.moveToFirst()) {

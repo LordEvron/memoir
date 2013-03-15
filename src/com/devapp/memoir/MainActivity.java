@@ -121,6 +121,8 @@ public class MainActivity extends FragmentActivity implements
 
 			if (position == 0) {
 				fragment = new CameraFragment();
+			} else if (position == 1) {
+				fragment = new MyLifeFragment();
 			} else {
 				fragment = new DummySectionFragment();
 			}

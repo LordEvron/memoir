@@ -90,7 +90,7 @@ public class TranscodingService extends IntentService {
 		startDate = intent.getLongExtra("startDate", 0);
 		endDate = intent.getLongExtra("endDate", -1);
 		
-		ArrayList<ArrayList<Video>> dateList = ((MemoirApplication) getApplication()).getDBA().getVideos(startDate, endDate, true);
+		List<List<Video>> dateList = ((MemoirApplication) getApplication()).getDBA().getVideos(startDate, endDate, true);
 
 		if(dateList == null) {
 			return;
@@ -105,7 +105,7 @@ public class TranscodingService extends IntentService {
 		
 		Log.d("asd", "in onHandleIntent 2");
 		for(i = 0; i < dateList.size(); i++) {
-			videoList = dateList.get(i);
+			videoList = (ArrayList<Video>) dateList.get(i);
 			v = videoList.get(0);
 			videoFile = new File(v.path);
 			
@@ -195,7 +195,6 @@ public class TranscodingService extends IntentService {
 			//FileOutputStream fos = openFileOutput(String.format("output.mp4"), Context.MODE_WORLD_WRITEABLE);
 			Log.d("asd", "Reached till the end :) ");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			Log.d("asd", "In IO EXCEPTION " + e);
 			e.printStackTrace();
 		}

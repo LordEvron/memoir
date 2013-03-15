@@ -1,0 +1,19 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <VideoView
+        android:id="@+id/myLifeVV"
+        android:layout_width="match_parent"
+        android:layout_height="200dip" />
+
+    <ListView
+        android:id="@+id/dateLV"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#0000FF" >
+
+    </ListView>
+
+</LinearLayout>
