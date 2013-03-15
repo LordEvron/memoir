@@ -1,8 +1,12 @@
 package com.devapp.memoir;
 
-import android.app.PendingIntent;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
@@ -16,6 +20,248 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
+
+
+class CameraFragment extends Fragment {
+	
+	private Camera mCamera;
+    private CameraPreview mPreview;
+    private MediaRecorder mMediaRecorder;
+    private boolean isRecording = false;
+    private Video mVideo = null; 
+
+    
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+		super.onCreate(savedInstanceState);
+		View rootView = inflater.inflate(R.layout.camera_activity, container, false);
+
+        return rootView;
+    }
+    
+    private boolean prepareVideoRecorder(){
+
+        mMediaRecorder = new MediaRecorder();
+
+        // Step 1: Unlock and set camera to MediaRecorder
+        mCamera.lock();
+        mCamera.unlock();
+        mMediaRecorder.setCamera(mCamera);
+
+        // Step 2: Set sources
+        mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
+        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
+        //mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        
+        // Step 3: Set a CamcorderProfile (requires API Level 8 or higher)
+        mMediaRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH));
+
+        //mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+        //mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP);
+        //mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+
+        // Step 4: Set output file
+        long d = new Date().getTime();
+        mVideo = new Video(0, d, MemoirApplication.getOutputMediaFile(getActivity()), true, 1);
+        mMediaRecorder.setOutputFile(mVideo.path);
+
+        // Step 5: Set the preview output
+        mMediaRecorder.setPreviewDisplay(mPreview.getHolder().getSurface());
+
+        // Step 6: Prepare configured MediaRecorder
+        try {
+            mMediaRecorder.prepare();
+        } catch (IllegalStateException e) {
+            Log.d("asd", "IllegalStateException preparing MediaRecorder: " + e.getMessage());
+            releaseMediaRecorder();
+            return false;
+        } catch (IOException e) {
+            Log.d("asd", "IOException preparing MediaRecorder: " + e.getMessage());
+            releaseMediaRecorder();
+            return false;
+        }
+        return true;
+    }
+	
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+    	super.onActivityCreated(savedInstanceState);
+    	
+        mCamera = getCameraInstance();
+        
+
+        // Create our Preview view and set it as the content of our activity.
+        mPreview = new CameraPreview(this.getActivity(), mCamera);
+        FrameLayout preview = (FrameLayout) this.getActivity().findViewById(R.id.camera_preview);
+        preview.addView(mPreview);
+
+//        prepareVideoRecorder();
+    }
+    
+    @Override
+    public void onStart() {
+    	super.onStart();
+    	
+    	// Add a listener to the Capture button
+    	Button captureButton = (Button) this.getActivity().findViewById(R.id.button_capture);
+    	captureButton.setOnClickListener(
+    	    new View.OnClickListener() {
+    	        @Override
+    	        public void onClick(View v) {
+    	        	Log.d("asd", "isREcoring > " + isRecording);
+    	        	
+    	            if (isRecording) {
+    	                // stop recording and release camera
+        	        	try {
+        	                mMediaRecorder.stop();  // stop the recording
+        	        	} catch(Exception e) {
+        	        		Log.d("asd", "Illegal State Exception " + e);
+        	        	}
+    	                releaseMediaRecorder(); // release the MediaRecorder object
+    	                //mCamera.lock();         // take camera access back from MediaRecorder
+
+    	                // inform the user that recording has stopped
+    	                isRecording = false;
+    	                
+    	                ((MemoirApplication)getActivity().getApplication()).getDBA().addVideo(mVideo);
+    	                Log.d("asd", "Recording has stopped");
+    	            } else {
+    	                // initialize video camera
+    	                if (prepareVideoRecorder()) {
+    	                    // Camera is available and unlocked, MediaRecorder is prepared,
+    	                    // now you can start recording
+    	                    mMediaRecorder.start();
+
+    	                    // inform the user that recording has started
+    	                    isRecording = true;
+    	                } else {
+    	                    // prepare didn't work, release the camera
+    	                    releaseMediaRecorder();
+    	                    // inform user
+    	                }
+    	            }
+    	        }
+    	    }
+    	);
+    }
+    
+    @Override
+	public void onPause() {
+        super.onPause();
+        releaseMediaRecorder();       // if you are using MediaRecorder, release it first
+        releaseCamera();              // release the camera immediately on pause event
+    }
+
+    private void releaseMediaRecorder(){
+        if (mMediaRecorder != null) {
+        	Log.d("asd", "2.1");
+
+            mMediaRecorder.reset();   // clear recorder configuration
+        	Log.d("asd", "2.2");
+            mMediaRecorder.release(); // release the recorder object
+        	Log.d("asd", "2.3");
+            mMediaRecorder = null;
+        	Log.d("asd", "2.4");
+            mCamera.lock();           // lock camera for later use
+        	Log.d("asd", "2.5");
+        }
+    }
+
+    private void releaseCamera(){
+        if (mCamera != null){
+            mCamera.release();        // release the camera for other applications
+            mCamera = null;
+        }
+    }
+    
+	// Check if this device has a camera 
+	private boolean checkCameraHardware(Context context) {
+	    if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)){
+	        // this device has a camera
+	        return true;
+	    } else {
+	        // no camera on this device
+	        return false;
+	    }
+	}	
+	
+	// A safe way to get an instance of the Camera object. 
+	public static Camera getCameraInstance(){
+	    Camera c = null;
+	    try {
+	        c = Camera.open(); // attempt to get a Camera instance
+	        c.setDisplayOrientation(90);
+
+	    }
+	    catch (Exception e){
+	        // Camera is not available (in use or does not exist)
+	    	Log.e("asd", "Camera is not available");
+	    }
+	    return c; // returns null if camera is unavailable
+	}
+	
+	// A basic Camera preview class 
+	public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
+	    private SurfaceHolder mHolder;
+	    private Camera mCamera;
+
+	    public CameraPreview(Context context, Camera camera) {
+	        super(context);
+	        mCamera = camera;
+	        // Install a SurfaceHolder.Callback so we get notified when the
+	        // underlying surface is created and destroyed.
+	        mHolder = getHolder();
+	        mHolder.addCallback(this);
+	    }
+
+	    public void surfaceCreated(SurfaceHolder holder) {
+	        // The Surface has been created, now tell the camera where to draw the preview.
+	        try {
+	        	Log.d("asd", "Starting the preview");
+	            mCamera.setPreviewDisplay(holder);
+	            mCamera.startPreview();
+	        } catch (IOException e) {
+	            Log.d("asd", "Error setting camera preview: " + e.getMessage());
+	        }
+	    }
+
+	    public void surfaceDestroyed(SurfaceHolder holder) {
+	        // empty. Take care of releasing the Camera preview in your activity.
+	    }
+
+	    public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
+	        // If your preview can change or rotate, take care of those events here.
+	        // Make sure to stop the preview before resizing or reformatting it.
+
+	        if (mHolder.getSurface() == null){
+	          // preview surface does not exist
+	          return;
+	        }
+
+	        // stop preview before making changes
+	        try {
+	            mCamera.stopPreview();
+	        } catch (Exception e){
+	          // ignore: tried to stop a non-existent preview
+	        }
+
+	        // set preview size and make any resize, rotate or
+	        // reformatting changes here
+
+	        // start preview with new settings
+	        try {
+	            mCamera.setPreviewDisplay(mHolder);
+	            mCamera.startPreview();
+
+	        } catch (Exception e){
+	            Log.d("asd", "Error starting camera preview: " + e.getMessage());
+	        }
+	    }
+	}
+}
+
+/*
 
 class RecorderPreview extends SurfaceView implements SurfaceHolder.Callback {
 	// Create objects for MediaRecorder and SurfaceHolder.
@@ -88,9 +334,9 @@ public class CameraFragment extends Fragment {
 	RecorderPreview preview;
 	Camera mCamera;
 	boolean start = true;
-
+	
 	private Camera getCameraInstance() {
-		/** A safe way to get an instance of the Camera object. */
+		// A safe way to get an instance of the Camera object. 
 		Camera c = null;
 		try {
 			c = Camera.open(); // attempt to get a Camera instance
@@ -149,13 +395,6 @@ public class CameraFragment extends Fragment {
 				}
 			});
 			
-			Intent intent = new Intent(this.getActivity(), TranscodingService.class);
-			//Intent doneIntent = new Intent(this.getActivity(), MainActivity.class);
-			//PendingIntent pendingIntent = PendingIntent.getBroadcast(this.getActivity(), 0, doneIntent, PendingIntent.FLAG_ONE_SHOT);
-			intent.putExtra("StartDate", "01/02/2013");
-			intent.putExtra("EndDate", "01/03/2013");
-//			this.getActivity().startService(intent);
-
 		} else
 			Log.d("CameraActivity", "Camera is null");
 
@@ -187,4 +426,4 @@ public class CameraFragment extends Fragment {
 		}
 	}
 
-}
+}*/

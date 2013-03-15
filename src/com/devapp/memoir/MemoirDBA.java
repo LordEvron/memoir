@@ -1,7 +1,8 @@
 package com.devapp.memoir;
 
-import java.sql.Date;
+//import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 
 import android.content.ContentValues;
@@ -24,7 +25,7 @@ public class MemoirDBA  {
 	}
 	
 	public ArrayList<ArrayList<Video>> getVideos(long startDate, long endDate, boolean selected) {
-		return mMDBHelper.getVideos(new Date(startDate), new Date(endDate), selected);
+		return mMDBHelper.getVideos(startDate, endDate, selected);
 	}
 	
 	public long addVideo(Video v) {
@@ -69,12 +70,12 @@ public class MemoirDBA  {
 			onCreate(db);
 		}
 	
-		public ArrayList<ArrayList<Video>> getVideos(Date startDate, Date endDate, boolean selected) {
+		public ArrayList<ArrayList<Video>> getVideos(long startDate, long endDate, boolean selected) {
 			SQLiteDatabase db = this.getReadableDatabase();
 			
 			long t1, t2;
-			t1 = (startDate != null) ? startDate.getTime() : 0;
-			t2 = (endDate != null) ? endDate.getTime() : -1;
+			t1 = startDate >=0 ? startDate : 0;
+			t2 = endDate > 0 ? endDate : new Date().getTime();
 			
 			String selection = V_TABLE_DATE + " >= " + t1 + " AND " + V_TABLE_DATE + " <= " + t2;
 			if(selected) {
@@ -98,6 +99,7 @@ public class MemoirDBA  {
 						currentVideoList = new ArrayList<Video>();
 						dateList.add(currentVideoList);
 					}
+					Log.d("asd", "Adding video");
 					Video v = new Video(c.getInt(V_TABLE_KEY_INDEX), c.getLong(V_TABLE_DATE_INDEX), c.getString(V_TABLE_PATH_INDEX), c.getInt(V_TABLE_SELECTED_INDEX) > 0 ? true : false, c.getInt(V_TABLE_LENGTH_INDEX));
 					currentVideoList.add(v);
 					

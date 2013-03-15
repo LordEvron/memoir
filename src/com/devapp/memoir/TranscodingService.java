@@ -35,22 +35,75 @@ public class TranscodingService extends IntentService {
 	    extStorePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
 	}
 
+	private Movie appendMovie(Movie m1, Movie m2) throws IOException {
+		
+		if(m1 == null) {
+			return m2;
+		}
+		Log.d("asd", "1");
+        List<Track> videoTracks = new LinkedList<Track>();
+        List<Track> audioTracks = new LinkedList<Track>();
+
+		Log.d("asd", "2");
+        for (Track t : m1.getTracks()) {
+            if (t.getHandler().equals("soun")) {
+                audioTracks.add(t);
+        		Log.d("asd", "3");
+            }
+            if (t.getHandler().equals("vide")) {
+                videoTracks.add(t);
+        		Log.d("asd", "4");
+            }
+        }
+        for (Track t : m2.getTracks()) {
+            if (t.getHandler().equals("soun")) {
+                audioTracks.add(t);
+        		Log.d("asd", "5");
+            }
+            if (t.getHandler().equals("vide")) {
+                videoTracks.add(t);
+        		Log.d("asd", "6");
+            }
+        }
+		Log.d("asd", "7");
+        Movie result = new Movie();
+
+        if (audioTracks.size() > 0) {
+    		Log.d("asd", "8");
+            result.addTrack(new AppendTrack(audioTracks.toArray(new Track[audioTracks.size()])));
+    		Log.d("asd", "9");
+        }
+        if (videoTracks.size() > 0) {
+    		Log.d("asd", "10");
+            result.addTrack(new AppendTrack(videoTracks.toArray(new Track[videoTracks.size()])));
+    		Log.d("asd", "11");
+        }
+
+        return result;
+	}
 	
 	@Override
 	protected void onHandleIntent(Intent intent) {
 
+		Log.d("asd", "in onHandleIntent");
 		long startDate, endDate;
 		startDate = intent.getLongExtra("startDate", 0);
 		endDate = intent.getLongExtra("endDate", -1);
 		
 		ArrayList<ArrayList<Video>> dateList = ((MemoirApplication) getApplication()).getDBA().getVideos(startDate, endDate, true);
 
+		if(dateList == null) {
+			return;
+		}
+		
+		Log.d("asd", "in onHandleIntent 1");
 		int i = 0;
 		ArrayList<Video> videoList = null;
 		Video v = null;
 		Movie[] inMovies = new Movie[dateList.size()];
 		File videoFile = null;
 		
+		Log.d("asd", "in onHandleIntent 2");
 		for(i = 0; i < dateList.size(); i++) {
 			videoList = dateList.get(i);
 			v = videoList.get(0);
@@ -68,6 +121,7 @@ public class TranscodingService extends IntentService {
 		}
 		
 		
+		Log.d("asd", "in onHandleIntent 3");
 		try {
 
 			Log.d("asd", "Starting :)");
@@ -76,7 +130,7 @@ public class TranscodingService extends IntentService {
 
 	        //{MovieCreator.build(new FileInputStream(video1).getChannel()), MovieCreator.build(new FileInputStream(video2).getChannel())};
 
-	        List<Track> videoTracks = new LinkedList<Track>();
+	        /*List<Track> videoTracks = new LinkedList<Track>();
 	        List<Track> audioTracks = new LinkedList<Track>();
 
 	        for (Movie m : inMovies) {
@@ -90,15 +144,20 @@ public class TranscodingService extends IntentService {
 	            }
 	        }
 
-	        Movie result = new Movie();
 
 	        if (audioTracks.size() > 0) {
 	            result.addTrack(new AppendTrack(audioTracks.toArray(new Track[audioTracks.size()])));
 	        }
 	        if (videoTracks.size() > 0) {
 	            result.addTrack(new AppendTrack(videoTracks.toArray(new Track[videoTracks.size()])));
-	        }
+	        }*/
 
+	        Movie result = null;
+
+			for (Movie m : inMovies) {
+				result = appendMovie(result, m); 
+	        }
+			
 	        IsoFile out = new DefaultMp4Builder().build(result);
 
 			boolean mExternalStorageAvailable = false;

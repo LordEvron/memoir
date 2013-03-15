@@ -4,12 +4,14 @@ import java.util.Locale;
 
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -174,6 +176,20 @@ public class MainActivity extends FragmentActivity implements
 					ARG_SECTION_NUMBER)));
 			return rootView;
 		}
+		
+	    @Override
+	    public void onActivityCreated(Bundle savedInstanceState) {
+	    	super.onActivityCreated(savedInstanceState);
+	    	
+			Intent intent = new Intent(this.getActivity(), TranscodingService.class);
+			//Intent doneIntent = new Intent(this.getActivity(), MainActivity.class);
+			//PendingIntent pendingIntent = PendingIntent.getBroadcast(this.getActivity(), 0, doneIntent, PendingIntent.FLAG_ONE_SHOT);
+			intent.putExtra("StartDate", "01/02/2013");
+			intent.putExtra("EndDate", "01/03/2013");
+			//this.getActivity().startService(intent);
+			Log.d("asd", "Intent Fired");
+
+	    }
 	}
 
 }

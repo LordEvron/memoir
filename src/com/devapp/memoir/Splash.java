@@ -39,7 +39,7 @@ public class Splash extends Activity {
 		TextView tv = (TextView) findViewById(R.id.splashtitle);
 		tv.startAnimation(animation);
 		
-		final int splashtime = 3000;
+		final int splashtime = 1000;
 		final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		Thread splashthread =  new Thread() {
 			int wait = 0;
