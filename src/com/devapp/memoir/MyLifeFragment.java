@@ -1,10 +1,12 @@
 package com.devapp.memoir;
 
+import java.util.Date;
+import java.util.Hashtable;
 import java.util.List;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.VideoView;
 
@@ -23,9 +26,9 @@ public class MyLifeFragment extends Fragment{
 	
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
 		super.onCreateView(inflater, container, savedInstanceState);
 		View rootView = inflater.inflate(R.layout.fragment_my_life, container, false);
+		Log.d("asd", "Calling onCreateView");
 
         return rootView;
     }
@@ -33,7 +36,7 @@ public class MyLifeFragment extends Fragment{
 	@Override
     public void onActivityCreated(Bundle savedInstanceState) {
     	super.onActivityCreated(savedInstanceState);
-    	mDateList = (ListView) getActivity().findViewById(R.id.dateLV);
+    	mDateList = (ListView) getActivity().findViewById(R.id.MyLifeDateLV);
 	}
 	
 	@Override
@@ -53,6 +56,7 @@ public class MyLifeFragment extends Fragment{
 		private List<List<Video>> mList;
 		private LayoutInflater mInflater;
 		private LinearLayout mLinearLayout;
+		private Hashtable<Long, RelativeLayout> mHashtable;
 		//private MyLifeVideoListArrayAdapter mVideoAdapter;
 		
 		public MyLifeDateListArrayAdapter(Context context, List<List<Video>> List) {
@@ -61,6 +65,7 @@ public class MyLifeFragment extends Fragment{
 			this.mContext = context;
 	        this.mList = List;
 	        this.mInflater = LayoutInflater.from(context);
+//	        this.mHashtable = new Hashtable<Long, RelativeLayout>();
 		}
 
 		@Override
@@ -71,17 +76,38 @@ public class MyLifeFragment extends Fragment{
 			}
 			
 			List<Video> VideoList = this.mList.get(position);
-			mLinearLayout = (LinearLayout) convertView.findViewById(R.id.videoListLL);
-			
-			for(Video v : VideoList) {
-				/*VideoView view = (VideoView) mInflater.inflate(R.layout.fragment_my_life_video_item, null);
-				mLinearLayout.addView(view);
-				view.setVideoPath(v.path);*/
+			//NOTE: assuming VideoList can never be null here.
+			mLinearLayout = (LinearLayout) convertView.findViewById(R.id.MyLifeListItemInnerLL);
 
-				TextView view = (TextView) mInflater.inflate(R.layout.fragment_my_life_video_item, null);
-				mLinearLayout.addView(view);
-				view.setText(v.path);
+			TextView tv = (TextView) convertView.findViewById(R.id.MyLifeListItemTV);
+			Date d = new Date(VideoList.get(0).date);
+			tv.setText(d.toString());
+
+			for(Video v : VideoList) {
+				RelativeLayout RL = (RelativeLayout) mInflater.inflate(R.layout.fragment_my_life_video_item, null);
+				mLinearLayout.addView(RL);
+				VideoView videoV = (VideoView) RL.findViewById(R.id.videoView1);
+				videoV.setVideoPath(v.path);
+				Log.d("asd", "path is " + v.path);
 			}
+
+/*			if(!VideoList.isEmpty()) {
+				Video v1 = VideoList.get(0);
+				Long l = new Long(v1.date);
+				if(mHashtable.containsKey(l)) {
+					RelativeLayout RL = (RelativeLayout) mHashtable.get(l);
+					mLinearLayout.addView(RL, 0);
+				} else {
+					for(Video v : VideoList) {
+						RelativeLayout RL = (RelativeLayout) mInflater.inflate(R.layout.fragment_my_life_video_item, null);
+						mLinearLayout.addView(RL);
+						VideoView videoV = (VideoView) RL.findViewById(R.id.videoView1);
+						//videoV.setVideoPath(v.path);
+						Log.d("asd", "path is " + v.path);
+					}
+				}
+			}
+*/			
 			return convertView;
 		}
 		
@@ -101,8 +127,6 @@ public class MyLifeFragment extends Fragment{
 		public long getItemId(int position) {
 			return position;
 		}
-
-		
 	}
 	
 	/*public class MyLifeVideoListArrayAdapter extends ArrayAdapter<Video> {

@@ -1,15 +1,26 @@
-<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/videoListHSV"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/MyLifeListItemLL"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:background="#FF0000" >
+    android:layout_height="100dp"
+    android:orientation="vertical" >
 
-	<LinearLayout
-	    android:id="@+id/videoListLL"
-	    android:layout_width="match_parent"
-	    android:layout_height="match_parent"
-	    android:background="#00FF00"
-	    android:orientation="horizontal" >
-
-    </LinearLayout>
-</HorizontalScrollView>
+    <TextView
+        android:id="@+id/MyLifeListItemTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" 
+        android:textIsSelectable="false" />
+    <View style="@style/Divider"/>
+    
+	<HorizontalScrollView android:id="@+id/MyLifeListItemHSV"
+    	android:layout_width="fill_parent"
+    	android:layout_height="100dp" >
+		<LinearLayout
+		    android:id="@+id/MyLifeListItemInnerLL"
+		    android:layout_width="wrap_content"
+		    android:layout_height="100dp"
+		    android:orientation="horizontal"
+		    android:padding="5dp" >
+		</LinearLayout>
+	</HorizontalScrollView>
+    <View style="@style/Divider"/>
+</LinearLayout>

@@ -34,8 +34,8 @@
             android:theme="@android:style/Theme.NoTitleBar" >
         </activity>
         <activity android:name="com.devapp.memoir.MainActivity" >
-        </activity>
-        <activity android:name="com.devapp.memoir.CameraFragment" >
+		</activity>
+        <activity android:name="com.devapp.memoir.CameraActivity" >
         </activity>
         <service android:name=".TranscodingService">
         </service>

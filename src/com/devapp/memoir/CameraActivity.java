@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -18,10 +19,12 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
-public class CameraFragment extends Fragment {
+public class CameraActivity extends Activity {
 
 	private Camera mCamera;
 	private CameraPreview mPreview;
@@ -30,14 +33,21 @@ public class CameraFragment extends Fragment {
 	private Video mVideo = null;
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 
-		super.onCreateView(inflater, container, savedInstanceState);
-		View rootView = inflater.inflate(R.layout.camera_activity, container,
-				false);
+	    requestWindowFeature(Window.FEATURE_NO_TITLE);
+	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-		return rootView;
+		setContentView(R.layout.camera_activity);
+
+		mCamera = getCameraInstance();
+
+		// Create our Preview view and set it as the content of our activity.
+		mPreview = new CameraPreview(this, mCamera);
+		FrameLayout preview = (FrameLayout) this.findViewById(
+				R.id.camera_preview);
+		preview.addView(mPreview);
 	}
 
 	private boolean prepareVideoRecorder() {
@@ -65,7 +75,7 @@ public class CameraFragment extends Fragment {
 		// Step 4: Set output file
 		long d = new Date().getTime();
 		mVideo = new Video(0, d,
-				MemoirApplication.getOutputMediaFile(getActivity()), true, 1);
+				MemoirApplication.getOutputMediaFile(this), true, 1);
 		mMediaRecorder.setOutputFile(mVideo.path);
 
 		// Step 5: Set the preview output
@@ -90,26 +100,11 @@ public class CameraFragment extends Fragment {
 	}
 
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-
-		mCamera = getCameraInstance();
-
-		// Create our Preview view and set it as the content of our activity.
-		mPreview = new CameraPreview(this.getActivity(), mCamera);
-		FrameLayout preview = (FrameLayout) this.getActivity().findViewById(
-				R.id.camera_preview);
-		preview.addView(mPreview);
-
-		// prepareVideoRecorder();
-	}
-
-	@Override
 	public void onStart() {
 		super.onStart();
 
 		// Add a listener to the Capture button
-		Button captureButton = (Button) this.getActivity().findViewById(
+		Button captureButton = (Button) this.findViewById(
 				R.id.button_capture);
 		captureButton.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -130,7 +125,7 @@ public class CameraFragment extends Fragment {
 					// inform the user that recording has stopped
 					isRecording = false;
 
-					((MemoirApplication) getActivity().getApplication())
+					((MemoirApplication) getApplication())
 							.getDBA().addVideo(mVideo);
 					Log.d("asd", "Recording has stopped");
 				} else {
