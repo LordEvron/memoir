@@ -1,18 +1,18 @@
 package com.devapp.memoir;
 
-import java.net.URI;
+import java.io.File;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 
+import android.app.Fragment;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -109,15 +109,22 @@ public class MyLifeFragment extends Fragment{
 				ImageView iv = (ImageView) FL.findViewById(R.id.imageView1);
 				Bitmap bmp = BitmapFactory.decodeFile(v.thumbnailPath);
 				iv.setImageBitmap(bmp);
+				final Uri videopath = Uri.fromFile(new File(v.path));
+				
+				iv.setOnClickListener(new View.OnClickListener(){
+				      public void onClick (View v) {
+				    	  Intent playIntent = new Intent();
+				    	  playIntent.setAction(Intent.ACTION_VIEW);
+				    	  playIntent.setDataAndType(videopath, "video/*"); 
+				    	  playIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+				    	  getActivity().startActivity(playIntent);
+				      }
+				});
 				
 				if(v.selected) {
 					FL.findViewById(R.id.checkBox1).setActivated(true);
 				}
 				
-				//VideoView videoV = (VideoView) RL.findViewById(R.id.videoView1);
-				//videoV.setVideoPath(v.path);
-				//videoV.setMediaController(new MediaController(mContext));
-				//videoV.requestFocus();
 			}
 
 /*			if(!VideoList.isEmpty()) {
