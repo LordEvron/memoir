@@ -1,19 +1,28 @@
 package com.devapp.memoir;
 
+import java.net.URI;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.ThumbnailUtils;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.MediaController;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.VideoView;
@@ -37,6 +46,11 @@ public class MyLifeFragment extends Fragment{
     public void onActivityCreated(Bundle savedInstanceState) {
     	super.onActivityCreated(savedInstanceState);
     	mDateList = (ListView) getActivity().findViewById(R.id.MyLifeDateLV);
+    	
+    	VideoView vv = (VideoView)getActivity().findViewById(R.id.MyLifeVV);
+    	vv.setVideoPath("/storage/emulated/0/Movies/Memoir/VID_20130415_225320.mp4");
+    	vv.setMediaController(new MediaController(this.getActivity()));
+    	vv.requestFocus();
 	}
 	
 	@Override
@@ -70,25 +84,40 @@ public class MyLifeFragment extends Fragment{
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			Log.d("asd", "in getView");
+			Log.d("asd", "in getView for position " + position);
 			if(convertView == null) {
+				Log.d("asd", "convertView turned out to be null ");
 				convertView = mInflater.inflate(R.layout.fragment_my_life_list_item, null);
+			} else {
+				Log.d("asd", "ConvertView exists");
+				return convertView;
 			}
 			
 			List<Video> VideoList = this.mList.get(position);
 			//NOTE: assuming VideoList can never be null here.
 			mLinearLayout = (LinearLayout) convertView.findViewById(R.id.MyLifeListItemInnerLL);
 
+			Log.d("asd", "Got the linear layout and it contains " + mLinearLayout.getChildCount());
 			TextView tv = (TextView) convertView.findViewById(R.id.MyLifeListItemTV);
 			Date d = new Date(VideoList.get(0).date);
 			tv.setText(d.toString());
 
 			for(Video v : VideoList) {
-				RelativeLayout RL = (RelativeLayout) mInflater.inflate(R.layout.fragment_my_life_video_item, null);
-				mLinearLayout.addView(RL);
-				VideoView videoV = (VideoView) RL.findViewById(R.id.videoView1);
-				videoV.setVideoPath(v.path);
+				FrameLayout FL = (FrameLayout) mInflater.inflate(R.layout.fragment_my_life_video_item, null);
+				mLinearLayout.addView(FL);
 				Log.d("asd", "path is " + v.path);
+				ImageView iv = (ImageView) FL.findViewById(R.id.imageView1);
+				Bitmap bmp = BitmapFactory.decodeFile(v.thumbnailPath);
+				iv.setImageBitmap(bmp);
+				
+				if(v.selected) {
+					FL.findViewById(R.id.checkBox1).setActivated(true);
+				}
+				
+				//VideoView videoV = (VideoView) RL.findViewById(R.id.videoView1);
+				//videoV.setVideoPath(v.path);
+				//videoV.setMediaController(new MediaController(mContext));
+				//videoV.requestFocus();
 			}
 
 /*			if(!VideoList.isEmpty()) {

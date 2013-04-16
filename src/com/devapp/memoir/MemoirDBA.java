@@ -20,16 +20,19 @@ public class MemoirDBA  {
 	private MemoirDBHelper mMDBHelper;
 	private String DATABASE_NAME = "memoir.db";
 	private int DATABASE_VERSION = 1;
+	private Context cxt = null;
 	
 	public MemoirDBA(Context context) {
+		this.cxt = context;
 		mMDBHelper = new MemoirDBHelper(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}
 	
 	public List<List<Video>> getVideos(long startDate, long endDate, boolean selected) {
-		return mMDBHelper.getVideos(startDate, endDate, selected);
+		return mMDBHelper.getVideos(this.cxt, startDate, endDate, selected);
 	}
 	
 	public long addVideo(Video v) {
+		v.thumbnailPath = MemoirApplication.storeThumbnail(cxt, v.path);
 		return mMDBHelper.addVideo(v);
 	}
 	
@@ -40,19 +43,22 @@ public class MemoirDBA  {
 		private String V_TABLE_KEY = "key";
 		private String V_TABLE_DATE = "date";
 		private String V_TABLE_PATH = "path";
+		private String V_TABLE_THUMBNAIL_PATH = "thumbnail";
 		private String V_TABLE_SELECTED = "selected";
 		private String V_TABLE_LENGTH = "length";
 		
 		private int V_TABLE_KEY_INDEX = 0;
 		private int V_TABLE_DATE_INDEX = 1;
 		private int V_TABLE_PATH_INDEX = 2;
-		private int V_TABLE_SELECTED_INDEX = 3;
-		private int V_TABLE_LENGTH_INDEX = 4;
+		private int V_TABLE_THUMBNAIL_PATH_INDEX = 3;
+		private int V_TABLE_SELECTED_INDEX = 4;
+		private int V_TABLE_LENGTH_INDEX = 5;
 
 		private String VIDEOS_TABLE_CREATE = "CREATE TABLE " + VIDEOS_TABLE_NAME + " ("
 				+ V_TABLE_KEY + " integer primary key autoincrement, "
 				+ V_TABLE_DATE + " INTEGER, "
 				+ V_TABLE_PATH + " TEXT, "
+				+ V_TABLE_THUMBNAIL_PATH + " TEXT, "
 				+ V_TABLE_SELECTED + " INTEGER, "
 				+ V_TABLE_LENGTH + " INTEGER);";
 
@@ -71,7 +77,7 @@ public class MemoirDBA  {
 			onCreate(db);
 		}
 	
-		public List<List<Video>> getVideos(long startDate, long endDate, boolean selected) {
+		public List<List<Video>> getVideos(Context cxt, long startDate, long endDate, boolean selected) {
 			SQLiteDatabase db = this.getReadableDatabase();
 			
 			long t1, t2;
@@ -96,12 +102,16 @@ public class MemoirDBA  {
 			if (c.moveToFirst()) {
 				while(!c.isAfterLast()) {
 					long date = c.getLong(V_TABLE_DATE_INDEX);
+					Log.d("asd", "Date of this video is >" + date);
 					if(date != currentDate) {
+						Log.d("asd", "New video from a new day");
 						currentVideoList = new ArrayList<Video>();
 						dateList.add(currentVideoList);
+						currentDate = date;
 					}
-					Log.d("asd", "Adding video");
-					Video v = new Video(c.getInt(V_TABLE_KEY_INDEX), c.getLong(V_TABLE_DATE_INDEX), c.getString(V_TABLE_PATH_INDEX), c.getInt(V_TABLE_SELECTED_INDEX) > 0 ? true : false, c.getInt(V_TABLE_LENGTH_INDEX));
+					Log.d("asd", "reading video");
+					
+					Video v = new Video(c.getInt(V_TABLE_KEY_INDEX), c.getLong(V_TABLE_DATE_INDEX), c.getString(V_TABLE_PATH_INDEX), c.getString(V_TABLE_THUMBNAIL_PATH_INDEX), c.getInt(V_TABLE_SELECTED_INDEX) > 0 ? true : false, c.getInt(V_TABLE_LENGTH_INDEX));
 					currentVideoList.add(v);
 					
 					c.moveToNext();
@@ -118,8 +128,11 @@ public class MemoirDBA  {
 			ContentValues values = new ContentValues();
 			values.put(V_TABLE_DATE, v.date);
 			values.put(V_TABLE_PATH, v.path);
+			values.put(V_TABLE_THUMBNAIL_PATH, v.thumbnailPath);
 			values.put(V_TABLE_SELECTED, v.selected);
 			values.put(V_TABLE_LENGTH, v.length);
+			
+			Log.d("asd", "Inserting values Date>" + v.date + "  Path>" + v.path + "   selected>" + v.selected + "  >length" + v.length);
 			
 			return db.insert(VIDEOS_TABLE_NAME, null, values);
 		}

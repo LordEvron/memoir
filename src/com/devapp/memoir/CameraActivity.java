@@ -72,8 +72,9 @@ public class CameraActivity extends Activity {
 		// mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP);
 		// mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
 
-		// Step 4: Set output file
-		long d = new Date().getTime();
+	    SimpleDateFormat ft = new SimpleDateFormat ("yyyyMMdd");
+	    long d = Long.parseLong(ft.format(new Date()));
+	    
 		mVideo = new Video(0, d,
 				MemoirApplication.getOutputMediaFile(this), true, 1);
 		mMediaRecorder.setOutputFile(mVideo.path);
