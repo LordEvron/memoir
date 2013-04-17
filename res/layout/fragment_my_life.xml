@@ -1,18 +1,20 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:background="@drawable/image2"
     android:orientation="vertical" >
 
     <VideoView
         android:id="@+id/MyLifeVV"
         android:layout_width="match_parent"
-        android:layout_height="200dip" />
+        android:layout_height="0dp"
+        android:layout_margin="10dp"
+        android:layout_weight="1" />
 
     <ListView
         android:id="@+id/MyLifeDateLV"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#0000FF" >
-    </ListView>
+        android:background="#202020" />
 
 </LinearLayout>

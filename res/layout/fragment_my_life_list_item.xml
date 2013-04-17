@@ -1,25 +1,31 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/MyLifeListItemLL"
     android:layout_width="fill_parent"
-    android:layout_height="100dp"
+    android:layout_height="wrap_content"
     android:orientation="vertical" >
 
     <TextView
         android:id="@+id/MyLifeListItemTV"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" 
-        android:textIsSelectable="false" />
-    <View style="@style/Divider"/>
-    
-	<HorizontalScrollView android:id="@+id/MyLifeListItemHSV"
-    	android:layout_width="fill_parent"
-    	android:layout_height="100dp" >
-		<LinearLayout
-		    android:id="@+id/MyLifeListItemInnerLL"
-		    android:layout_width="wrap_content"
-		    android:layout_height="100dp"
-		    android:orientation="horizontal"
-		    android:padding="5dp" >
-		</LinearLayout>
-	</HorizontalScrollView>
+        android:layout_height="wrap_content"
+        android:textColor="#ffffff"
+        android:textColorHint="#ffffff"
+        android:textIsSelectable="false"
+        android:textStyle="bold" />
+
+    <!-- View style="@style/Divider"/ -->
+
+    <HorizontalScrollView
+        android:id="@+id/MyLifeListItemHSV"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" >
+
+        <LinearLayout
+            android:id="@+id/MyLifeListItemInnerLL"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:orientation="horizontal" >
+        </LinearLayout>
+    </HorizontalScrollView>
+
 </LinearLayout>
