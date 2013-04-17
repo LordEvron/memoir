@@ -3,13 +3,21 @@
     android:layout_height="fill_parent"
     android:background="@drawable/image2"
     android:orientation="vertical" >
-
-    <VideoView
-        android:id="@+id/MyLifeVV"
+    
+    <FrameLayout android:id="@+id/MyLifeFL"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_margin="10dp"
-        android:layout_weight="1" />
+        android:layout_height="wrap_content" >
+
+        <VideoView android:id="@+id/MyLifeVV"
+	        android:layout_width="match_parent"
+	        android:layout_height="200dp"
+	        android:layout_margin="10dp" />
+	    
+	    <LinearLayout android:id="@+id/MyLifeLL"
+	        android:layout_width="match_parent"
+    		android:layout_height="120dp"
+    		android:orientation="vertical" />
+    </FrameLayout>
 
     <ListView
         android:id="@+id/MyLifeDateLV"

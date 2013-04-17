@@ -6,8 +6,9 @@
 
     <TextView
         android:id="@+id/MyLifeListItemTV"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
         android:textColor="#ffffff"
         android:textColorHint="#ffffff"
         android:textIsSelectable="false"

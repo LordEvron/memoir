@@ -10,10 +10,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnPreparedListener;
+import android.media.MediaPlayer.OnVideoSizeChangedListener;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +36,9 @@ public class MyLifeFragment extends Fragment {
 	ListView mDateList = null;
 	MyLifeDateListArrayAdapter mDateAdapter = null;
 	List<List<Video>> mVideos = null;
+	View mRootView = null;
+	MediaController mMc = null;
+	VideoView mVv = null;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -40,7 +47,7 @@ public class MyLifeFragment extends Fragment {
 		View rootView = inflater.inflate(R.layout.fragment_my_life, container,
 				false);
 		Log.d("asd", "Calling onCreateView");
-
+		mRootView = rootView;
 		return rootView;
 	}
 
@@ -49,12 +56,33 @@ public class MyLifeFragment extends Fragment {
     	super.onActivityCreated(savedInstanceState);
     	mDateList = (ListView) getActivity().findViewById(R.id.MyLifeDateLV);
     	
-    	VideoView vv = (VideoView)getActivity().findViewById(R.id.MyLifeVV);
+		mVv = (VideoView)getActivity().findViewById(R.id.MyLifeVV);
     	Context c = this.getActivity().getApplicationContext();
     	Log.d ("asd", "Output file" + MemoirApplication.getConcatenatedOutputFile(c));
-    	vv.setVideoPath(MemoirApplication.getConcatenatedOutputFile(c));
-    	vv.setMediaController(new MediaController(this.getActivity()));
-    	vv.requestFocus();
+    	mVv.setVideoPath(MemoirApplication.getConcatenatedOutputFile(c));
+    	mMc = new MediaController(getActivity());
+		mVv.setMediaController(mMc);
+    	mVv.requestFocus();
+    	
+    	mVv.setOnPreparedListener(new OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+            	Log.d("asd", "in onPreapraed");
+            	
+            	LinearLayout ll = (LinearLayout) getActivity().findViewById(R.id.MyLifeLL);
+            	ll.setLayoutParams(new FrameLayout.LayoutParams(mVv.getWidth(), mVv.getHeight() - 155));
+            	mMc.setAnchorView(ll);
+            	
+            	mp.setOnVideoSizeChangedListener(new OnVideoSizeChangedListener() {
+					@Override
+					public void onVideoSizeChanged(MediaPlayer arg0, int arg1, int arg2) {
+		            	LinearLayout ll = (LinearLayout) getActivity().findViewById(R.id.MyLifeLL);
+		            	ll.setLayoutParams(new FrameLayout.LayoutParams(mVv.getWidth(), mVv.getHeight() - 155));
+		            	mMc.setAnchorView(ll);
+					}
+            	});
+            }
+        });
 	}
 
 	@Override
@@ -68,7 +96,7 @@ public class MyLifeFragment extends Fragment {
 		mDateList.setAdapter(mDateAdapter);
 		
 		Intent intent = new Intent(this.getActivity(), TranscodingService.class);
-		this.getActivity().startService(intent);
+		//this.getActivity().startService(intent);
 	}
 
 	public class MyLifeDateListArrayAdapter extends ArrayAdapter<List<Video>> {
@@ -120,7 +148,8 @@ public class MyLifeFragment extends Fragment {
 			TextView tv = (TextView) convertView
 					.findViewById(R.id.MyLifeListItemTV);
 			Date d = new Date(VideoList.get(0).date);
-			tv.setText(d.toString());
+			String date = String.valueOf(VideoList.get(0).date);
+			tv.setText(date.substring(6) + "/" + date.substring(4, 6) + "/" + date.substring(0, 4));
 
 			for (Video v : VideoList) {
 				FrameLayout FL = (FrameLayout) mInflater.inflate(
