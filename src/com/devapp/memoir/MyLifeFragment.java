@@ -6,13 +6,13 @@ import java.util.Hashtable;
 import java.util.List;
 
 import android.app.Fragment;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,7 +50,9 @@ public class MyLifeFragment extends Fragment {
     	mDateList = (ListView) getActivity().findViewById(R.id.MyLifeDateLV);
     	
     	VideoView vv = (VideoView)getActivity().findViewById(R.id.MyLifeVV);
-    	vv.setVideoPath("/storage/emulated/0/Movies/Memoir/output.mp4");
+    	Context c = this.getActivity().getApplicationContext();
+    	Log.d ("asd", "Output file" + MemoirApplication.getConcatenatedOutputFile(c));
+    	vv.setVideoPath(MemoirApplication.getConcatenatedOutputFile(c));
     	vv.setMediaController(new MediaController(this.getActivity()));
     	vv.requestFocus();
 	}
