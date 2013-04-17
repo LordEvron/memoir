@@ -11,6 +11,7 @@ import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -19,6 +20,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 public class CameraActivity extends Activity {
 
@@ -27,6 +29,7 @@ public class CameraActivity extends Activity {
 	private MediaRecorder mMediaRecorder;
 	private boolean isRecording = false;
 	private Video mVideo = null;
+	Button captureButton;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +71,15 @@ public class CameraActivity extends Activity {
 		mMediaRecorder.setOutputFile(mVideo.path);
 
 		mMediaRecorder.setPreviewDisplay(mPreview.getHolder().getSurface());
+		mMediaRecorder.setMaxDuration(2000); 
+		mMediaRecorder.setOnInfoListener(new MediaRecorder.OnInfoListener() {
+			@Override
+			public void onInfo(MediaRecorder mr, int what, int extra) {
+				if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
+					captureButton.performClick();
+				}
+			}
+		});
 
 		try {
 			mMediaRecorder.prepare();
@@ -89,8 +101,7 @@ public class CameraActivity extends Activity {
 	@Override
 	public void onStart() {
 		super.onStart();
-
-		Button captureButton = (Button) this.findViewById(R.id.button_capture);
+		captureButton = (Button) this.findViewById(R.id.button_capture);
 		captureButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -109,6 +120,22 @@ public class CameraActivity extends Activity {
 					Log.d("asd", "Recording has stopped");
 				} else {
 					if (prepareVideoRecorder()) {
+
+						new CountDownTimer(3000, 1000) {
+
+							public void onTick(long millisUntilFinished) {
+								captureButton.setText(String
+										.valueOf(millisUntilFinished / 1000));
+							}
+
+							public void onFinish() {
+								Toast toast1 = Toast.makeText(getApplicationContext(),
+										"Video Recorded successfully",
+										Toast.LENGTH_SHORT);
+								toast1.show();
+							}
+						}.start();
+
 						mMediaRecorder.start();
 						isRecording = true;
 					} else {

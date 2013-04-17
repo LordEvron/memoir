@@ -137,8 +137,6 @@ public class MyLifeFragment extends Fragment {
 						Intent playIntent = new Intent();
 						playIntent.setAction(Intent.ACTION_VIEW);
 						playIntent.setDataAndType(videopath, "video/*");
-						playIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-								| Intent.FLAG_ACTIVITY_SINGLE_TOP);
 						getActivity().startActivity(playIntent);
 					}
 				});

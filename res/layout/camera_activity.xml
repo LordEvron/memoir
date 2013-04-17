@@ -10,14 +10,17 @@
     />
 
   <ToggleButton
-    android:id="@+id/button_capture"
-    android:textOff=""
-    android:textOn=""
-    android:layout_width="60dp"
-    android:layout_height="60dp"
-    android:layout_gravity="center|bottom"
-    android:background="@drawable/check"
-    />
+      android:id="@+id/button_capture"
+      android:layout_width="60dp"
+      android:layout_height="60dp"
+      android:layout_gravity="center|bottom"
+      android:background="@drawable/check"
+      android:textColor="#000000"
+      android:textOff=""
+      android:textOn=""
+      android:textSize="20dp"
+      android:textStyle="bold" />
+
 </FrameLayout>
 
 
