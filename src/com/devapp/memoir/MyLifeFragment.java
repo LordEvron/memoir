@@ -45,14 +45,14 @@ public class MyLifeFragment extends Fragment {
 	}
 
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		mDateList = (ListView) getActivity().findViewById(R.id.MyLifeDateLV);
-
-		VideoView vv = (VideoView) getActivity().findViewById(R.id.MyLifeVV);
-		vv.setVideoPath("/storage/emulated/0/Movies/Memoir/VID_20130415_225320.mp4");
-		vv.setMediaController(new MediaController(this.getActivity()));
-		vv.requestFocus();
+    public void onActivityCreated(Bundle savedInstanceState) {
+    	super.onActivityCreated(savedInstanceState);
+    	mDateList = (ListView) getActivity().findViewById(R.id.MyLifeDateLV);
+    	
+    	VideoView vv = (VideoView)getActivity().findViewById(R.id.MyLifeVV);
+    	vv.setVideoPath("/storage/emulated/0/Movies/Memoir/output.mp4");
+    	vv.setMediaController(new MediaController(this.getActivity()));
+    	vv.requestFocus();
 	}
 
 	@Override
@@ -64,7 +64,9 @@ public class MyLifeFragment extends Fragment {
 				.getVideos(0, -1, false);
 		mDateAdapter = new MyLifeDateListArrayAdapter(getActivity(), mVideos);
 		mDateList.setAdapter(mDateAdapter);
-
+		
+		Intent intent = new Intent(this.getActivity(), TranscodingService.class);
+		this.getActivity().startService(intent);
 	}
 
 	public class MyLifeDateListArrayAdapter extends ArrayAdapter<List<Video>> {

@@ -97,26 +97,31 @@ public class TranscodingService extends IntentService {
 		}
 		
 		Log.d("asd", "in onHandleIntent 1");
-		int i = 0;
+		int i = 0, j = 0, k = 0;
 		ArrayList<Video> videoList = null;
 		Video v = null;
-		Movie[] inMovies = new Movie[dateList.size()];
+		//Movie[] inMovies = new Movie[dateList.size()];
+		ArrayList<Movie> inMovies = new ArrayList<Movie>();
 		File videoFile = null;
 		
 		Log.d("asd", "in onHandleIntent 2");
 		for(i = 0; i < dateList.size(); i++) {
 			videoList = (ArrayList<Video>) dateList.get(i);
-			v = videoList.get(0);
-			videoFile = new File(v.path);
 			
-			try {
-				inMovies[i] = MovieCreator.build(new FileInputStream(videoFile).getChannel());
-			} catch (FileNotFoundException e) {
-				Log.d("asd", "In FileNotFoundException " + e);
-				e.printStackTrace();
-			} catch (IOException e) {
-				Log.d("asd", "In IO EXCEPTION " + e);
-				e.printStackTrace();
+			for(j = 0; j < videoList.size(); j++) {
+				v = videoList.get(j);
+				videoFile = new File(v.path);
+				
+				try {
+					inMovies.add(MovieCreator.build(new FileInputStream(videoFile).getChannel()));
+//					inMovies[k++] = MovieCreator.build(new FileInputStream(videoFile).getChannel());
+				} catch (FileNotFoundException e) {
+					Log.d("asd", "In FileNotFoundException " + e);
+					e.printStackTrace();
+				} catch (IOException e) {
+					Log.d("asd", "In IO EXCEPTION " + e);
+					e.printStackTrace();
+				}
 			}
 		}
 		
@@ -170,7 +175,7 @@ public class TranscodingService extends IntentService {
 			    mExternalStorageAvailable = mExternalStorageWriteable = true;
 			    
 			    Log.d("asd", "Path  " + extStorePath.toString());
-			    File file = new File(extStorePath, "/output.mp4");
+			    File file = new File(extStorePath, "/Memoir/output.mp4");
 			    Log.d("asd", "File " + file.getAbsolutePath());
 			    FileOutputStream fos = new FileOutputStream(file);
 			    Log.d("asd", "size > " + out.getSize());
