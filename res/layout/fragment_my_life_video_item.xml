@@ -12,12 +12,6 @@
         android:scaleType="fitXY"
         android:src="@drawable/memoir" />
 
-    <CheckBox
-        android:id="@+id/checkBox1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:checked="false" />
-
 </FrameLayout><!--
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="100dp"

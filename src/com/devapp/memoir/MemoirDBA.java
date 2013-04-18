@@ -1,6 +1,7 @@
 package com.devapp.memoir;
 
 //import java.sql.Date;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
@@ -34,6 +35,16 @@ public class MemoirDBA  {
 	public long addVideo(Video v) {
 		v.thumbnailPath = MemoirApplication.storeThumbnail(cxt, v.path);
 		return mMDBHelper.addVideo(v);
+	}
+	
+	public int deleteVideo(Video v) {
+		if(!v.path.isEmpty())
+			return mMDBHelper.deleteVideo(v);
+		return 0;
+	}
+
+	public boolean selectVideo(Video v) {
+		return mMDBHelper.selectVideo(v);
 	}
 	
 	private static class MemoirDBHelper extends SQLiteOpenHelper {
@@ -135,6 +146,62 @@ public class MemoirDBA  {
 			Log.d("asd", "Inserting values Date>" + v.date + "  Path>" + v.path + "   selected>" + v.selected + "  >length" + v.length);
 			
 			return db.insert(VIDEOS_TABLE_NAME, null, values);
+		}
+		
+		public int deleteVideo (Video v) {
+			
+			SQLiteDatabase db = this.getWritableDatabase();
+
+			String whereClause = V_TABLE_PATH + " = '" + v.path + "'";
+			int returnValue = db.delete(VIDEOS_TABLE_NAME, whereClause, null);
+			
+			File file = new File(v.path);
+			file.delete();
+
+			file = new File(v.path.substring(0, v.path.length() - 3) + "png");
+			file.delete();
+
+			/** NOTE: We dont need this here as we are doing it through UI for now 
+			 * @Swati : Dont delete this for now :p*/
+/*			if(v.selected) {
+				int key = 0;
+			
+				String selection = V_TABLE_DATE + " = " + v.date;
+				Cursor c = db.query(VIDEOS_TABLE_NAME, null, selection, null, null, null, null);
+
+				if(c.getCount() > 0) {
+					if (c.moveToFirst()) {
+						if(!c.isAfterLast()) {
+							key = c.getInt(V_TABLE_KEY_INDEX);
+						}
+					}
+					c.close();
+
+					ContentValues values = new ContentValues();
+					values.remove(V_TABLE_SELECTED);
+					values.put(V_TABLE_SELECTED, 1);
+					whereClause = V_TABLE_KEY + " = " + key;
+					db.update(VIDEOS_TABLE_NAME, values, whereClause, null);
+				}
+			}*/
+			return returnValue;
+		}
+		
+		public boolean selectVideo (Video v) {
+			SQLiteDatabase db = this.getWritableDatabase();
+			
+			ContentValues values = new ContentValues();
+			values.put(V_TABLE_SELECTED, 0);
+			String whereClause = V_TABLE_DATE + " = " + v.date;
+			db.update(VIDEOS_TABLE_NAME, values, whereClause, null);
+
+			values.remove(V_TABLE_SELECTED);
+			values.put(V_TABLE_SELECTED, 1);
+			whereClause = V_TABLE_PATH  + " = '" + v.path + "'";
+			if(db.update(VIDEOS_TABLE_NAME, values, whereClause, null) > 0)
+				return true;
+			
+			return false;
 		}
 	}
 }

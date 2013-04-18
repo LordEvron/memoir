@@ -67,7 +67,7 @@ public class CameraActivity extends Activity {
 		long d = Long.parseLong(ft.format(new Date()));
 
 		mVideo = new Video(0, d, MemoirApplication.getOutputMediaFile(this),
-				true, 1);
+				false, 2);
 		mMediaRecorder.setOutputFile(mVideo.path);
 
 		mMediaRecorder.setPreviewDisplay(mPreview.getHolder().getSurface());
@@ -117,11 +117,12 @@ public class CameraActivity extends Activity {
 					isRecording = false;
 					((MemoirApplication) getApplication()).getDBA().addVideo(
 							mVideo);
+					((MemoirApplication) getApplication()).getDBA().selectVideo(mVideo);
 					Log.d("asd", "Recording has stopped");
 				} else {
 					if (prepareVideoRecorder()) {
 
-						new CountDownTimer(3000, 1000) {
+						/*new CountDownTimer(3000, 1000) {
 
 							public void onTick(long millisUntilFinished) {
 								captureButton.setText(String
@@ -134,7 +135,8 @@ public class CameraActivity extends Activity {
 										Toast.LENGTH_SHORT);
 								toast1.show();
 							}
-						}.start();
+						}.start();*/
+						
 
 						mMediaRecorder.start();
 						isRecording = true;
@@ -212,7 +214,6 @@ public class CameraActivity extends Activity {
 				int h) {
 			try {
 				if ((mCamera != null) && (previewing == false)) {
-					mCamera.setDisplayOrientation(90);
 					mCamera.setPreviewDisplay(holder);
 					mCamera.startPreview();
 					previewing = true;

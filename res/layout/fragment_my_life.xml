@@ -3,20 +3,53 @@
     android:layout_height="fill_parent"
     android:background="@drawable/image2"
     android:orientation="vertical" >
-    
-    <FrameLayout android:id="@+id/MyLifeFL"
+
+    <!-- LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <DatePicker
+            android:id="@+id/MyLifeFromDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            android:calendarViewShown="false"
+            android:spinnersShown="true" />
+
+    </LinearLayout -->
+
+    <FrameLayout
+        android:id="@+id/MyLifeFL"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
-        <VideoView android:id="@+id/MyLifeVV"
-	        android:layout_width="match_parent"
-	        android:layout_height="200dp"
-	        android:layout_margin="10dp" />
-	    
-	    <LinearLayout android:id="@+id/MyLifeLL"
-	        android:layout_width="match_parent"
-    		android:layout_height="120dp"
-    		android:orientation="vertical" />
+        <VideoView
+            android:id="@+id/MyLifeVV"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_margin="10dp" />
+
+        <LinearLayout
+            android:id="@+id/MyLifeLL"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:orientation="vertical" >
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/MyLifePlayPB"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="40dp" />
+
+        <ImageView
+            android:id="@+id/MyLifePlayIV"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@android:drawable/ic_media_play"
+            android:layout_margin="40dp" />
+
     </FrameLayout>
 
     <ListView

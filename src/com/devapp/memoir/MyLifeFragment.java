@@ -6,19 +6,23 @@ import java.util.Hashtable;
 import java.util.List;
 
 import android.app.Fragment;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.media.MediaPlayer.OnVideoSizeChangedListener;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
-import android.view.Display;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -29,6 +33,7 @@ import android.widget.ListView;
 import android.widget.MediaController;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.VideoView;
 
 public class MyLifeFragment extends Fragment {
@@ -52,37 +57,43 @@ public class MyLifeFragment extends Fragment {
 	}
 
 	@Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-    	super.onActivityCreated(savedInstanceState);
-    	mDateList = (ListView) getActivity().findViewById(R.id.MyLifeDateLV);
-    	
-		mVv = (VideoView)getActivity().findViewById(R.id.MyLifeVV);
-    	Context c = this.getActivity().getApplicationContext();
-    	Log.d ("asd", "Output file" + MemoirApplication.getConcatenatedOutputFile(c));
-    	mVv.setVideoPath(MemoirApplication.getConcatenatedOutputFile(c));
-    	mMc = new MediaController(getActivity());
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+		mDateList = (ListView) getActivity().findViewById(R.id.MyLifeDateLV);
+
+		mVv = (VideoView) getActivity().findViewById(R.id.MyLifeVV);
+		Context c = this.getActivity().getApplicationContext();
+		Log.d("asd",
+				"Output file" + MemoirApplication.getConcatenatedOutputFile(c));
+		mVv.setVideoPath(MemoirApplication.getConcatenatedOutputFile(c));
+		mMc = new MediaController(getActivity());
 		mVv.setMediaController(mMc);
-    	mVv.requestFocus();
-    	
-    	mVv.setOnPreparedListener(new OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mp) {
-            	Log.d("asd", "in onPreapraed");
-            	
-            	LinearLayout ll = (LinearLayout) getActivity().findViewById(R.id.MyLifeLL);
-            	ll.setLayoutParams(new FrameLayout.LayoutParams(mVv.getWidth(), mVv.getHeight() - 155));
-            	mMc.setAnchorView(ll);
-            	
-            	mp.setOnVideoSizeChangedListener(new OnVideoSizeChangedListener() {
+		mVv.requestFocus();
+
+		mVv.setOnPreparedListener(new OnPreparedListener() {
+			@Override
+			public void onPrepared(MediaPlayer mp) {
+				Log.d("asd", "in onPreapraed");
+
+				LinearLayout ll = (LinearLayout) getActivity().findViewById(
+						R.id.MyLifeLL);
+				ll.setLayoutParams(new FrameLayout.LayoutParams(mVv.getWidth(),
+						mVv.getHeight() - 155));
+				mMc.setAnchorView(ll);
+
+				mp.setOnVideoSizeChangedListener(new OnVideoSizeChangedListener() {
 					@Override
-					public void onVideoSizeChanged(MediaPlayer arg0, int arg1, int arg2) {
-		            	LinearLayout ll = (LinearLayout) getActivity().findViewById(R.id.MyLifeLL);
-		            	ll.setLayoutParams(new FrameLayout.LayoutParams(mVv.getWidth(), mVv.getHeight() - 155));
-		            	mMc.setAnchorView(ll);
+					public void onVideoSizeChanged(MediaPlayer arg0, int arg1,
+							int arg2) {
+						LinearLayout ll = (LinearLayout) getActivity()
+								.findViewById(R.id.MyLifeLL);
+						ll.setLayoutParams(new FrameLayout.LayoutParams(mVv
+								.getWidth(), mVv.getHeight() - 155));
+						mMc.setAnchorView(ll);
 					}
-            	});
-            }
-        });
+				});
+			}
+		});
 	}
 
 	@Override
@@ -94,11 +105,20 @@ public class MyLifeFragment extends Fragment {
 				.getVideos(0, -1, false);
 		mDateAdapter = new MyLifeDateListArrayAdapter(getActivity(), mVideos);
 		mDateList.setAdapter(mDateAdapter);
-		
+
+		//PendingIntent	 createPendingResult(int requestCode, Intent data, int flags)
+		/*Intent dataIntent = new Intent();
+		PendingIntent pendingIntent = this.getActivity().createPendingResult(0, dataIntent, PendingIntent.FLAG_ONE_SHOT);
 		Intent intent = new Intent(this.getActivity(), TranscodingService.class);
-		//this.getActivity().startService(intent);
+		intent.putExtra("pendingIntent", pendingIntent);
+		this.getActivity().startService(intent);*/
 	}
 
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		Log.d("asd", "I got my on Activity Result Yeeeeee:)");
+	}
+	
 	public class MyLifeDateListArrayAdapter extends ArrayAdapter<List<Video>> {
 
 		private Context mContext;
@@ -106,6 +126,9 @@ public class MyLifeFragment extends Fragment {
 		private LayoutInflater mInflater;
 		private LinearLayout mLinearLayout;
 		private Hashtable<Long, RelativeLayout> mHashtable;
+		private Object mActionMode;
+		private Video mSelectedVideo = null;
+		private ImageView mSelectedVideoIV = null;
 
 		// private MyLifeVideoListArrayAdapter mVideoAdapter;
 
@@ -135,7 +158,16 @@ public class MyLifeFragment extends Fragment {
 				}
 			} else {
 				Log.d("asd", "ConvertView exists");
-				return convertView;
+
+				if (convertView.getTag() != null
+						&& convertView.getTag().equals("dirty")) {
+					mLinearLayout = (LinearLayout) convertView
+							.findViewById(R.id.MyLifeListItemInnerLL);
+					mLinearLayout.removeAllViews();
+				} else {
+					return convertView;
+				}
+				Log.d("asd", "the value is " + convertView.getTag());
 			}
 
 			List<Video> VideoList = this.mList.get(position);
@@ -149,7 +181,8 @@ public class MyLifeFragment extends Fragment {
 					.findViewById(R.id.MyLifeListItemTV);
 			Date d = new Date(VideoList.get(0).date);
 			String date = String.valueOf(VideoList.get(0).date);
-			tv.setText(date.substring(6) + "/" + date.substring(4, 6) + "/" + date.substring(0, 4));
+			tv.setText(date.substring(6) + "/" + date.substring(4, 6) + "/"
+					+ date.substring(0, 4));
 
 			for (Video v : VideoList) {
 				FrameLayout FL = (FrameLayout) mInflater.inflate(
@@ -159,6 +192,12 @@ public class MyLifeFragment extends Fragment {
 				ImageView iv = (ImageView) FL.findViewById(R.id.imageView1);
 				Bitmap bmp = BitmapFactory.decodeFile(v.thumbnailPath);
 				iv.setImageBitmap(bmp);
+				iv.setTag(v);
+				if (v.selected) {
+					iv.setBackgroundColor(getResources().getColor(
+							R.color.selectBlue));
+				}
+
 				final Uri videopath = Uri.fromFile(new File(v.path));
 
 				iv.setOnClickListener(new View.OnClickListener() {
@@ -170,8 +209,25 @@ public class MyLifeFragment extends Fragment {
 					}
 				});
 
+				iv.setOnLongClickListener(new View.OnLongClickListener() {
+					// Called when the user long-clicks on someView
+					public boolean onLongClick(View view) {
+						if (mActionMode != null) {
+							return false;
+						}
+
+						// Start the CAB using the ActionMode.Callback defined
+						// above
+						mActionMode = getActivity().startActionMode(
+								mActionModeCallback);
+						mSelectedVideoIV = (ImageView) view;
+						mSelectedVideo = (Video) mSelectedVideoIV.getTag();
+						return true;
+					}
+				});
+
 				if (v.selected) {
-					FL.findViewById(R.id.checkBox1).setActivated(true);
+					// FL.findViewById(R.id.checkBox1).setActivated(true);
 				}
 
 			}
@@ -189,6 +245,91 @@ public class MyLifeFragment extends Fragment {
 			 */
 			return convertView;
 		}
+
+		private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
+
+			public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+				MenuInflater inflater = mode.getMenuInflater();
+				inflater.inflate(R.menu.my_life_fragment_contextual_menu, menu);
+				return true;
+			}
+
+			public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+				return false;
+			}
+
+			public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+				switch (item.getItemId()) {
+				case R.id.select_button:
+					mode.finish(); // Action picked, so close the CAB
+					if (mSelectedVideo != null) {
+						((MemoirApplication) getActivity().getApplication())
+								.getDBA().selectVideo(mSelectedVideo);
+						mSelectedVideoIV.setBackgroundColor(getResources()
+								.getColor(R.color.selectBlue));
+
+						for (List<Video> videoList : mList) {
+							if (videoList.get(0).date == mSelectedVideo.date) {
+								for (Video v : videoList) {
+									if (!v.path.equals(mSelectedVideo.path)) {
+										v.selected = false;
+									}
+								}
+							}
+						}
+						mSelectedVideo.selected = true;
+						LinearLayout container = (LinearLayout) mSelectedVideoIV
+								.getParent().getParent().getParent()
+								.getParent();
+						container.setTag("dirty");
+						mDateAdapter.notifyDataSetChanged();
+						mSelectedVideo = null;
+					}
+					return true;
+				case R.id.delete_button:
+					mode.finish(); // Action picked, so close the CAB
+					if (mSelectedVideo != null) {
+						((MemoirApplication) getActivity().getApplication())
+								.getDBA().deleteVideo(mSelectedVideo);
+
+						for (List<Video> videoList : mList) {
+							if (videoList.get(0).date == mSelectedVideo.date) {
+								for (Video v : videoList) {
+									if (v.path.equals(mSelectedVideo.path)) {
+										videoList.remove(v);
+										if (mSelectedVideo.selected
+												&& !videoList.isEmpty()) {
+											Video tmpV = videoList.get(0);
+											tmpV.selected = true;
+											((MemoirApplication) getActivity()
+													.getApplication()).getDBA()
+													.selectVideo(tmpV);
+										} else if(videoList.isEmpty()) {
+											mList.remove(videoList);
+										}
+										break;
+									}
+								}
+							}
+						}
+
+						LinearLayout container = (LinearLayout) mSelectedVideoIV
+								.getParent().getParent().getParent()
+								.getParent();
+						container.setTag("dirty");
+						mDateAdapter.notifyDataSetChanged();
+						mSelectedVideo = null;
+					}
+					return true;
+				default:
+					return false;
+				}
+			}
+
+			public void onDestroyActionMode(ActionMode mode) {
+				mActionMode = null;
+			}
+		};
 
 		@Override
 		public int getCount() {

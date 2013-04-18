@@ -35,7 +35,8 @@
         </activity>
         <activity android:name="com.devapp.memoir.MainActivity" >
 		</activity>
-        <activity android:name="com.devapp.memoir.CameraActivity" >
+        <activity android:name="com.devapp.memoir.CameraActivity"
+        	android:screenOrientation="landscape" >
         </activity>
         <service android:name=".TranscodingService">
         </service>
