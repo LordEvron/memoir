@@ -40,7 +40,6 @@
         </activity>
         <service android:name=".TranscodingService">
         </service>
-        
     </application>
 
 </manifest>

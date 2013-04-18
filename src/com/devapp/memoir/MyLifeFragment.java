@@ -7,8 +7,10 @@ import java.util.List;
 
 import android.app.Fragment;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -17,6 +19,7 @@ import android.media.MediaPlayer.OnPreparedListener;
 import android.media.MediaPlayer.OnVideoSizeChangedListener;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -24,6 +27,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
@@ -44,6 +48,7 @@ public class MyLifeFragment extends Fragment {
 	View mRootView = null;
 	MediaController mMc = null;
 	VideoView mVv = null;
+	TranscodingServiceBroadcastReceiver mDataBroadcastReceiver = null;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -94,6 +99,24 @@ public class MyLifeFragment extends Fragment {
 				});
 			}
 		});
+		
+		mVv.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+
+		    @Override
+		    public void onCompletion(MediaPlayer vmp) {
+		    	getActivity().findViewById(R.id.MyLifePlayIV).setVisibility(View.VISIBLE);
+		    }
+		});  
+
+		getActivity().findViewById(R.id.MyLifePlayIV).setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View imageView) {
+				imageView.setVisibility(View.INVISIBLE);
+				//mVv.start();
+			}
+			
+		});
 	}
 
 	@Override
@@ -106,19 +129,69 @@ public class MyLifeFragment extends Fragment {
 		mDateAdapter = new MyLifeDateListArrayAdapter(getActivity(), mVideos);
 		mDateList.setAdapter(mDateAdapter);
 
-		//PendingIntent	 createPendingResult(int requestCode, Intent data, int flags)
+		// PendingIntent createPendingResult(int requestCode, Intent data, int
+		// flags)
 		/*Intent dataIntent = new Intent();
-		PendingIntent pendingIntent = this.getActivity().createPendingResult(0, dataIntent, PendingIntent.FLAG_ONE_SHOT);
+		PendingIntent pendingIntent = this.getActivity().createPendingResult(0,
+				dataIntent, PendingIntent.FLAG_ONE_SHOT);
 		Intent intent = new Intent(this.getActivity(), TranscodingService.class);
-		intent.putExtra("pendingIntent", pendingIntent);
+		Bundle b = new Bundle();
+		b.putParcelable("pendingIntent", pendingIntent);
+		intent.putExtras(b);
 		this.getActivity().startService(intent);*/
+		
+		/*Intent broadcastReceiverIntent = new Intent(this.getActivity(), DataBroadcastReceiver.class);      
+	      //create pending intent for broadcasting the DataBroadcastReceiver
+	      PendingIntent pi = PendingIntent.getBroadcast(context, 0, broadcastReceiverIntent, 0);      
+	      Bundle bundle = new Bundle();            
+	      bundle.putParcelable("receiver", pi);
+	      //we want to start our service (for handling our time-consuming operation)
+	      Intent serviceIntent = new Intent(context, DataRequestService.class);
+	      serviceIntent.putExtras(bundle);
+	      context.startService(serviceIntent);*/
+		
+		refreshLifeTimeVideo();
+	}
+	
+	public void refreshLifeTimeVideo() {
+		getActivity().findViewById(R.id.MyLifePlayIV).setVisibility(View.INVISIBLE);
+		Intent intent = new Intent(this.getActivity(), TranscodingService.class);
+		this.getActivity().startService(intent);
+		getActivity().findViewById(R.id.MyLifePlayPB).setVisibility(View.VISIBLE);
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+        if (mDataBroadcastReceiver == null) 
+        	mDataBroadcastReceiver = new TranscodingServiceBroadcastReceiver();
+        
+        IntentFilter intentFilter = new IntentFilter("TranscodingComplete");
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mDataBroadcastReceiver, intentFilter);
+	}
+
+	@Override
+    public void onPause() {
+        super.onPause();
+        if (mDataBroadcastReceiver != null) 
+            LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mDataBroadcastReceiver);
+    }
+
+	
+	public class TranscodingServiceBroadcastReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			getActivity().findViewById(R.id.MyLifePlayPB).setVisibility(View.INVISIBLE);
+			getActivity().findViewById(R.id.MyLifePlayIV).setVisibility(View.VISIBLE);
+		}
 	}
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		Log.d("asd", "I got my on Activity Result Yeeeeee:)");
+		Log.e("asd", "I got my on Activity Result Yeeeeee:)");
 	}
-	
+
 	public class MyLifeDateListArrayAdapter extends ArrayAdapter<List<Video>> {
 
 		private Context mContext;
@@ -284,6 +357,9 @@ public class MyLifeFragment extends Fragment {
 						container.setTag("dirty");
 						mDateAdapter.notifyDataSetChanged();
 						mSelectedVideo = null;
+						
+						/** NOTE: Function call to refresh the LifeTime Video*/
+						refreshLifeTimeVideo();
 					}
 					return true;
 				case R.id.delete_button:
@@ -304,8 +380,14 @@ public class MyLifeFragment extends Fragment {
 											((MemoirApplication) getActivity()
 													.getApplication()).getDBA()
 													.selectVideo(tmpV);
-										} else if(videoList.isEmpty()) {
+											
+											/** NOTE: Function call to refresh the LifeTime Video*/
+											refreshLifeTimeVideo();
+										} else if (videoList.isEmpty()) {
 											mList.remove(videoList);
+											
+											/** NOTE: Function call to refresh the LifeTime Video*/
+											refreshLifeTimeVideo();
 										}
 										break;
 									}

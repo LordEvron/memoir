@@ -20,10 +20,14 @@ import com.googlecode.mp4parser.authoring.tracks.AppendTrack;
 
 import android.app.Application;
 import android.app.IntentService;
+import android.app.PendingIntent;
+import android.app.PendingIntent.CanceledException;
 import android.app.Service;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 public class TranscodingService extends IntentService {
@@ -85,6 +89,19 @@ public class TranscodingService extends IntentService {
 	@Override
 	protected void onHandleIntent(Intent intent) {
 
+/*		//NOTE: Dont delete this code sweetheart I need it for later purpose 
+ * 		Bundle bundle = intent.getExtras();
+        PendingIntent receiver = bundle.getParcelable("pendingIntent");
+        // Perform the operation associated with PendingIntent
+        Intent tmpintent = new Intent();
+        try {
+			receiver.send(getApplicationContext(), 0, tmpintent);
+		} catch (CanceledException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+*/		
+		
 		Log.d("asd", "in onHandleIntent");
 		long startDate, endDate;
 		startDate = intent.getLongExtra("startDate", 0);
@@ -204,6 +221,8 @@ public class TranscodingService extends IntentService {
 			e.printStackTrace();
 		}
 		
+		//Intent broadcastIntent = new Intent("TranscodingComplete");
+		//LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
 	}
 	
 	
