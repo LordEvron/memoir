@@ -4,19 +4,44 @@
     android:background="@drawable/image2"
     android:orientation="vertical" >
 
-    <!-- LinearLayout
+    <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal" >
 
-        <DatePicker
-            android:id="@+id/MyLifeFromDate"
+        <TextView
+            android:id="@+id/startDateLabel"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" 
-            android:calendarViewShown="false"
-            android:spinnersShown="true" />
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:text="@string/startDateLabel"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    </LinearLayout -->
+        <Button
+            android:id="@+id/endDateButton"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/date"
+            android:text="05/03" />
+        
+        <TextView
+            android:id="@+id/endDateLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@id/endDateButton"
+            android:text="@string/endDateLabel"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <Button
+            android:id="@+id/startDateButton"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_toRightOf="@id/startDateLabel"
+            android:background="@drawable/date"
+            android:text="15/06" />
+        
+    </RelativeLayout>
 
     <FrameLayout
         android:id="@+id/MyLifeFL"

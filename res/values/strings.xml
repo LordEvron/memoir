@@ -12,5 +12,7 @@
     <string name="title_section3">Settings</string>
     <string name="contextual_menu_select">Select</string>
     <string name="contextual_menu_delete">Delete</string>
+    <string name="startDateLabel">Start Date:</string>
+    <string name="endDateLabel">End Date:</string>
     
 </resources>
