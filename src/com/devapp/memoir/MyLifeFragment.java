@@ -5,15 +5,15 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 
+import android.app.DialogFragment;
 import android.app.Fragment;
-import android.app.PendingIntent;
+import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.media.MediaPlayer.OnVideoSizeChangedListener;
@@ -37,7 +37,6 @@ import android.widget.ListView;
 import android.widget.MediaController;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.VideoView;
 
 public class MyLifeFragment extends Fragment {
@@ -49,6 +48,7 @@ public class MyLifeFragment extends Fragment {
 	MediaController mMc = null;
 	VideoView mVv = null;
 	TranscodingServiceBroadcastReceiver mDataBroadcastReceiver = null;
+	DialogFragment multiDatePicker;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -99,24 +99,34 @@ public class MyLifeFragment extends Fragment {
 				});
 			}
 		});
-		
+
 		mVv.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 
-		    @Override
-		    public void onCompletion(MediaPlayer vmp) {
-		    	getActivity().findViewById(R.id.MyLifePlayIV).setVisibility(View.VISIBLE);
-		    }
-		});  
-
-		getActivity().findViewById(R.id.MyLifePlayIV).setOnClickListener(new OnClickListener() {
-
 			@Override
-			public void onClick(View imageView) {
-				imageView.setVisibility(View.INVISIBLE);
-				//mVv.start();
+			public void onCompletion(MediaPlayer vmp) {
+				getActivity().findViewById(R.id.MyLifePlayIV).setVisibility(
+						View.VISIBLE);
 			}
-			
 		});
+
+		getActivity().findViewById(R.id.MyLifePlayIV).setOnClickListener(
+				new OnClickListener() {
+
+					@Override
+					public void onClick(View imageView) {
+						imageView.setVisibility(View.INVISIBLE);
+						// mVv.start();
+					}
+
+				});
+
+		multiDatePicker = new MultiDatePicker();
+	}
+
+	public void onDateButtonClicked(View dateView) {
+		((MultiDatePicker) multiDatePicker).setActiveDate(dateView);
+		FragmentTransaction ft = getFragmentManager().beginTransaction();
+		multiDatePicker.show(ft, "dialog");
 	}
 
 	@Override
@@ -131,59 +141,66 @@ public class MyLifeFragment extends Fragment {
 
 		// PendingIntent createPendingResult(int requestCode, Intent data, int
 		// flags)
-		/*Intent dataIntent = new Intent();
-		PendingIntent pendingIntent = this.getActivity().createPendingResult(0,
-				dataIntent, PendingIntent.FLAG_ONE_SHOT);
-		Intent intent = new Intent(this.getActivity(), TranscodingService.class);
-		Bundle b = new Bundle();
-		b.putParcelable("pendingIntent", pendingIntent);
-		intent.putExtras(b);
-		this.getActivity().startService(intent);*/
-		
-		/*Intent broadcastReceiverIntent = new Intent(this.getActivity(), DataBroadcastReceiver.class);      
-	      //create pending intent for broadcasting the DataBroadcastReceiver
-	      PendingIntent pi = PendingIntent.getBroadcast(context, 0, broadcastReceiverIntent, 0);      
-	      Bundle bundle = new Bundle();            
-	      bundle.putParcelable("receiver", pi);
-	      //we want to start our service (for handling our time-consuming operation)
-	      Intent serviceIntent = new Intent(context, DataRequestService.class);
-	      serviceIntent.putExtras(bundle);
-	      context.startService(serviceIntent);*/
-		
+		/*
+		 * Intent dataIntent = new Intent(); PendingIntent pendingIntent =
+		 * this.getActivity().createPendingResult(0, dataIntent,
+		 * PendingIntent.FLAG_ONE_SHOT); Intent intent = new
+		 * Intent(this.getActivity(), TranscodingService.class); Bundle b = new
+		 * Bundle(); b.putParcelable("pendingIntent", pendingIntent);
+		 * intent.putExtras(b); this.getActivity().startService(intent);
+		 */
+
+		/*
+		 * Intent broadcastReceiverIntent = new Intent(this.getActivity(),
+		 * DataBroadcastReceiver.class); //create pending intent for
+		 * broadcasting the DataBroadcastReceiver PendingIntent pi =
+		 * PendingIntent.getBroadcast(context, 0, broadcastReceiverIntent, 0);
+		 * Bundle bundle = new Bundle(); bundle.putParcelable("receiver", pi);
+		 * //we want to start our service (for handling our time-consuming
+		 * operation) Intent serviceIntent = new Intent(context,
+		 * DataRequestService.class); serviceIntent.putExtras(bundle);
+		 * context.startService(serviceIntent);
+		 */
+
 		refreshLifeTimeVideo();
 	}
-	
+
 	public void refreshLifeTimeVideo() {
-		getActivity().findViewById(R.id.MyLifePlayIV).setVisibility(View.INVISIBLE);
+		getActivity().findViewById(R.id.MyLifePlayIV).setVisibility(
+				View.INVISIBLE);
 		Intent intent = new Intent(this.getActivity(), TranscodingService.class);
 		this.getActivity().startService(intent);
-		getActivity().findViewById(R.id.MyLifePlayPB).setVisibility(View.VISIBLE);
+		getActivity().findViewById(R.id.MyLifePlayPB).setVisibility(
+				View.VISIBLE);
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
-        if (mDataBroadcastReceiver == null) 
-        	mDataBroadcastReceiver = new TranscodingServiceBroadcastReceiver();
-        
-        IntentFilter intentFilter = new IntentFilter("TranscodingComplete");
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mDataBroadcastReceiver, intentFilter);
+		if (mDataBroadcastReceiver == null)
+			mDataBroadcastReceiver = new TranscodingServiceBroadcastReceiver();
+
+		IntentFilter intentFilter = new IntentFilter("TranscodingComplete");
+		LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
+				mDataBroadcastReceiver, intentFilter);
 	}
 
 	@Override
-    public void onPause() {
-        super.onPause();
-        if (mDataBroadcastReceiver != null) 
-            LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mDataBroadcastReceiver);
-    }
+	public void onPause() {
+		super.onPause();
+		if (mDataBroadcastReceiver != null)
+			LocalBroadcastManager.getInstance(getActivity())
+					.unregisterReceiver(mDataBroadcastReceiver);
+	}
 
-	
 	public class TranscodingServiceBroadcastReceiver extends BroadcastReceiver {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			getActivity().findViewById(R.id.MyLifePlayPB).setVisibility(View.INVISIBLE);
-			getActivity().findViewById(R.id.MyLifePlayIV).setVisibility(View.VISIBLE);
+			getActivity().findViewById(R.id.MyLifePlayPB).setVisibility(
+					View.INVISIBLE);
+			getActivity().findViewById(R.id.MyLifePlayIV).setVisibility(
+					View.VISIBLE);
 		}
 	}
 
@@ -357,8 +374,8 @@ public class MyLifeFragment extends Fragment {
 						container.setTag("dirty");
 						mDateAdapter.notifyDataSetChanged();
 						mSelectedVideo = null;
-						
-						/** NOTE: Function call to refresh the LifeTime Video*/
+
+						/** NOTE: Function call to refresh the LifeTime Video */
 						refreshLifeTimeVideo();
 					}
 					return true;
@@ -380,13 +397,19 @@ public class MyLifeFragment extends Fragment {
 											((MemoirApplication) getActivity()
 													.getApplication()).getDBA()
 													.selectVideo(tmpV);
-											
-											/** NOTE: Function call to refresh the LifeTime Video*/
+
+											/**
+											 * NOTE: Function call to refresh
+											 * the LifeTime Video
+											 */
 											refreshLifeTimeVideo();
 										} else if (videoList.isEmpty()) {
 											mList.remove(videoList);
-											
-											/** NOTE: Function call to refresh the LifeTime Video*/
+
+											/**
+											 * NOTE: Function call to refresh
+											 * the LifeTime Video
+											 */
 											refreshLifeTimeVideo();
 										}
 										break;
