@@ -12,6 +12,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
@@ -48,7 +49,9 @@ public class MyLifeFragment extends Fragment {
 	MediaController mMc = null;
 	VideoView mVv = null;
 	TranscodingServiceBroadcastReceiver mDataBroadcastReceiver = null;
+	private SharedPreferences mPrefs = null;
 
+	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -57,6 +60,9 @@ public class MyLifeFragment extends Fragment {
 				false);
 		Log.d("asd", "Calling onCreateView");
 		mRootView = rootView;
+		mPrefs = this.getActivity().getSharedPreferences("com.devapp.memoir",
+				Context.MODE_PRIVATE);
+
 		return rootView;
 	}
 
@@ -158,7 +164,10 @@ public class MyLifeFragment extends Fragment {
 		 * context.startService(serviceIntent);
 		 */
 
-		refreshLifeTimeVideo();
+		if(mPrefs.getBoolean("com.devapp.memoir.datechanged", true) == true) {
+			mPrefs.edit().putBoolean("com.devapp.memoir.datechanged", false).commit();
+			refreshLifeTimeVideo();
+		}
 	}
 
 	public void refreshLifeTimeVideo() {

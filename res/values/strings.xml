@@ -14,5 +14,7 @@
     <string name="contextual_menu_delete">Delete</string>
     <string name="startDateLabel">Start Date:</string>
     <string name="endDateLabel">End Date:</string>
-    
+    <string name="title_activity_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+
 </resources>

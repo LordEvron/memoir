@@ -31,6 +31,7 @@ public class MainActivity extends Activity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		Intent intent;
 		switch (item.getItemId()) {
 		case android.R.id.home:
 			Log.d("asd", "my life selected");
@@ -42,17 +43,15 @@ public class MainActivity extends Activity {
 			return true;
 		case R.id.action_shoot_video:
 			Log.d("asd", "Shoot video selected");
-			Intent intent = new Intent(this, CameraActivity.class);
+			intent = new Intent(this, CameraActivity.class);
 			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(intent);
 			return true;
 		case R.id.action_settings:
 			Log.d("asd", " Settings selected");
-			/*
-			 * Intent intent = new Intent(this, HomeActivity.class);
-			 * intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			 * startActivity(intent);
-			 */
+            intent = new Intent(this, SettingsActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);

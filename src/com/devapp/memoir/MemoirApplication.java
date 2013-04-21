@@ -12,6 +12,7 @@ import java.util.Date;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.ThumbnailUtils;
@@ -23,11 +24,26 @@ public class MemoirApplication extends Application {
 
 	private MemoirDBA mDBA;
 	private static boolean useExternal = true;
-
+	private SharedPreferences mPrefs = null;
+	
 	@Override
 	public void onCreate() {
 		mDBA = new MemoirDBA(getApplicationContext());
+		mPrefs = this.getSharedPreferences("com.devapp.memoir", Context.MODE_PRIVATE);
 
+		if(mPrefs.getString("com.devapp.memoir.startall", null) == null) {
+			SharedPreferences.Editor editor = mPrefs.edit();			
+			SimpleDateFormat ft = new SimpleDateFormat("dd/MM/yyyy");
+			String date = ft.format(new Date());
+			editor.putString("com.devapp.memoir.startall", date);
+			editor.putString("com.devapp.memoir.endall", date);
+			editor.putString("com.devapp.memoir.startselected", date);
+			editor.putString("com.devapp.memoir.endselected", date);
+			editor.putBoolean("com.devapp.memoir.datechanged", true);
+			editor.commit();
+			
+			Log.d("zxc", "Setting all prefernces to this date" + date);
+		}
 	}
 
 	public MemoirDBA getDBA() {
