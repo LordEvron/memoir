@@ -14,7 +14,7 @@
         android:textIsSelectable="false"
         android:textStyle="bold" />
 
-    <!-- View style="@style/Divider"/ -->
+    <View style="@style/Divider" />
 
     <HorizontalScrollView
         android:id="@+id/MyLifeListItemHSV"

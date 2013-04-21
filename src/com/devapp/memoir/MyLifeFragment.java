@@ -68,7 +68,7 @@ public class MyLifeFragment extends Fragment {
 
 		mVv = (VideoView) getActivity().findViewById(R.id.MyLifeVV);
 		Context c = this.getActivity().getApplicationContext();
-		Log.d("asd",
+		Log.d("qwe",
 				"Output file" + MemoirApplication.getConcatenatedOutputFile(c));
 		mVv.setVideoPath(MemoirApplication.getConcatenatedOutputFile(c));
 		mMc = new MediaController(getActivity());
@@ -78,13 +78,18 @@ public class MyLifeFragment extends Fragment {
 		mVv.setOnPreparedListener(new OnPreparedListener() {
 			@Override
 			public void onPrepared(MediaPlayer mp) {
-				Log.d("asd", "in onPreapraed");
+				Log.d("qwe", "in onPreapraed");
 
 				LinearLayout ll = (LinearLayout) getActivity().findViewById(
 						R.id.MyLifeLL);
 				ll.setLayoutParams(new FrameLayout.LayoutParams(mVv.getWidth(),
 						mVv.getHeight() - 155));
 				mMc.setAnchorView(ll);
+
+				getActivity().findViewById(R.id.MyLifePlayPB).setVisibility(
+						View.INVISIBLE);
+				getActivity().findViewById(R.id.MyLifePlayIV).setVisibility(
+						View.VISIBLE);
 
 				mp.setOnVideoSizeChangedListener(new OnVideoSizeChangedListener() {
 					@Override
@@ -104,6 +109,7 @@ public class MyLifeFragment extends Fragment {
 
 			@Override
 			public void onCompletion(MediaPlayer vmp) {
+				Log.d("qwe", "On Completion listener");
 				getActivity().findViewById(R.id.MyLifePlayIV).setVisibility(
 						View.VISIBLE);
 			}
@@ -115,6 +121,7 @@ public class MyLifeFragment extends Fragment {
 					@Override
 					public void onClick(View imageView) {
 						imageView.setVisibility(View.INVISIBLE);
+<<<<<<< HEAD
 						// mVv.start();
 					}
 
@@ -127,13 +134,18 @@ public class MyLifeFragment extends Fragment {
 		((MultiDatePicker) multiDatePicker).setActiveDate(dateView);
 		FragmentTransaction ft = getFragmentManager().beginTransaction();
 		multiDatePicker.show(ft, "dialog");
+=======
+						mVv.start();
+					}
+				});
+>>>>>>> Fixing the ListView, Dates and Video playing after creation
 	}
 
 	@Override
 	public void onStart() {
 		super.onStart();
 
-		Log.d("asd", "OnStart of my Fragement");
+		Log.d("qwe", "OnStart of my Fragement");
 		mVideos = ((MemoirApplication) getActivity().getApplication()).getDBA()
 				.getVideos(0, -1, false);
 		mDateAdapter = new MyLifeDateListArrayAdapter(getActivity(), mVideos);
@@ -197,16 +209,26 @@ public class MyLifeFragment extends Fragment {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
+<<<<<<< HEAD
 			getActivity().findViewById(R.id.MyLifePlayPB).setVisibility(
 					View.INVISIBLE);
 			getActivity().findViewById(R.id.MyLifePlayIV).setVisibility(
 					View.VISIBLE);
+=======
+			Log.d("qwe", "OnREceive :) ");
+			//getActivity().findViewById(R.id.MyLifePlayPB).setVisibility(
+			//		View.INVISIBLE);
+			//getActivity().findViewById(R.id.MyLifePlayIV).setVisibility(
+			//		View.VISIBLE);
+			
+			mVv.setVideoPath(MemoirApplication.getConcatenatedOutputFile(context));
+>>>>>>> Fixing the ListView, Dates and Video playing after creation
 		}
 	}
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		Log.e("asd", "I got my on Activity Result Yeeeeee:)");
+		Log.e("qwe", "I got my on Activity Result Yeeeeee:)");
 	}
 
 	public class MyLifeDateListArrayAdapter extends ArrayAdapter<List<Video>> {
@@ -215,12 +237,9 @@ public class MyLifeFragment extends Fragment {
 		private List<List<Video>> mList;
 		private LayoutInflater mInflater;
 		private LinearLayout mLinearLayout;
-		private Hashtable<Long, RelativeLayout> mHashtable;
 		private Object mActionMode;
 		private Video mSelectedVideo = null;
 		private ImageView mSelectedVideoIV = null;
-
-		// private MyLifeVideoListArrayAdapter mVideoAdapter;
 
 		public MyLifeDateListArrayAdapter(Context context,
 				List<List<Video>> List) {
@@ -229,72 +248,87 @@ public class MyLifeFragment extends Fragment {
 			this.mContext = context;
 			this.mList = List;
 			this.mInflater = LayoutInflater.from(context);
-			// this.mHashtable = new Hashtable<Long, RelativeLayout>();
 		}
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			Log.d("asd", "in getView for position " + position);
+
+			// NOTE: assuming VideoList can never be null here.
+			List<Video> VideoList = this.mList.get(position);
+			String date = String.valueOf(VideoList.get(0).date);
+
 			if (convertView == null) {
 				Log.d("asd", "convertView turned out to be null ");
+
 				convertView = mInflater.inflate(
 						R.layout.fragment_my_life_list_item, null);
-				if (position % 2 == 0) {
-					convertView
-							.setBackgroundResource(R.drawable.alterselector1);
-				} else {
-					convertView
-							.setBackgroundResource(R.drawable.alterselector2);
-				}
 			} else {
 				Log.d("asd", "ConvertView exists");
 
-				if (convertView.getTag() != null
+				if (!((TextView) convertView
+						.findViewById(R.id.MyLifeListItemTV)).getText().equals(
+						date.substring(6) + "/" + date.substring(4, 6) + "/"
+								+ date.substring(0, 4))) {
+					/**
+					 * NOTE: Comparing dates of this list item and the item from
+					 * position if they are same then continue otherwise needs
+					 * to flush the view
+					 */
+
+					((LinearLayout) convertView
+							.findViewById(R.id.MyLifeListItemInnerLL))
+							.removeAllViews();
+				} else if (convertView.getTag() != null
 						&& convertView.getTag().equals("dirty")) {
-					mLinearLayout = (LinearLayout) convertView
-							.findViewById(R.id.MyLifeListItemInnerLL);
-					mLinearLayout.removeAllViews();
+					/**
+					 * NOTE: Comparing even if the dates are same but if its
+					 * marked dirty then redraw
+					 */
+
+					((LinearLayout) convertView
+							.findViewById(R.id.MyLifeListItemInnerLL))
+							.removeAllViews();
 				} else {
 					return convertView;
 				}
-				Log.d("asd", "the value is " + convertView.getTag());
+			}
+			/** NOTE: Setting the background color of tiles*/
+			if (position % 2 == 0) {
+				convertView
+						.setBackgroundResource(R.drawable.alterselector1);
+			} else {
+				convertView
+						.setBackgroundResource(R.drawable.alterselector2);
 			}
 
-			List<Video> VideoList = this.mList.get(position);
-			// NOTE: assuming VideoList can never be null here.
+			
+			((TextView) convertView.findViewById(R.id.MyLifeListItemTV))
+			.setText(date.substring(6) + "/" + date.substring(4, 6)
+					+ "/" + date.substring(0, 4));
+
 			mLinearLayout = (LinearLayout) convertView
 					.findViewById(R.id.MyLifeListItemInnerLL);
-
-			Log.d("asd", "Got the linear layout and it contains "
-					+ mLinearLayout.getChildCount());
-			TextView tv = (TextView) convertView
-					.findViewById(R.id.MyLifeListItemTV);
-			Date d = new Date(VideoList.get(0).date);
-			String date = String.valueOf(VideoList.get(0).date);
-			tv.setText(date.substring(6) + "/" + date.substring(4, 6) + "/"
-					+ date.substring(0, 4));
 
 			for (Video v : VideoList) {
 				FrameLayout FL = (FrameLayout) mInflater.inflate(
 						R.layout.fragment_my_life_video_item, null);
 				mLinearLayout.addView(FL);
-				Log.d("asd", "path is " + v.path);
+
 				ImageView iv = (ImageView) FL.findViewById(R.id.imageView1);
-				Bitmap bmp = BitmapFactory.decodeFile(v.thumbnailPath);
-				iv.setImageBitmap(bmp);
+				iv.setImageBitmap(BitmapFactory.decodeFile(v.thumbnailPath));
 				iv.setTag(v);
 				if (v.selected) {
 					iv.setBackgroundColor(getResources().getColor(
 							R.color.selectBlue));
 				}
 
-				final Uri videopath = Uri.fromFile(new File(v.path));
-
 				iv.setOnClickListener(new View.OnClickListener() {
-					public void onClick(View v) {
+					public void onClick(View view) {
+						Video v = (Video)view.getTag();
 						Intent playIntent = new Intent();
 						playIntent.setAction(Intent.ACTION_VIEW);
-						playIntent.setDataAndType(videopath, "video/*");
+						playIntent.setDataAndType(Uri.fromFile(new File(v.path)), "video/*");
 						getActivity().startActivity(playIntent);
 					}
 				});
@@ -315,24 +349,8 @@ public class MyLifeFragment extends Fragment {
 						return true;
 					}
 				});
-
-				if (v.selected) {
-					// FL.findViewById(R.id.checkBox1).setActivated(true);
-				}
-
 			}
 
-			/*
-			 * if(!VideoList.isEmpty()) { Video v1 = VideoList.get(0); Long l =
-			 * new Long(v1.date); if(mHashtable.containsKey(l)) { RelativeLayout
-			 * RL = (RelativeLayout) mHashtable.get(l);
-			 * mLinearLayout.addView(RL, 0); } else { for(Video v : VideoList) {
-			 * RelativeLayout RL = (RelativeLayout)
-			 * mInflater.inflate(R.layout.fragment_my_life_video_item, null);
-			 * mLinearLayout.addView(RL); VideoView videoV = (VideoView)
-			 * RL.findViewById(R.id.videoView1); //videoV.setVideoPath(v.path);
-			 * Log.d("asd", "path is " + v.path); } } }
-			 */
 			return convertView;
 		}
 
@@ -453,31 +471,4 @@ public class MyLifeFragment extends Fragment {
 			return position;
 		}
 	}
-
-	/*
-	 * public class MyLifeVideoListArrayAdapter extends ArrayAdapter<Video> {
-	 * 
-	 * private Context mContext; private List<Video> mList; private
-	 * LayoutInflater mInflater;
-	 * 
-	 * public MyLifeVideoListArrayAdapter(Context context, List<Video> List) {
-	 * super(context, R.layout.fragment_my_life_video_item);
-	 * 
-	 * this.mContext = context; this.mList = List; this.mInflater =
-	 * LayoutInflater.from(context); }
-	 * 
-	 * @Override public View getView(int position, View convertView, ViewGroup
-	 * parent) {
-	 * 
-	 * if(convertView == null) { convertView =
-	 * mInflater.inflate(R.layout.fragment_my_life_video_item, parent); }
-	 * 
-	 * Video video = this.mList.get(position); VideoView view = (VideoView)
-	 * convertView; view.setVideoPath(video.path);
-	 * 
-	 * return convertView; }
-	 * 
-	 * }
-	 */
-
 }

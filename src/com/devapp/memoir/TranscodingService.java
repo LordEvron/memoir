@@ -44,43 +44,32 @@ public class TranscodingService extends IntentService {
 		if(m1 == null) {
 			return m2;
 		}
-		Log.d("asd", "1");
         List<Track> videoTracks = new LinkedList<Track>();
         List<Track> audioTracks = new LinkedList<Track>();
 
-		Log.d("asd", "2");
         for (Track t : m1.getTracks()) {
             if (t.getHandler().equals("soun")) {
                 audioTracks.add(t);
-        		Log.d("asd", "3");
             }
             if (t.getHandler().equals("vide")) {
                 videoTracks.add(t);
-        		Log.d("asd", "4");
             }
         }
         for (Track t : m2.getTracks()) {
             if (t.getHandler().equals("soun")) {
                 audioTracks.add(t);
-        		Log.d("asd", "5");
             }
             if (t.getHandler().equals("vide")) {
                 videoTracks.add(t);
-        		Log.d("asd", "6");
             }
         }
-		Log.d("asd", "7");
         Movie result = new Movie();
 
         if (audioTracks.size() > 0) {
-    		Log.d("asd", "8");
             result.addTrack(new AppendTrack(audioTracks.toArray(new Track[audioTracks.size()])));
-    		Log.d("asd", "9");
         }
         if (videoTracks.size() > 0) {
-    		Log.d("asd", "10");
             result.addTrack(new AppendTrack(videoTracks.toArray(new Track[videoTracks.size()])));
-    		Log.d("asd", "11");
         }
 
         return result;
@@ -113,7 +102,6 @@ public class TranscodingService extends IntentService {
 			return;
 		}
 		
-		Log.d("asd", "in onHandleIntent 1");
 		int i = 0, j = 0, k = 0;
 		ArrayList<Video> videoList = null;
 		Video v = null;
@@ -121,7 +109,6 @@ public class TranscodingService extends IntentService {
 		ArrayList<Movie> inMovies = new ArrayList<Movie>();
 		File videoFile = null;
 		
-		Log.d("asd", "in onHandleIntent 2");
 		for(i = 0; i < dateList.size(); i++) {
 			videoList = (ArrayList<Video>) dateList.get(i);
 			
@@ -143,10 +130,8 @@ public class TranscodingService extends IntentService {
 		}
 		
 		
-		Log.d("asd", "in onHandleIntent 3");
 		try {
 
-			Log.d("asd", "Starting :)");
 	        //File video1 = new File(extStorePath, "1.mp4");
 	        //File video2 = new File(extStorePath, "2.mp4");
 
@@ -186,30 +171,24 @@ public class TranscodingService extends IntentService {
 			boolean mExternalStorageWriteable = false;
 			String state = Environment.getExternalStorageState();
 
-			Log.d("asd", "1111");
 			if (Environment.MEDIA_MOUNTED.equals(state)) {
 			    // We can read and write the media
 			    mExternalStorageAvailable = mExternalStorageWriteable = true;
 			    
-			    Log.d("asd", "Path  " + extStorePath.toString());
 			    File file = new File(extStorePath, "/Memoir/output.mp4");
 			    Log.d("asd", "File " + file.getAbsolutePath());
 			    FileOutputStream fos = new FileOutputStream(file);
-			    Log.d("asd", "size > " + out.getSize());
 				out.getBox(fos.getChannel());
 				fos.close();
 			    
-				Log.d("asd", "2");
 			} else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
 			    // We can only read the media
 			    mExternalStorageAvailable = true;
 			    mExternalStorageWriteable = false;
-				Log.d("asd", "3");
 			} else {
 			    // Something else is wrong. It may be one of many other states, but all we need
 			    //  to know is we can neither read nor write
 			    mExternalStorageAvailable = mExternalStorageWriteable = false;
-				Log.d("asd", "4");
 			}
 			
 			
@@ -221,10 +200,7 @@ public class TranscodingService extends IntentService {
 			e.printStackTrace();
 		}
 		
-		//Intent broadcastIntent = new Intent("TranscodingComplete");
-		//LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
+		Intent broadcastIntent = new Intent("TranscodingComplete");
+		LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
 	}
-	
-	
-
 }

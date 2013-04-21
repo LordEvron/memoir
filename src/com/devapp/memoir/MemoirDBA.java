@@ -3,8 +3,6 @@ package com.devapp.memoir;
 //import java.sql.Date;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 
 import android.content.ContentValues;
@@ -93,14 +91,16 @@ public class MemoirDBA  {
 			
 			long t1, t2;
 			t1 = startDate >=0 ? startDate : 0;
-			t2 = endDate > 0 ? endDate : new Date().getTime();
+			t2 = endDate > 0 ? endDate : 29990101;
 			
 			String selection = V_TABLE_DATE + " >= " + t1 + " AND " + V_TABLE_DATE + " <= " + t2;
 			if(selected) {
 				selection = selection + " AND " + V_TABLE_SELECTED + " = 1 " ;
 			}
 			Log.d("asd", "Selection Query = " + selection);
-			Cursor c = db.query(VIDEOS_TABLE_NAME, null, selection, null, null, null, null);
+			String orderBy = V_TABLE_DATE + " DESC ";
+			
+			Cursor c = db.query(VIDEOS_TABLE_NAME, null, selection, null, null, null, orderBy);
 
 			List<List<Video>> dateList = null;
 			long currentDate = 0;
