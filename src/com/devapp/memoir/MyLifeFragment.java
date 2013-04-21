@@ -121,24 +121,9 @@ public class MyLifeFragment extends Fragment {
 					@Override
 					public void onClick(View imageView) {
 						imageView.setVisibility(View.INVISIBLE);
-<<<<<<< HEAD
-						// mVv.start();
-					}
-
-				});
-
-		multiDatePicker = new MultiDatePicker();
-	}
-
-	public void onDateButtonClicked(View dateView) {
-		((MultiDatePicker) multiDatePicker).setActiveDate(dateView);
-		FragmentTransaction ft = getFragmentManager().beginTransaction();
-		multiDatePicker.show(ft, "dialog");
-=======
 						mVv.start();
 					}
 				});
->>>>>>> Fixing the ListView, Dates and Video playing after creation
 	}
 
 	@Override
@@ -209,12 +194,6 @@ public class MyLifeFragment extends Fragment {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-<<<<<<< HEAD
-			getActivity().findViewById(R.id.MyLifePlayPB).setVisibility(
-					View.INVISIBLE);
-			getActivity().findViewById(R.id.MyLifePlayIV).setVisibility(
-					View.VISIBLE);
-=======
 			Log.d("qwe", "OnREceive :) ");
 			//getActivity().findViewById(R.id.MyLifePlayPB).setVisibility(
 			//		View.INVISIBLE);
@@ -222,7 +201,6 @@ public class MyLifeFragment extends Fragment {
 			//		View.VISIBLE);
 			
 			mVv.setVideoPath(MemoirApplication.getConcatenatedOutputFile(context));
->>>>>>> Fixing the ListView, Dates and Video playing after creation
 		}
 	}
 
