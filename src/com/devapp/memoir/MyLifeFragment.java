@@ -48,7 +48,6 @@ public class MyLifeFragment extends Fragment {
 	MediaController mMc = null;
 	VideoView mVv = null;
 	TranscodingServiceBroadcastReceiver mDataBroadcastReceiver = null;
-	DialogFragment multiDatePicker;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,

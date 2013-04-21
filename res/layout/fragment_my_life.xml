@@ -4,58 +4,6 @@
     android:background="@drawable/image2"
     android:orientation="vertical" >
 
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal" >
-
-        <TextView
-            android:id="@+id/startDateLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingLeft="3dp"
-            android:text="From:"
-            android:textSize="18dp"
-            android:textStyle="bold" />
-
-        <Button
-            android:id="@+id/startDateButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/date"
-            android:text="15/06/13"
-            android:textColor="#ffffff"
-            android:textSize="15dp"
-            android:textStyle="bold"
-            android:onClick="onDateButtonClicked" />
-
-        <View
-            android:id="@+id/strut"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="0.1" />
-
-        <TextView
-            android:id="@+id/endDateLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="To:"
-            android:textSize="18dp"
-            android:textStyle="bold" />
-
-        <Button
-            android:id="@+id/endDateButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/date"
-            android:paddingRight="3dp"
-            android:text="05/03/13"
-            android:textColor="#ffffff"
-            android:textSize="15dp"
-            android:textStyle="bold"
-            android:onClick="onDateButtonClicked" />
-    </LinearLayout>
-
     <FrameLayout
         android:id="@+id/MyLifeFL"
         android:layout_width="match_parent"
