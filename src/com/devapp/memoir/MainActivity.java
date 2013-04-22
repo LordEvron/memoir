@@ -1,11 +1,17 @@
 package com.devapp.memoir;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -13,6 +19,8 @@ import android.widget.ShareActionProvider;
 
 public class MainActivity extends Activity {
 	private ShareActionProvider mShareActionProvider;
+	public static int VIDEO_CAPTURE = 0;
+	public Video mVideo = null;
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -43,9 +51,24 @@ public class MainActivity extends Activity {
 			return true;
 		case R.id.action_shoot_video:
 			Log.d("asd", "Shoot video selected");
-			intent = new Intent(this, CameraActivity.class);
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			startActivity(intent);
+			
+			SimpleDateFormat ft = new SimpleDateFormat("yyyyMMdd");
+			long d = Long.parseLong(ft.format(new Date()));
+			mVideo = new Video(0, d, MemoirApplication.getOutputMediaFile(this), false, 2);
+			
+			Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+			takeVideoIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 2);
+			takeVideoIntent.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+			File videoFile = new File(mVideo.path);
+			takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(videoFile));
+			Log.d("asd", "URI is " + Uri.fromFile(videoFile));
+			startActivityForResult(takeVideoIntent, VIDEO_CAPTURE);
+
+			/*
+			 * intent = new Intent(this, CameraActivity.class);
+			 * intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			 * startActivity(intent);
+			 */
 			return true;
 		case R.id.action_settings:
 			Log.d("asd", " Settings selected");
@@ -130,5 +153,15 @@ public class MainActivity extends Activity {
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
+		
+		if(requestCode == VIDEO_CAPTURE && resultCode == RESULT_OK) {
+		    Uri VideoUri = data.getData();
+		    Log.d("zxc", "VideoUri.getPath() >" + VideoUri.getPath() + " mVideo.path>" + mVideo.path);
+		    if(VideoUri.getPath().equals(mVideo.path)) {
+				((MemoirApplication) getApplication()).getDBA().addVideo(mVideo);
+				((MemoirApplication) getApplication()).getDBA().selectVideo(mVideo);
+		    }
+		}
+
 	}
 }
