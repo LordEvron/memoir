@@ -7,19 +7,22 @@
     <FrameLayout
         android:id="@+id/MyLifeFL"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:background="#ff0000" >
 
         <VideoView
             android:id="@+id/MyLifeVV"
             android:layout_width="match_parent"
             android:layout_height="200dp"
-            android:layout_margin="10dp" />
+            android:layout_margin="10dp"
+            android:background="#0000ff" />
 
         <LinearLayout
             android:id="@+id/MyLifeLL"
             android:layout_width="match_parent"
             android:layout_height="120dp"
-            android:orientation="vertical" >
+            android:orientation="vertical"
+            android:background="#00ff00" >
         </LinearLayout>
 
         <ProgressBar
@@ -79,6 +82,16 @@
                 android:text="Small Text"
                 android:visibility="invisible"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/MyLifeNoVideoLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="120dp"
+            android:layout_marginTop="100dp"
+            android:text="@string/my_life_no_videos_found"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
     </FrameLayout>
 
     <ListView

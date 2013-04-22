@@ -18,5 +18,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="camera_activity_my_life">My Life</string>
     <string name="camera_activity_to">to</string>
+    <string name="my_life_no_videos_found">No videos found</string>
 
 </resources>

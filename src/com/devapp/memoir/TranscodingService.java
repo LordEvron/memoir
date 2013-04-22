@@ -93,12 +93,14 @@ public class TranscodingService extends IntentService {
 		
 		Log.d("asd", "in onHandleIntent");
 		long startDate, endDate;
+		Intent broadcastIntent = new Intent("TranscodingComplete");
 		startDate = intent.getLongExtra("startDate", 0);
 		endDate = intent.getLongExtra("endDate", -1);
 		
 		List<List<Video>> dateList = ((MemoirApplication) getApplication()).getDBA().getVideos(startDate, endDate, true);
 
 		if(dateList == null) {
+			LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
 			return;
 		}
 		
@@ -176,7 +178,7 @@ public class TranscodingService extends IntentService {
 			    mExternalStorageAvailable = mExternalStorageWriteable = true;
 			    
 			    File file = new File(extStorePath, "/Memoir/output.mp4");
-			    Log.d("asd", "File " + file.getAbsolutePath());
+			    Log.d("Swati", "File " + file.getAbsolutePath());
 			    FileOutputStream fos = new FileOutputStream(file);
 				out.getBox(fos.getChannel());
 				fos.close();
@@ -200,7 +202,6 @@ public class TranscodingService extends IntentService {
 			e.printStackTrace();
 		}
 		
-		Intent broadcastIntent = new Intent("TranscodingComplete");
 		LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
 	}
 }
