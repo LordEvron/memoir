@@ -97,7 +97,7 @@ public class MemoirDBA  {
 			if(selected) {
 				selection = selection + " AND " + V_TABLE_SELECTED + " = 1 " ;
 			}
-			Log.d("asd", "Selection Query = " + selection);
+			//Log.d("asd", "Selection Query = " + selection);
 			String orderBy = V_TABLE_DATE + " DESC ";
 			
 			Cursor c = db.query(VIDEOS_TABLE_NAME, null, selection, null, null, null, orderBy);
@@ -113,14 +113,14 @@ public class MemoirDBA  {
 			if (c.moveToFirst()) {
 				while(!c.isAfterLast()) {
 					long date = c.getLong(V_TABLE_DATE_INDEX);
-					Log.d("asd", "Date of this video is >" + date);
+					//Log.d("asd", "Date of this video is >" + date);
 					if(date != currentDate) {
-						Log.d("asd", "New video from a new day");
+						//Log.d("asd", "New video from a new day");
 						currentVideoList = new ArrayList<Video>();
 						dateList.add(currentVideoList);
 						currentDate = date;
 					}
-					Log.d("asd", "reading video");
+					//Log.d("asd", "reading video");
 					
 					Video v = new Video(c.getInt(V_TABLE_KEY_INDEX), c.getLong(V_TABLE_DATE_INDEX), c.getString(V_TABLE_PATH_INDEX), c.getString(V_TABLE_THUMBNAIL_PATH_INDEX), c.getInt(V_TABLE_SELECTED_INDEX) > 0 ? true : false, c.getInt(V_TABLE_LENGTH_INDEX));
 					currentVideoList.add(v);
@@ -143,7 +143,7 @@ public class MemoirDBA  {
 			values.put(V_TABLE_SELECTED, v.selected);
 			values.put(V_TABLE_LENGTH, v.length);
 			
-			Log.d("asd", "Inserting values Date>" + v.date + "  Path>" + v.path + "   selected>" + v.selected + "  >length" + v.length);
+			//Log.d("asd", "Inserting values Date>" + v.date + "  Path>" + v.path + "   selected>" + v.selected + "  >length" + v.length);
 			
 			return db.insert(VIDEOS_TABLE_NAME, null, values);
 		}

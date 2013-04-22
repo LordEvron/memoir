@@ -1,14 +1,19 @@
 package com.devapp.memoir;
 
 import java.io.File;
+import java.util.Date;
+import java.util.Hashtable;
 import java.util.List;
 
+import android.app.DialogFragment;
 import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnPreparedListener;
@@ -16,7 +21,6 @@ import android.media.MediaPlayer.OnVideoSizeChangedListener;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -26,14 +30,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.MediaController;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.VideoView;
 
@@ -47,18 +50,14 @@ public class MyLifeFragment extends Fragment {
 	VideoView mVv = null;
 	TranscodingServiceBroadcastReceiver mDataBroadcastReceiver = null;
 	private SharedPreferences mPrefs = null;
-	TextView myLifeLabel = null;
-	TextView startDateTv = null;
-	TextView toLabel = null;
-	TextView endDateTv = null;
 
+	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View rootView = inflater.inflate(R.layout.fragment_my_life, container,
 				false);
-		Log.d("asd", "Calling onCreateView");
 		mRootView = rootView;
 		mPrefs = this.getActivity().getSharedPreferences("com.devapp.memoir",
 				Context.MODE_PRIVATE);
@@ -72,16 +71,6 @@ public class MyLifeFragment extends Fragment {
 		mDateList = (ListView) getActivity().findViewById(R.id.MyLifeDateLV);
 
 		mVv = (VideoView) getActivity().findViewById(R.id.MyLifeVV);
-		DisplayMetrics displaymetrics = new DisplayMetrics();
-		getActivity().getWindowManager().getDefaultDisplay()
-				.getMetrics(displaymetrics);
-		int w = displaymetrics.widthPixels;
-		mVv.setLayoutParams(new FrameLayout.LayoutParams(w, mVv.getHeight()));
-
-		Context c = this.getActivity().getApplicationContext();
-		Log.d("qwe",
-				"Output file" + MemoirApplication.getConcatenatedOutputFile(c));
-		// mVv.setVideoPath(MemoirApplication.getConcatenatedOutputFile(c));
 		mMc = new MediaController(getActivity());
 		mVv.setMediaController(mMc);
 		mVv.requestFocus();
@@ -97,16 +86,15 @@ public class MyLifeFragment extends Fragment {
 						mVv.getHeight() - 155));
 				mMc.setAnchorView(ll);
 
-				getActivity().findViewById(R.id.MyLifePlayPB).setVisibility(
+				mRootView.findViewById(R.id.MyLifePlayPB).setVisibility(
 						View.INVISIBLE);
-				getActivity().findViewById(R.id.MyLifePlayIV).setVisibility(
+				mRootView.findViewById(R.id.MyLifePlayIV).setVisibility(
 						View.VISIBLE);
 
 				mp.setOnVideoSizeChangedListener(new OnVideoSizeChangedListener() {
 					@Override
 					public void onVideoSizeChanged(MediaPlayer arg0, int arg1,
 							int arg2) {
-						Log.d("Swati", "width= " + arg0 + " height=" + arg1);
 						LinearLayout ll = (LinearLayout) getActivity()
 								.findViewById(R.id.MyLifeLL);
 						ll.setLayoutParams(new FrameLayout.LayoutParams(mVv
@@ -122,29 +110,17 @@ public class MyLifeFragment extends Fragment {
 			@Override
 			public void onCompletion(MediaPlayer vmp) {
 				Log.d("qwe", "On Completion listener");
-				getActivity().findViewById(R.id.MyLifePlayIV).setVisibility(
+				mRootView.findViewById(R.id.MyLifePlayIV).setVisibility(
 						View.VISIBLE);
-				showVideoLabels(true);
 			}
 		});
-
-		getActivity().findViewById(R.id.MyLifePlayIV).setOnClickListener(
-				new OnClickListener() {
-
-					@Override
-					public void onClick(View imageView) {
-						imageView.setVisibility(View.INVISIBLE);
-						showVideoLabels(false);
-						mVv.start();
-					}
-				});
 	}
 
 	@Override
 	public void onStart() {
 		super.onStart();
 
-		Log.d("qwe", "OnStart of my Fragement");
+		//Log.d("qwe", "OnStart of my Fragement");
 		mVideos = ((MemoirApplication) getActivity().getApplication()).getDBA()
 				.getVideos(0, -1, false);
 		mDateAdapter = new MyLifeDateListArrayAdapter(getActivity(), mVideos);
@@ -173,77 +149,25 @@ public class MyLifeFragment extends Fragment {
 		 * context.startService(serviceIntent);
 		 */
 
-		myLifeLabel = (TextView) getActivity().findViewById(R.id.MyLifeLabel);
-		startDateTv = (TextView) getActivity().findViewById(
-				R.id.MyLifeStartDateTV);
-		toLabel = (TextView) getActivity().findViewById(R.id.MyLifeToLabel);
-		endDateTv = (TextView) getActivity().findViewById(R.id.MyLifeEndDateTv);
-
-		// if (mPrefs.getBoolean("com.devapp.memoir.datechanged", true) == true)
-		// {
-		// mPrefs.edit().putBoolean("com.devapp.memoir.datechanged", false)
-		// .commit();
-		refreshVideoLabels();
-		refreshLifeTimeVideo();
-		// }
-	}
-
-	private void refreshVideoLabels() {
-		String startDate = mPrefs.getString("com.devapp.memoir.startselected",
-				null);
-		String endDate = mPrefs
-				.getString("com.devapp.memoir.endselected", null);
-
-		startDateTv.setText(startDate);
-		endDateTv.setText(endDate);
-	}
-
-	private void showVideoLabels(boolean show) {
-		Animation animation = null;
-
-		if (show) {
-			animation = AnimationUtils.loadAnimation(this.getActivity(),
-					R.anim.mylifedateappear);
-
-			myLifeLabel.setVisibility(View.VISIBLE);
-			myLifeLabel.startAnimation(animation);
-
-			startDateTv.setVisibility(View.VISIBLE);
-			startDateTv.startAnimation(animation);
-
-			toLabel.setVisibility(View.VISIBLE);
-			toLabel.startAnimation(animation);
-
-			endDateTv.setVisibility(View.VISIBLE);
-			endDateTv.startAnimation(animation);
-
+		if(mPrefs.getBoolean("com.devapp.memoir.datachanged", true) == true) {
+			mPrefs.edit().putBoolean("com.devapp.memoir.datachanged", false).commit();
+			refreshLifeTimeVideo();
 		} else {
-			animation = AnimationUtils.loadAnimation(this.getActivity(),
-					R.anim.mylifedatedisappear);
-
-			myLifeLabel.setVisibility(View.INVISIBLE);
-			myLifeLabel.startAnimation(animation);
-
-			startDateTv.setVisibility(View.INVISIBLE);
-			startDateTv.startAnimation(animation);
-
-			toLabel.setVisibility(View.INVISIBLE);
-			toLabel.startAnimation(animation);
-
-			endDateTv.setVisibility(View.INVISIBLE);
-			endDateTv.startAnimation(animation);
+			String myLifeFile = MemoirApplication.getMyLifeFile(getActivity().getApplicationContext());
+			if(myLifeFile != null)
+				mVv.setVideoPath(myLifeFile);
+			else
+				mRootView.findViewById(R.id.MyLifePlayIV).setVisibility(View.VISIBLE);
 		}
 	}
 
 	public void refreshLifeTimeVideo() {
-		Log.d("Swati", "Entered refreshLifeTimeVideo");
-		getActivity().findViewById(R.id.MyLifePlayIV).setVisibility(
+		mRootView.findViewById(R.id.MyLifePlayIV).setVisibility(
 				View.INVISIBLE);
-		Intent intent = new Intent(this.getActivity(), TranscodingService.class);
-		this.getActivity().startService(intent);
-		getActivity().findViewById(R.id.MyLifePlayPB).setVisibility(
+		Intent intent = new Intent(getActivity(), TranscodingService.class);
+		getActivity().startService(intent);
+		mRootView.findViewById(R.id.MyLifePlayPB).setVisibility(
 				View.VISIBLE);
-		showVideoLabels(true);
 	}
 
 	@Override
@@ -269,32 +193,18 @@ public class MyLifeFragment extends Fragment {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			Log.d("Swati", "OnREceive :) ");
-			// getActivity().findViewById(R.id.MyLifePlayPB).setVisibility(
-			// View.INVISIBLE);
-			// getActivity().findViewById(R.id.MyLifePlayIV).setVisibility(
-			// View.VISIBLE);
-
-			String outputfile = MemoirApplication
-					.getConcatenatedOutputFile(context);
-			boolean fileExists = new File(outputfile).isFile();
-
-			if (fileExists) {
-				getActivity().findViewById(R.id.MyLifeNoVideoLabel)
-						.setVisibility(View.INVISIBLE);
-				mVv.setVideoPath(MemoirApplication
-						.getConcatenatedOutputFile(context));
-			} else { // This is the first time we are running this app
-				getActivity().findViewById(R.id.MyLifePlayPB).setVisibility(
-						View.INVISIBLE);
-				showVideoLabels(false);
+			Log.d("qwe", "OnReceive :) ");
+			String outputFile = intent.getStringExtra("OutputFileName");
+			if(!outputFile.isEmpty()) {
+				mVv.setVideoPath(outputFile);
+			} else {
+				
 			}
+			//mRootView.findViewById(R.id.MyLifePlayPB).setVisibility(
+			//		View.INVISIBLE);
+			//mRootView.findViewById(R.id.MyLifePlayIV).setVisibility(
+			//		View.VISIBLE);
 		}
-	}
-
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		Log.e("qwe", "I got my on Activity Result Yeeeeee:)");
 	}
 
 	public class MyLifeDateListArrayAdapter extends ArrayAdapter<List<Video>> {
@@ -318,19 +228,19 @@ public class MyLifeFragment extends Fragment {
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			Log.d("asd", "in getView for position " + position);
+			//Log.d("asd", "in getView for position " + position);
 
 			// NOTE: assuming VideoList can never be null here.
 			List<Video> VideoList = this.mList.get(position);
 			String date = String.valueOf(VideoList.get(0).date);
 
 			if (convertView == null) {
-				Log.d("asd", "convertView turned out to be null ");
+				//Log.d("asd", "convertView turned out to be null ");
 
 				convertView = mInflater.inflate(
 						R.layout.fragment_my_life_list_item, null);
 			} else {
-				Log.d("asd", "ConvertView exists");
+				//Log.d("asd", "ConvertView exists");
 
 				if (!((TextView) convertView
 						.findViewById(R.id.MyLifeListItemTV)).getText().equals(
@@ -359,16 +269,19 @@ public class MyLifeFragment extends Fragment {
 					return convertView;
 				}
 			}
-			/** NOTE: Setting the background color of tiles */
+			/** NOTE: Setting the background color of tiles*/
 			if (position % 2 == 0) {
-				convertView.setBackgroundResource(R.drawable.alterselector1);
+				convertView
+						.setBackgroundResource(R.drawable.alterselector1);
 			} else {
-				convertView.setBackgroundResource(R.drawable.alterselector2);
+				convertView
+						.setBackgroundResource(R.drawable.alterselector2);
 			}
 
+			
 			((TextView) convertView.findViewById(R.id.MyLifeListItemTV))
-					.setText(date.substring(6) + "/" + date.substring(4, 6)
-							+ "/" + date.substring(0, 4));
+			.setText(date.substring(6) + "/" + date.substring(4, 6)
+					+ "/" + date.substring(0, 4));
 
 			mLinearLayout = (LinearLayout) convertView
 					.findViewById(R.id.MyLifeListItemInnerLL);
@@ -388,11 +301,10 @@ public class MyLifeFragment extends Fragment {
 
 				iv.setOnClickListener(new View.OnClickListener() {
 					public void onClick(View view) {
-						Video v = (Video) view.getTag();
+						Video v = (Video)view.getTag();
 						Intent playIntent = new Intent();
 						playIntent.setAction(Intent.ACTION_VIEW);
-						playIntent.setDataAndType(
-								Uri.fromFile(new File(v.path)), "video/*");
+						playIntent.setDataAndType(Uri.fromFile(new File(v.path)), "video/*");
 						getActivity().startActivity(playIntent);
 					}
 				});

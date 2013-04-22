@@ -39,7 +39,7 @@ public class MemoirApplication extends Application {
 			editor.putString("com.devapp.memoir.endall", date);
 			editor.putString("com.devapp.memoir.startselected", date);
 			editor.putString("com.devapp.memoir.endselected", date);
-			editor.putBoolean("com.devapp.memoir.datechanged", true);
+			editor.putBoolean("com.devapp.memoir.datachanged", false);
 			editor.commit();
 			
 			Log.d("zxc", "Setting all prefernces to this date" + date);
@@ -50,7 +50,7 @@ public class MemoirApplication extends Application {
 		return mDBA;
 	}
 
-	public static String getConcatenatedOutputFile(Context c) {
+	public static String getMyLifeFile(Context c) {
 		String outputFilename = null;
 
 		if (useExternal) {
@@ -59,7 +59,13 @@ public class MemoirApplication extends Application {
 		} else
 			outputFilename = c.getFilesDir().getAbsolutePath();
 
-		return outputFilename.concat("/Memoir/output.mp4");
+		outputFilename = outputFilename.concat("/Memoir/MyLife.mp4");
+		File f = new File(outputFilename);
+		if(f.exists()) {
+			return outputFilename;
+		} else {
+			return null;
+		}
 	}
 
 	public static String getOutputMediaFile(Context c) {
@@ -79,7 +85,7 @@ public class MemoirApplication extends Application {
 						"Memoir");
 				if (!mediaStorageDir.exists()) {
 					if (!mediaStorageDir.mkdirs()) {
-						Log.d("Memoir", "failed to create directory");
+						//Log.d("Memoir", "failed to create directory");
 						return null;
 					}
 				}
@@ -88,7 +94,7 @@ public class MemoirApplication extends Application {
 						.format(new Date());
 				String fileName = mediaStorageDir.getPath() + File.separator
 						+ "VID_" + timeStamp + ".mp4";
-				Log.d("asd", "FileName is " + fileName);
+				//Log.d("asd", "FileName is " + fileName);
 				return fileName;
 
 			} else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
@@ -108,7 +114,7 @@ public class MemoirApplication extends Application {
 					"Memoir");
 			if (!mediaStorageDir.exists()) {
 				if (!mediaStorageDir.mkdirs()) {
-					Log.d("Memoir", "failed to create directory");
+					//Log.d("Memoir", "failed to create directory");
 					return null;
 				}
 			}
@@ -116,7 +122,7 @@ public class MemoirApplication extends Application {
 					.format(new Date());
 			String fileName = mediaStorageDir.getPath() + File.separator
 					+ "VID_" + timeStamp + ".mp4";
-			Log.d("asd", "FileName is " + fileName);
+			//Log.d("asd", "FileName is " + fileName);
 			return fileName;
 		}
 
@@ -140,7 +146,7 @@ public class MemoirApplication extends Application {
 						"Memoir/.thumbnails");
 				if (!mediaStorageDir.exists()) {
 					if (!mediaStorageDir.mkdirs()) {
-						Log.d("Memoir", "failed to create directory");
+						//Log.d("Memoir", "failed to create directory");
 						return null;
 					}
 				}
@@ -149,7 +155,7 @@ public class MemoirApplication extends Application {
 						MediaStore.Video.Thumbnails.MINI_KIND);
 				try {
 					newPath = path.substring(0, path.length() - 3) + "png";
-					Log.d("asd", newPath);
+					//Log.d("asd", newPath);
 					FileOutputStream out = new FileOutputStream(newPath);
 					bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
 				} catch (Exception e) {
@@ -169,8 +175,8 @@ public class MemoirApplication extends Application {
 				mExternalStorageAvailable = mExternalStorageWriteable = false;
 			}
 		} else {
-			Log.d("asd", "getDataDirectory > "
-					+ c.getFilesDir().getAbsolutePath());
+			//Log.d("asd", "getDataDirectory > "
+			//		+ c.getFilesDir().getAbsolutePath());
 			File mediaStorageDir = new File(c.getFilesDir().getAbsolutePath(),
 					"Memoir/.thumbnails");
 			if (!mediaStorageDir.exists()) {

@@ -7,22 +7,19 @@
     <FrameLayout
         android:id="@+id/MyLifeFL"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#ff0000" >
+        android:layout_height="wrap_content" >
 
         <VideoView
             android:id="@+id/MyLifeVV"
             android:layout_width="match_parent"
             android:layout_height="200dp"
-            android:layout_margin="10dp"
-            android:background="#0000ff" />
+            android:layout_margin="10dp" />
 
         <LinearLayout
             android:id="@+id/MyLifeLL"
             android:layout_width="match_parent"
             android:layout_height="120dp"
-            android:orientation="vertical"
-            android:background="#00ff00" >
+            android:orientation="vertical" >
         </LinearLayout>
 
         <ProgressBar
@@ -36,62 +33,10 @@
         <ImageView
             android:id="@+id/MyLifePlayIV"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="140dp"
             android:layout_margin="40dp"
-            android:src="@android:drawable/ic_media_play"
+            android:src="@drawable/no_video"
             android:visibility="invisible" />
-
-        <TextView
-            android:id="@+id/MyLifeLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="90dp"
-            android:text="@string/camera_activity_my_life"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="#ffffff"
-            android:textStyle="bold|italic"
-            android:visibility="invisible" />
-
-        <TextView
-            android:id="@+id/MyLifeStartDateTV"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="110dp"
-            android:visibility="invisible"
-            android:text="Small Text"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
-
-        <TextView
-            android:id="@+id/MyLifeToLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="130dp"
-            android:visibility="invisible"
-            android:text="@string/camera_activity_to"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
-        
-        <TextView
-                android:id="@+id/MyLifeEndDateTv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
-                android:layout_marginTop="150dp"
-                android:text="Small Text"
-                android:visibility="invisible"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
-
-        <TextView
-            android:id="@+id/MyLifeNoVideoLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="120dp"
-            android:layout_marginTop="100dp"
-            android:text="@string/my_life_no_videos_found"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
-
     </FrameLayout>
 
     <ListView
