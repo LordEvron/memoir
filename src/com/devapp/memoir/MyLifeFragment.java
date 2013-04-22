@@ -175,9 +175,8 @@ public class MyLifeFragment extends Fragment {
 			mPrefs.edit().putBoolean("com.devapp.memoir.datechanged", false)
 					.commit();
 			refreshLifeTimeVideo();
-			refreshVideoLabels();
 		}
-		showVideoLabels(true);
+		refreshVideoLabels();
 
 	}
 
@@ -189,7 +188,7 @@ public class MyLifeFragment extends Fragment {
 
 		startDateTv.setText(startDate);
 		endDateTv.setText(endDate);
-
+		showVideoLabels(true);
 	}
 
 	private void showVideoLabels(boolean show) {
