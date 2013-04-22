@@ -17,7 +17,7 @@ public class MainActivity extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.main, menu);
-		
+
 		mShareActionProvider = (ShareActionProvider) menu.findItem(
 				R.id.action_share_video).getActionProvider();
 		Intent shareIntent = new Intent(Intent.ACTION_SEND);
@@ -49,9 +49,9 @@ public class MainActivity extends Activity {
 			return true;
 		case R.id.action_settings:
 			Log.d("asd", " Settings selected");
-            intent = new Intent(this, SettingsActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
+			intent = new Intent(this, SettingsActivity.class);
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(intent);
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -95,7 +95,7 @@ public class MainActivity extends Activity {
 
 		final ActionBar actionBar = getActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-		actionBar.setDisplayShowTitleEnabled(true);
+		actionBar.setDisplayShowTitleEnabled(false);
 
 		/*
 		 * Tab tab = actionBar.newTab() .setText("My Life") .setTabListener(new
