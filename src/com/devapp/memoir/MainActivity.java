@@ -1,6 +1,7 @@
 package com.devapp.memoir;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -69,6 +70,8 @@ public class MainActivity extends Activity {
 			File videoFile = new File(mVideo.path);
 			takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT,
 					Uri.fromFile(videoFile));
+
+			takeVideoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
 			Log.d("asd", "URI is " + Uri.fromFile(videoFile));
 			startActivityForResult(takeVideoIntent, VIDEO_CAPTURE);
 
@@ -133,9 +136,19 @@ public class MainActivity extends Activity {
 
 		if (requestCode == VIDEO_CAPTURE && resultCode == RESULT_OK) {
 			Uri VideoUri = data.getData();
+
 			Log.d("zxc", "VideoUri.getPath() >" + VideoUri.getPath()
-					+ " mVideo.path>" + mVideo.path);
+					+ " mVideo.path>" + mVideo.path + " Video URI >" + VideoUri);
+
 			if (VideoUri.getPath().equals(mVideo.path)) {
+				((MemoirApplication) getApplication()).getDBA()
+						.addVideo(mVideo);
+				((MemoirApplication) getApplication()).getDBA().selectVideo(
+						mVideo);
+				mPrefs.edit().putBoolean("com.devapp.memoir.datachanged", true)
+						.commit();
+			} else if (MemoirApplication.getFilePathFromContentUri(VideoUri,
+					getContentResolver()).equals(mVideo.path)) {
 				((MemoirApplication) getApplication()).getDBA()
 						.addVideo(mVideo);
 				((MemoirApplication) getApplication()).getDBA().selectVideo(

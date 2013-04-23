@@ -11,15 +11,18 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import android.app.Application;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.ThumbnailUtils;
+import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.provider.MediaStore.MediaColumns;
 import android.util.Log;
-import android.view.Display;
 
 public class MemoirApplication extends Application {
 
@@ -223,6 +226,20 @@ public class MemoirApplication extends Application {
 			Log.e("asd", "Error getting bitmap", e);
 		}
 		return bm;
+	}
+	
+	public static String getFilePathFromContentUri(Uri selectedVideoUri,
+	        ContentResolver contentResolver) {
+	    String filePath;
+	    String[] filePathColumn = {MediaColumns.DATA};
+
+	    Cursor cursor = contentResolver.query(selectedVideoUri, filePathColumn, null, null, null);
+	    cursor.moveToFirst();
+
+	    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+	    filePath = cursor.getString(columnIndex);
+	    cursor.close();
+	    return filePath;
 	}
 
 }
