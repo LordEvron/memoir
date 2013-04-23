@@ -26,5 +26,11 @@ public class Video {
 		this.selected = s;
 		this.length = l;
 	}
+	
+	public Video(Context c, String p) {
+		this.path = p;
+		this.thumbnailPath = MemoirApplication.storeThumbnail(c, p);
+	}
+
 
 }

@@ -146,6 +146,7 @@ public class TranscodingService extends IntentService {
 				mExternalStorageAvailable = mExternalStorageWriteable = true;
 
 				File file = new File(extStorePath, "/Memoir/MyLife.mp4");
+				boolean deleted = file.exists() ? file.delete() : false;
 				Log.d("asd", "File " + file.getAbsolutePath());
 				FileOutputStream fos = new FileOutputStream(file);
 				out.getBox(fos.getChannel());
@@ -169,7 +170,7 @@ public class TranscodingService extends IntentService {
 		}
 
 		broadcastIntent.putExtra("OutputFileName", extStorePath
-				+ "/Memoir/output.mp4");
+				+ "/Memoir/MyLife.mp4");
 		LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
 	}
 }

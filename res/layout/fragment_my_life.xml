@@ -7,36 +7,43 @@
     <FrameLayout
         android:id="@+id/MyLifeFL"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="@dimen/video_height" >
 
         <VideoView
             android:id="@+id/MyLifeVV"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_margin="10dp" />
+            android:layout_height="match_parent" />
 
         <LinearLayout
             android:id="@+id/MyLifeLL"
             android:layout_width="match_parent"
-            android:layout_height="120dp"
-            android:orientation="vertical" >
-        </LinearLayout>
+            android:layout_height="@dimen/video_ll_height"
+            android:orientation="vertical" />
 
         <ProgressBar
-            android:id="@+id/MyLifePlayPB"
-            style="?android:attr/progressBarStyleLarge"
+            android:id="@+id/MyLifePB"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="40dp"
             android:visibility="invisible" />
 
         <ImageView
-            android:id="@+id/MyLifePlayIV"
+            android:id="@+id/MyLifeIV"
             android:layout_width="match_parent"
-            android:layout_height="140dp"
-            android:layout_margin="40dp"
+            android:layout_height="match_parent"
             android:src="@drawable/no_video"
             android:visibility="invisible" />
+
+        <TextView
+            android:id="@+id/MyLifeTV"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|left"
+            android:layout_margin="5dp"
+            android:textStyle="bold|italic"
+            android:lines="2"
+            android:text="       My Life       12/12/2012 - 12/12/2012"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
     </FrameLayout>
 
     <ListView

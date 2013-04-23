@@ -19,6 +19,7 @@ import android.media.ThumbnailUtils;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.Display;
 
 public class MemoirApplication extends Application {
 
@@ -42,6 +43,11 @@ public class MemoirApplication extends Application {
 			editor.putBoolean("com.devapp.memoir.datachanged", false);
 			editor.commit();
 			
+			Video v = getMyLifeFile(this);
+			if(v != null) {
+				File f = new File(v.path);
+				f.delete();
+			}
 			Log.d("zxc", "Setting all prefernces to this date" + date);
 		}
 	}
@@ -50,7 +56,7 @@ public class MemoirApplication extends Application {
 		return mDBA;
 	}
 
-	public static String getMyLifeFile(Context c) {
+	public static Video getMyLifeFile(Context c) {
 		String outputFilename = null;
 
 		if (useExternal) {
@@ -61,8 +67,9 @@ public class MemoirApplication extends Application {
 
 		outputFilename = outputFilename.concat("/Memoir/MyLife.mp4");
 		File f = new File(outputFilename);
+		
 		if(f.exists()) {
-			return outputFilename;
+			return new Video(c, outputFilename);
 		} else {
 			return null;
 		}

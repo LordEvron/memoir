@@ -16,6 +16,8 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ShareActionProvider;
 
 public class MainActivity extends Activity {
@@ -28,14 +30,13 @@ public class MainActivity extends Activity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.main, menu);
 
-		String myLifeFile = MemoirApplication.getMyLifeFile(getApplicationContext());
-		if(myLifeFile != null) {
+		Video v = MemoirApplication.getMyLifeFile(getApplicationContext());
+		if (v != null) {
 			mShareActionProvider = (ShareActionProvider) menu.findItem(
 					R.id.action_share_video).getActionProvider();
 			Intent shareIntent = new Intent(Intent.ACTION_SEND);
 			shareIntent.setType("video/mp4");
-			shareIntent.putExtra(Intent.EXTRA_STREAM,
-					Uri.parse(myLifeFile));
+			shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(v.path));
 			mShareActionProvider.setShareIntent(shareIntent);
 		}
 		return true;
@@ -55,16 +56,19 @@ public class MainActivity extends Activity {
 			return true;
 		case R.id.action_shoot_video:
 			Log.d("asd", "Shoot video selected");
-			
+
 			SimpleDateFormat ft = new SimpleDateFormat("yyyyMMdd");
 			long d = Long.parseLong(ft.format(new Date()));
-			mVideo = new Video(0, d, MemoirApplication.getOutputMediaFile(this), false, 2);
-			
+			mVideo = new Video(0, d,
+					MemoirApplication.getOutputMediaFile(this), false, 2);
+
 			Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
 			takeVideoIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 2);
-			takeVideoIntent.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+			takeVideoIntent.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION,
+					ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 			File videoFile = new File(mVideo.path);
-			takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(videoFile));
+			takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT,
+					Uri.fromFile(videoFile));
 			Log.d("asd", "URI is " + Uri.fromFile(videoFile));
 			startActivityForResult(takeVideoIntent, VIDEO_CAPTURE);
 
@@ -89,18 +93,17 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		/*
-		 * requestWindowFeature(Window.FEATURE_NO_TITLE);
-		 * getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-		 * WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		 */
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+				WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
 		setContentView(R.layout.activity_main);
 
 		ActionBar actionBar = getActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
 		actionBar.setDisplayShowTitleEnabled(false);
-		
-		mPrefs = this.getSharedPreferences("com.devapp.memoir", Context.MODE_PRIVATE);
+
+		mPrefs = this.getSharedPreferences("com.devapp.memoir",
+				Context.MODE_PRIVATE);
 	}
 
 	@Override
@@ -127,15 +130,19 @@ public class MainActivity extends Activity {
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		
-		if(requestCode == VIDEO_CAPTURE && resultCode == RESULT_OK) {
-		    Uri VideoUri = data.getData();
-		    Log.d("zxc", "VideoUri.getPath() >" + VideoUri.getPath() + " mVideo.path>" + mVideo.path);
-		    if(VideoUri.getPath().equals(mVideo.path)) {
-				((MemoirApplication) getApplication()).getDBA().addVideo(mVideo);
-				((MemoirApplication) getApplication()).getDBA().selectVideo(mVideo);
-				mPrefs.edit().putBoolean("com.devapp.memoir.datachanged", true).commit();
-		    }
+
+		if (requestCode == VIDEO_CAPTURE && resultCode == RESULT_OK) {
+			Uri VideoUri = data.getData();
+			Log.d("zxc", "VideoUri.getPath() >" + VideoUri.getPath()
+					+ " mVideo.path>" + mVideo.path);
+			if (VideoUri.getPath().equals(mVideo.path)) {
+				((MemoirApplication) getApplication()).getDBA()
+						.addVideo(mVideo);
+				((MemoirApplication) getApplication()).getDBA().selectVideo(
+						mVideo);
+				mPrefs.edit().putBoolean("com.devapp.memoir.datachanged", true)
+						.commit();
+			}
 		}
 	}
 }
