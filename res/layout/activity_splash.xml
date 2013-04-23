@@ -3,19 +3,19 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@drawable/background"
-    android:gravity="center"
-    tools:context=".Splash" >
+    tools:context=".Splash"
+    android:orientation="vertical" >
 
     <TextView
         android:id="@+id/splashtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="130dp"
+        android:layout_marginTop="340dp"
+        android:paddingLeft="10dp"
         android:background="@drawable/memoir"
-        android:gravity="center"
-        android:textColor="#ffffff"
-        android:textSize="40sp"
-        android:textStyle="bold" />
-
+        android:paddingTop="60dp"
+        android:text="@string/splash_screen_version"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+         />
 </LinearLayout>
