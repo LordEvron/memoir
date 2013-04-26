@@ -1,7 +1,6 @@
 package com.devapp.memoir;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -11,21 +10,28 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.Window;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.ShareActionProvider;
+import android.widget.Toast;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity  implements SurfaceHolder.Callback {
 	private ShareActionProvider mShareActionProvider;
 	public static int VIDEO_CAPTURE = 0;
 	public Video mVideo = null;
 	public SharedPreferences mPrefs = null;
+	public static FrameLayout mPreview = null;
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -92,6 +98,51 @@ public class MainActivity extends Activity {
 		}
 	}
 
+	 TelephonyManager tm;
+
+	 private PhoneStateListener mPhoneListener = new PhoneStateListener() {
+		  public void onCallStateChanged(int state, String incomingNumber) {
+		   try {
+		    switch (state) {
+		    case TelephonyManager.CALL_STATE_RINGING:
+		     Toast.makeText(MainActivity.this, "CALL_STATE_RINGING", Toast.LENGTH_SHORT).show();
+		     break;
+		    case TelephonyManager.CALL_STATE_OFFHOOK:
+		     Toast.makeText(MainActivity.this, "CALL_STATE_OFFHOOK", Toast.LENGTH_SHORT).show();
+
+		     //FrameLayout preview = (FrameLayout) findViewById(R.id.cameraView); 
+				//preview.addView(camPreview);
+				
+		     //Intent intent = new Intent(MainActivity.this, RecorderService.class);
+			//	intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			//	startService(intent);
+			//	finish();
+
+				
+//				stopService(new Intent(MainActivity.this, RecorderService.class));
+
+		     Intent intent = new Intent(MainActivity.this, SecretCamera.class);
+		     startService(intent);
+		     break;
+		    case TelephonyManager.CALL_STATE_IDLE:
+		     Toast.makeText(MainActivity.this, "CALL_STATE_IDLE", Toast.LENGTH_SHORT).show();
+		     break;
+		    default:
+		     Toast.makeText(MainActivity.this, "default", Toast.LENGTH_SHORT).show();
+		     Log.i("Default", "Unknown phone state=" + state);
+		    }
+		   } catch (Exception e) {
+		    Log.i("Exception", "PhoneStateListener() e = " + e);
+		   }
+		  }
+		 };
+
+			public static SurfaceView mSurfaceView;
+			public static SurfaceHolder mSurfaceHolder;
+			public static Camera mCamera;
+			public static boolean mPreviewRunning;
+
+		 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -107,8 +158,28 @@ public class MainActivity extends Activity {
 
 		mPrefs = this.getSharedPreferences("com.devapp.memoir",
 				Context.MODE_PRIVATE);
+		
+		  tm = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+		  tm.listen(mPhoneListener, PhoneStateListener.LISTEN_CALL_STATE);
+
 	}
 
+	@Override
+	public void surfaceCreated(SurfaceHolder holder) {
+		
+	}
+
+	@Override
+	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+	}
+	
+	@Override
+	public void surfaceDestroyed(SurfaceHolder holder) {
+		// TODO Auto-generated method stub
+
+	}
+
+	
 	@Override
 	public void onStart() {
 		super.onStart();

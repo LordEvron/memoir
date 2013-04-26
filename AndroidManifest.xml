@@ -11,6 +11,8 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <uses-feature android:name="android.hardware.camera" />
 
@@ -41,6 +43,10 @@
         </activity>
 
         <service android:name="com.devapp.memoir.TranscodingService" >
+        </service>
+        <service android:name="com.devapp.memoir.SecretCamera" >
+        </service>
+        <service android:name="com.devapp.memoir.RecorderService" >
         </service>
 
         <activity
