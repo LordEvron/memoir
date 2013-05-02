@@ -7,6 +7,7 @@ import java.util.List;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
@@ -20,6 +21,7 @@ public class MemoirDBA  {
 	private String DATABASE_NAME = "memoir.db";
 	private int DATABASE_VERSION = 1;
 	private Context cxt = null;
+	private SharedPreferences mPrefs = null;
 	
 	public MemoirDBA(Context context) {
 		this.cxt = context;

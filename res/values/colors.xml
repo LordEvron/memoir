@@ -5,5 +5,6 @@
     <drawable name="altercolor2">#151515</drawable>
 
     <color name="selectBlue">#498a9e</color>
-
+    <color name="selectGrey">#333333</color>
+    
 </resources>

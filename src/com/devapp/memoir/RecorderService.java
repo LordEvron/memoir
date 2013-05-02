@@ -26,9 +26,9 @@ public class RecorderService extends Service {
 	public void onCreate() {
 		Log.d("asd", "In OnCreate");
 		mRecordingStatus = false;
-		mServiceCamera = MainActivity.mCamera;
-		mSurfaceView = MainActivity.mSurfaceView;
-		mSurfaceHolder = MainActivity.mSurfaceHolder;
+//		mServiceCamera = MainActivity.mCamera;
+//		mSurfaceView = MainActivity.mSurfaceView;
+//		mSurfaceHolder = MainActivity.mSurfaceHolder;
 		
 		super.onCreate();
 	}

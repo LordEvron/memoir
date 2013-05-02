@@ -26,12 +26,13 @@ import android.widget.FrameLayout;
 import android.widget.ShareActionProvider;
 import android.widget.Toast;
 
-public class MainActivity extends Activity  implements SurfaceHolder.Callback {
+public class MainActivity extends Activity {
 	private ShareActionProvider mShareActionProvider;
 	public static int VIDEO_CAPTURE = 0;
 	public Video mVideo = null;
 	public SharedPreferences mPrefs = null;
 	public static FrameLayout mPreview = null;
+	public static long mydate = 20130430;
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -68,6 +69,8 @@ public class MainActivity extends Activity  implements SurfaceHolder.Callback {
 			long d = Long.parseLong(ft.format(new Date()));
 			mVideo = new Video(0, d,
 					MemoirApplication.getOutputMediaFile(this), false, 2);
+//			mVideo = new Video(0, mydate--,
+//					MemoirApplication.getOutputMediaFile(this), false, 2);
 
 			Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
 			takeVideoIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 2);
@@ -109,18 +112,6 @@ public class MainActivity extends Activity  implements SurfaceHolder.Callback {
 		     break;
 		    case TelephonyManager.CALL_STATE_OFFHOOK:
 		     Toast.makeText(MainActivity.this, "CALL_STATE_OFFHOOK", Toast.LENGTH_SHORT).show();
-
-		     //FrameLayout preview = (FrameLayout) findViewById(R.id.cameraView); 
-				//preview.addView(camPreview);
-				
-		     //Intent intent = new Intent(MainActivity.this, RecorderService.class);
-			//	intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			//	startService(intent);
-			//	finish();
-
-				
-//				stopService(new Intent(MainActivity.this, RecorderService.class));
-
 		     Intent intent = new Intent(MainActivity.this, SecretCamera.class);
 		     startService(intent);
 		     break;
@@ -137,12 +128,6 @@ public class MainActivity extends Activity  implements SurfaceHolder.Callback {
 		  }
 		 };
 
-			public static SurfaceView mSurfaceView;
-			public static SurfaceHolder mSurfaceHolder;
-			public static Camera mCamera;
-			public static boolean mPreviewRunning;
-
-		 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -164,22 +149,6 @@ public class MainActivity extends Activity  implements SurfaceHolder.Callback {
 
 	}
 
-	@Override
-	public void surfaceCreated(SurfaceHolder holder) {
-		
-	}
-
-	@Override
-	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-	}
-	
-	@Override
-	public void surfaceDestroyed(SurfaceHolder holder) {
-		// TODO Auto-generated method stub
-
-	}
-
-	
 	@Override
 	public void onStart() {
 		super.onStart();

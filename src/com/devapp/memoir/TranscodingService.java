@@ -131,8 +131,15 @@ public class TranscodingService extends IntentService {
 		try {
 			Movie result = null;
 
+			int chunk = 100/inMovies.size();
+			int total = 0;
+			
 			for (Movie m : inMovies) {
 				result = appendMovie(result, m);
+				
+				total = total + chunk;
+				broadcastIntent.putExtra("Update", total);
+				LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
 			}
 
 			IsoFile out = new DefaultMp4Builder().build(result);

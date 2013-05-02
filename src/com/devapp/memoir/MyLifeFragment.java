@@ -20,6 +20,7 @@ import android.media.MediaPlayer.OnPreparedListener;
 import android.media.MediaPlayer.OnVideoSizeChangedListener;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -207,6 +208,7 @@ public class MyLifeFragment extends Fragment {
 		 */
 
 		if (mPrefs.getBoolean("com.devapp.memoir.datachanged", true) == true) {
+			Log.d("asd", "Inside 1st if");
 			mPrefs.edit().putBoolean("com.devapp.memoir.datachanged", false)
 					.commit();
 			refreshLifeTimeVideo();
@@ -233,8 +235,9 @@ public class MyLifeFragment extends Fragment {
 
 	public void refreshLifeTimeVideo() {
 
+		Log.d("asd", "Isnide refreshLifeTimeVideo");
 		updateMyLifeViews(R.drawable.no_video, null, View.INVISIBLE,
-				View.VISIBLE, View.VISIBLE);
+				View.VISIBLE, View.INVISIBLE);
 
 		Intent intent = new Intent(getActivity(), TranscodingService.class);
 		getActivity().startService(intent);
@@ -291,14 +294,21 @@ public class MyLifeFragment extends Fragment {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			Log.d("qwe", "OnReceive :) ");
-			String outputFile = intent.getStringExtra("OutputFileName");
-			if (!outputFile.isEmpty()) {
-				mMyLifeVideo = new Video(context, outputFile);
-				Log.d("asd", "Setting video path here >" + mMyLifeVideo.path);
-				mVv.setVideoPath(mMyLifeVideo.path);
-			} else {
-				updateMyLifeViews(R.drawable.no_video, null, View.VISIBLE,
-						View.INVISIBLE, View.INVISIBLE);
+			if(intent.hasExtra("Update")) {
+				int progress = intent.getIntExtra("Update", 0);
+				mMyLifePB.setProgress(progress);
+				
+			} else if(intent.hasExtra("OutputFileName")) {
+				String outputFile = intent.getStringExtra("OutputFileName");
+				
+				if (!outputFile.isEmpty()) {
+					mMyLifeVideo = new Video(context, outputFile);
+					Log.d("asd", "Setting video path here >" + mMyLifeVideo.path);
+					mVv.setVideoPath(mMyLifeVideo.path);
+				} else {
+					updateMyLifeViews(R.drawable.no_video, null, View.VISIBLE,
+							View.INVISIBLE, View.INVISIBLE);
+				}
 			}
 		}
 	}
