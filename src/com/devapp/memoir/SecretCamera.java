@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -35,6 +36,7 @@ import android.graphics.PixelFormat;
 import android.graphics.SurfaceTexture;
 import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
+import android.media.AudioManager;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.net.Uri;
@@ -50,6 +52,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.TextureView.SurfaceTextureListener;
+import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
@@ -60,6 +63,7 @@ public class SecretCamera extends Service {
 	private CameraPreview mPreview;
 	private MediaRecorder mMediaRecorder;
 	private Video mVideo = null;
+	private WindowManager mWindowManager = null;
 
 	public class CamPreview extends TextureView implements
 			SurfaceTextureListener {
@@ -91,6 +95,7 @@ public class SecretCamera extends Service {
 
 			Log.d("asd", "here6");
 			mCamera.startPreview();
+			prepareVideoRecorder();
 			this.setVisibility(INVISIBLE); // Make the surface invisible as soon
 											// as it is created
 		}
@@ -126,43 +131,61 @@ public class SecretCamera extends Service {
 
 		Log.d("asd", "Here1");
 		// Setup the camera and the preview object
-		/*
-		 * Camera mCamera = Camera.open(0); CamPreview camPreview = new
-		 * CamPreview(this, mCamera);
-		 * camPreview.setSurfaceTextureListener(camPreview); Log.d("asd",
-		 * "Here7");
-		 * 
-		 * // Connect the preview object to a FrameLayout in your UI // You'll
-		 * have to create a FrameLayout object in your UI to place this preview
-		 * in //FrameLayout preview = (FrameLayout)
-		 * findViewById(R.id.cameraView); //preview.addView(camPreview);
-		 * 
-		 * MainActivity.mPreview.addView(camPreview);
-		 * 
-		 * Log.d("asd", "Here8"); // Attach a callback for preview CamCallback
-		 * camCallback = new CamCallback();
-		 * mCamera.setPreviewCallback(camCallback);
-		 */
+		
+//		mCamera = getCameraInstance();
+//		CamPreview camPreview = new CamPreview(this, mCamera);
+//		camPreview.setSurfaceTextureListener(camPreview); 
+		Log.d("asd","Here7");
+		
+		//camPreview.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+		 
+		 // Connect the preview object to a FrameLayout in your UI 
+		 // You'll have to create a FrameLayout object in your UI to place this preview in 
+		 //FrameLayout preview = (FrameLayout)findViewById(R.id.cameraView); 
+		 //preview.addView(camPreview);
+
+//		mWindowManager = (WindowManager) this
+//				.getSystemService(Context.WINDOW_SERVICE);
+//		LayoutParams params = new WindowManager.LayoutParams(
+//				WindowManager.LayoutParams.WRAP_CONTENT,
+//				WindowManager.LayoutParams.WRAP_CONTENT,
+//				WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY,
+//				WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
+//				PixelFormat.TRANSLUCENT);
+		
+//		mWindowManager.addView(camPreview, params);
+
+		 Log.d("asd", "Here8"); 
+		 // Attach a callback for preview 
+//		 CamCallback camCallback = new CamCallback();
+//		 mCamera.setPreviewCallback(camCallback);
+		 
 		Log.d("asd", "Here9");
 
+		
 		mCamera = getCameraInstance();
 
 		// Create our Preview view and set it as the content of our activity.
 		mPreview = new CameraPreview(this.getApplicationContext() , mCamera);
 
-		WindowManager wm = (WindowManager) this
+		mWindowManager = (WindowManager) this
 				.getSystemService(Context.WINDOW_SERVICE);
-		LayoutParams params = new WindowManager.LayoutParams(
+/*		LayoutParams params = new WindowManager.LayoutParams(
 				WindowManager.LayoutParams.WRAP_CONTENT,
 				WindowManager.LayoutParams.WRAP_CONTENT,
 				WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY,
 				WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
+				PixelFormat.TRANSLUCENT);*/
+		LayoutParams params = new WindowManager.LayoutParams(
+				1,
+				1,
+				WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY,
+				WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
 				PixelFormat.TRANSLUCENT);
-		wm.addView(mPreview, params);
 
-		
 		mPreview.setZOrderOnTop(true);
 		mPreview.mHolder.setFormat(PixelFormat.TRANSPARENT);
+		mWindowManager.addView(mPreview, params);
 		
 		// FrameLayout preview = (FrameLayout) this
 		// .findViewById(R.id.camera_preview);
@@ -176,7 +199,11 @@ public class SecretCamera extends Service {
 		mCamera.lock();
 		mCamera.unlock();
 		mMediaRecorder.setCamera(mCamera);
+		//mCamera.enableShutterSound(false);
 
+		AudioManager mgr = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+	    mgr.setStreamMute(AudioManager.STREAM_MUSIC, true);
+		
 		mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
 		mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
 		mMediaRecorder.setProfile(CamcorderProfile
@@ -190,7 +217,7 @@ public class SecretCamera extends Service {
 		mMediaRecorder
 				.setOutputFile("/storage/emulated/0/Movies/Memoir/temp.mp4");
 
-		mMediaRecorder.setPreviewDisplay(mPreview.getHolder().getSurface());
+		//mMediaRecorder.setPreviewDisplay(mPreview.getHolder().getSurface());
 		mMediaRecorder.setMaxDuration(2000);
 		mMediaRecorder.setOnInfoListener(new MediaRecorder.OnInfoListener() {
 			@Override
@@ -235,6 +262,9 @@ public class SecretCamera extends Service {
 		}
 		releaseMediaRecorder();
 		releaseCamera();
+		mWindowManager.removeView(mPreview);
+		AudioManager mgr = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+	    mgr.setStreamMute(AudioManager.STREAM_MUSIC, false);
 
 		// ((MemoirApplication) getApplication()).getDBA().addVideo(
 		// mVideo);
