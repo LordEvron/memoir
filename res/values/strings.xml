@@ -3,6 +3,7 @@
 
     <string name="app_name">Memoir</string>
     <string name="action_settings">Settings</string>
+    <string name="action_help">Help</string>
     <string name="action_shoot_video">Shoot Video</string>
     <string name="menu_settings">About</string>
     <string name="welcome_text">Memoir application creates a short movie with two second video clips shot each day of your life. You can then view the movie to recall some of best moments of your life!</string>
@@ -17,5 +18,37 @@
     <string name="title_activity_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
     <string name="splash_screen_version">Version 1.0 Copyrights reserved</string>
+    
+    
+    <string name="activity_help">Help</string>
+    <string name="help_mt1">Help </string>
+    <string name="help_t1">Memoir application creates a short movie with two second video clips shot each day of your life. You can either manually click a video of a memorable event in the day or the application can do it for you. You can then view the movie to recall some of your best moments summarized in a few minutes!</string>
+    <string name="help_mt2">Getting started</string>
+    <string name="help_t2">1. Take videos each day by clicking on SHOOT VIDEO. The videos are displayed in a list for each date. 
+2. You can take multiple videos in a day but only one video per day is selected for your movie. 
+3. Press and hold the video thumbnail to select/delete from videos for a day.
+4. You can view the complete movie by clicking the play button above list of videos.
+5. Each time a video is taken/selected/deleted or start/end dates are changed, the movie is updated with the new selections.
+6. Share your movie by clicking the “(share image)” button.</string>
+    <string name="help_mt3">How to change Start/End date for movie</string>
+    <string name="help_t3">1. Go to Settings.
+2. Select “Set Start Date” or “Set End Date” to change dates.
+3. Your movie is updated to show videos within selected dates.</string>
+    <string name="help_mt4">How to take videos</string>
+    <string name="help_t4">1. Start by clicking “SHOOT VIDEO” option.
+2. Hold the camera is Landscape mode while shooting.
+3. The camera automatically stops recording after 2 seconds.
+4. You can review, select or cancel the current video. On selecting, the video is added to list of videos.
+	</string>
+    <string name="help_mt5">How to Select/Delete videos</string>
+    <string name="help_t5">1. Selected video for the day is highlighted in blue in the list of videos. By default, the last video taken for the day is selected.
+2. Touch and hold video for options Select/Delete.
+3. If a selected video is deleted, the next video is marked selected.
+	</string>
+
+    <string name="help_mt6">How to Share videos</string>
+    <string name="help_t6">1. Click on Share symbol on top bar to view list of available sharing options.
+2. Your movie is exported in .mp4 format and shared.
+	</string>
 
 </resources>

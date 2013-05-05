@@ -53,6 +53,10 @@
             android:name="com.devapp.memoir.SettingsActivity"
             android:label="@string/title_activity_settings" >
         </activity>
+        <activity
+            android:name="com.devapp.memoir.HelpActivity"
+            android:label="@string/activity_help" >
+        </activity>
     </application>
 
 </manifest>
