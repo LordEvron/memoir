@@ -6,14 +6,17 @@ import java.util.Date;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v4.content.LocalBroadcastManager;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -21,6 +24,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ShareActionProvider;
@@ -33,15 +37,16 @@ public class MainActivity extends Activity {
 	public SharedPreferences mPrefs = null;
 	public static FrameLayout mPreview = null;
 	public static long mydate = 20130430;
+	TranscodingServiceBroadcastReceiver mDataBroadcastReceiver = null;
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.main, menu);
+		mShareActionProvider = (ShareActionProvider) menu.findItem(
+				R.id.action_share_video).getActionProvider();
 
 		Video v = MemoirApplication.getMyLifeFile(getApplicationContext());
 		if (v != null) {
-			mShareActionProvider = (ShareActionProvider) menu.findItem(
-					R.id.action_share_video).getActionProvider();
 			Intent shareIntent = new Intent(Intent.ACTION_SEND);
 			shareIntent.setType("video/mp4");
 			shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(v.path));
@@ -158,16 +163,56 @@ public class MainActivity extends Activity {
 	@Override
 	public void onStart() {
 		super.onStart();
+		
+		Video v = MemoirApplication.getMyLifeFile(getApplicationContext());
+		if (v != null) {
+			Intent shareIntent = new Intent(Intent.ACTION_SEND);
+			shareIntent.setType("video/mp4");
+			shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(v.path));
+			mShareActionProvider.setShareIntent(shareIntent);
+		}
+
 	}
 
+	public class TranscodingServiceBroadcastReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			Log.d("qwe", "OnReceive2 :) ");
+			if (intent.hasExtra("OutputFileName")) {
+				String outputFile = intent.getStringExtra("OutputFileName");
+
+				if (!outputFile.isEmpty()) {
+					Video v = new Video(context, outputFile);
+					if (v != null) {
+						Intent shareIntent = new Intent(Intent.ACTION_SEND);
+						shareIntent.setType("video/mp4");
+						shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(v.path));
+						mShareActionProvider.setShareIntent(shareIntent);
+					}
+				}
+			}
+		}
+	}
+
+	
 	@Override
 	public void onResume() {
 		super.onResume();
+		if (mDataBroadcastReceiver == null)
+			mDataBroadcastReceiver = new TranscodingServiceBroadcastReceiver();
+
+		IntentFilter intentFilter = new IntentFilter("TranscodingComplete");
+		LocalBroadcastManager.getInstance(this).registerReceiver(
+				mDataBroadcastReceiver, intentFilter);
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
+		if (mDataBroadcastReceiver != null)
+			LocalBroadcastManager.getInstance(this)
+					.unregisterReceiver(mDataBroadcastReceiver);
 	}
 
 	@Override
