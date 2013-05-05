@@ -1,11 +1,7 @@
 package com.devapp.memoir;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Locale;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
@@ -14,14 +10,17 @@ import android.app.DialogFragment;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.DatePicker;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -36,6 +35,10 @@ public class SettingsActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+				WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
 		setContentView(R.layout.activity_settings);
 
 		mPrefs = this.getSharedPreferences("com.devapp.memoir",
@@ -44,10 +47,26 @@ public class SettingsActivity extends Activity {
 		mArrayList = new ArrayList<SettingsItem>();
 
 		Log.d("zxc", "reading those values again");
-		mArrayList.add(new SettingsItem("Set Start Date", mPrefs.getString(
-				"com.devapp.memoir.startselected", "No Start Date Set")));
+		mArrayList
+				.add(new SettingsItem("Set Start Date",
+						mPrefs.getString("com.devapp.memoir.startselected",
+								"No Start Date Set")));
 		mArrayList.add(new SettingsItem("Set End Date", mPrefs.getString(
 				"com.devapp.memoir.endselected", "No End Date Set")));
+
+		mArrayList
+				.add(new SettingsItem("Show Rows With Multiple Videos Only",
+						"You can disable rows which has only single video",
+						mPrefs.getBoolean("com.devapp.memoir.showonlymultiple",
+								false), new OnCheckedChangeListener() {
+
+									@Override
+									public void onCheckedChanged(
+											CompoundButton arg0, boolean arg1) {
+										mPrefs.edit().putBoolean("com.devapp.memoir.showonlymultiple", arg1).commit();
+									}
+					
+				}));
 
 		mSettingsView = (ListView) findViewById(R.id.SettingLV);
 		mSettingsView.setOnItemClickListener(new OnItemClickListener() {
@@ -123,11 +142,24 @@ public class SettingsActivity extends Activity {
 	public class SettingsItem {
 		String text1;
 		String text2;
+		boolean showCheckbox;
+		boolean checkboxValue;
+		OnCheckedChangeListener listener;
 
 		public SettingsItem(String t1, String t2) {
 			text1 = t1;
 			text2 = t2;
+			showCheckbox = false;
 		}
+		
+		public SettingsItem(String t1, String t2, boolean cbValue, OnCheckedChangeListener l) {
+			text1 = t1;
+			text2 = t2;
+			showCheckbox = true;
+			checkboxValue = cbValue;
+			listener = l;
+		}
+
 	}
 
 	public class SettingsArrayAdapter extends
@@ -138,7 +170,7 @@ public class SettingsActivity extends Activity {
 
 		public SettingsArrayAdapter(Context context,
 				ArrayList<SettingsItem> List) {
-			super(context, R.layout.fragment_my_life_list_item);
+			super(context, R.layout.activity_settings_item);
 
 			this.mList = List;
 			this.mInflater = LayoutInflater.from(context);
@@ -159,6 +191,15 @@ public class SettingsActivity extends Activity {
 					.setText(item.text1);
 			((TextView) convertView.findViewById(R.id.SettingsItemTV2))
 					.setText(item.text2);
+			
+			CheckBox cb = (CheckBox)convertView.findViewById(R.id.SettingsItemCB);
+			if(item.showCheckbox) {
+				cb.setChecked(item.checkboxValue);
+				cb.setOnCheckedChangeListener(item.listener);
+				cb.setVisibility(View.VISIBLE);
+			} else {
+				cb.setVisibility(View.INVISIBLE);
+			}
 
 			return convertView;
 		}

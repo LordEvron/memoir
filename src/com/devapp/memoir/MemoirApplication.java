@@ -44,6 +44,7 @@ public class MemoirApplication extends Application {
 			editor.putString("com.devapp.memoir.startselected", date);
 			editor.putString("com.devapp.memoir.endselected", date);
 			editor.putBoolean("com.devapp.memoir.datachanged", false);
+			editor.putBoolean("com.devapp.memoir.showonlymultiple", false);
 			editor.commit();
 			
 			Video v = getMyLifeFile(this);

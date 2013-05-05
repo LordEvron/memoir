@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -9,6 +9,8 @@
         android:id="@+id/SettingsItemTV1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
         android:text="Hello"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -16,7 +18,17 @@
         android:id="@+id/SettingsItemTV2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/SettingsItemTV1"
         android:text="How r"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
-</LinearLayout>
+    <CheckBox
+        android:id="@+id/SettingsItemCB"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/SettingsItemTV1"
+        android:visibility="invisible" />
+
+</RelativeLayout>

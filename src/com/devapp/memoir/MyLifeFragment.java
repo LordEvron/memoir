@@ -180,7 +180,12 @@ public class MyLifeFragment extends Fragment {
 
 		// Log.d("qwe", "OnStart of my Fragement");
 		mVideos = ((MemoirApplication) getActivity().getApplication()).getDBA()
-				.getVideos(0, -1, false);
+				.getVideos(
+						0,
+						-1,
+						false,
+						mPrefs.getBoolean("com.devapp.memoir.showonlymultiple",
+								false));
 		mDateAdapter = new MyLifeDateListArrayAdapter(getActivity(), mVideos);
 		mDateList.setAdapter(mDateAdapter);
 
@@ -280,11 +285,9 @@ public class MyLifeFragment extends Fragment {
 		mMyLifePB.setVisibility(PBVis);
 
 		String text = "       Memoir - My Life            "
-				+ mPrefs.getString("com.devapp.memoir.startselected",
-						"Day 1")
+				+ mPrefs.getString("com.devapp.memoir.startselected", "Day 1")
 				+ " - "
-				+ mPrefs.getString("com.devapp.memoir.endselected",
-						"Now");
+				+ mPrefs.getString("com.devapp.memoir.endselected", "Now");
 		mMyLifeTV.setText(text);
 		mMyLifeTV.setVisibility(TVVis);
 	}
@@ -294,16 +297,13 @@ public class MyLifeFragment extends Fragment {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			Log.d("qwe", "OnReceive :) ");
-			if(intent.hasExtra("Update")) {
-				int progress = intent.getIntExtra("Update", 0);
-				mMyLifePB.setProgress(progress);
-				
-			} else if(intent.hasExtra("OutputFileName")) {
+			if (intent.hasExtra("OutputFileName")) {
 				String outputFile = intent.getStringExtra("OutputFileName");
-				
+
 				if (!outputFile.isEmpty()) {
 					mMyLifeVideo = new Video(context, outputFile);
-					Log.d("asd", "Setting video path here >" + mMyLifeVideo.path);
+					Log.d("asd", "Setting video path here >"
+							+ mMyLifeVideo.path);
 					mVv.setVideoPath(mMyLifeVideo.path);
 				} else {
 					updateMyLifeViews(R.drawable.no_video, null, View.VISIBLE,

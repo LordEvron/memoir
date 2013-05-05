@@ -28,8 +28,8 @@ public class MemoirDBA  {
 		mMDBHelper = new MemoirDBHelper(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}
 	
-	public List<List<Video>> getVideos(long startDate, long endDate, boolean selected) {
-		return mMDBHelper.getVideos(this.cxt, startDate, endDate, selected);
+	public List<List<Video>> getVideos(long startDate, long endDate, boolean selected, boolean showOnlyMultiple) {
+		return mMDBHelper.getVideos(this.cxt, startDate, endDate, selected, showOnlyMultiple);
 	}
 	
 	public long addVideo(Video v) {
@@ -88,7 +88,7 @@ public class MemoirDBA  {
 			onCreate(db);
 		}
 	
-		public List<List<Video>> getVideos(Context cxt, long startDate, long endDate, boolean selected) {
+		public List<List<Video>> getVideos(Context cxt, long startDate, long endDate, boolean selected, boolean showOnlyMultiple) {
 			SQLiteDatabase db = this.getReadableDatabase();
 			
 			long t1, t2;
@@ -131,6 +131,20 @@ public class MemoirDBA  {
 				}
 			}
 			c.close();
+			
+			List<List<Video>> dateList2 = null;
+			if(showOnlyMultiple) {
+				for(List<Video> lv: dateList) {
+					if(lv.size() > 1) {
+						if(dateList2 == null) {
+							dateList2 = new ArrayList<List<Video>>();
+						}
+						dateList2.add(lv);
+					}
+				}
+				
+				return dateList2;
+			}
 			
 			return dateList;
 		}

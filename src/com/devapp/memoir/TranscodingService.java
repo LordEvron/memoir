@@ -90,7 +90,7 @@ public class TranscodingService extends IntentService {
 		Intent broadcastIntent = new Intent("TranscodingComplete");
 
 		List<List<Video>> dateList = ((MemoirApplication) getApplication())
-				.getDBA().getVideos(startDate, endDate, true);
+				.getDBA().getVideos(startDate, endDate, true, false);
 
 		if (dateList == null) {
 			broadcastIntent.putExtra("OutputFileName", "");
@@ -131,15 +131,8 @@ public class TranscodingService extends IntentService {
 		try {
 			Movie result = null;
 
-			int chunk = 100/inMovies.size();
-			int total = 0;
-			
 			for (Movie m : inMovies) {
 				result = appendMovie(result, m);
-				
-				total = total + chunk;
-				broadcastIntent.putExtra("Update", total);
-				LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
 			}
 
 			IsoFile out = new DefaultMp4Builder().build(result);
