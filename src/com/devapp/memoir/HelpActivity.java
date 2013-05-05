@@ -5,8 +5,10 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AbsListView;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListAdapter;
@@ -21,11 +23,15 @@ public class HelpActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+				WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
 		setContentView(R.layout.activity_help);
 
 		mList = (ExpandableListView) findViewById(R.id.ActivityHelpELV);    
 		ExpandableListAdapter adapter = new MyExpandableListAdapter(this);
 		mList.setAdapter(adapter);
+		mList.expandGroup(0);
 	}
 
 	public class MyExpandableListAdapter extends BaseExpandableListAdapter {
@@ -34,10 +40,13 @@ public class HelpActivity extends Activity {
 
 		private Context cxt;
 		private Resources res;
+		private LayoutInflater mInflater = null;
+		
 
 		public MyExpandableListAdapter(Context cxt) {
 			this.cxt = cxt;
 			this.res = this.cxt.getResources();
+			this.mInflater = LayoutInflater.from(cxt);
 		}
 
 		@Override
@@ -53,7 +62,10 @@ public class HelpActivity extends Activity {
 		@Override
 		public View getChildView(int groupPos, int childPos,
 				boolean isLastChild, View convertView, ViewGroup parent) {
-			TextView tv = getGenericView();
+
+			TextView tv = (TextView)convertView;
+			if(convertView == null)
+				tv = (TextView) this.mInflater.inflate(R.layout.activity_help_child, null);
 			tv.setText(getChild(groupPos, childPos).toString());
 			return tv;
 		}
@@ -78,26 +90,13 @@ public class HelpActivity extends Activity {
 			return groupPos;
 		}
 
-		public TextView getGenericView() {
-			// Layout parameters for the ExpandableListView
-			AbsListView.LayoutParams lp = new AbsListView.LayoutParams(
-					ViewGroup.LayoutParams.FILL_PARENT, 64);
-
-			TextView tv = new TextView(this.cxt);
-			tv.setLayoutParams(lp);
-
-			// Center the text vertically
-			tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
-			// Set the text starting position
-			tv.setPadding(36, 0, 0, 0);
-			return tv;
-		}
-
 		@Override
 		public View getGroupView(int groupPos, boolean isExpanded,
 				View convertView, ViewGroup parent) {
 			
-			TextView tv = getGenericView();
+			TextView tv = (TextView)convertView;
+			if(convertView == null)
+				tv = (TextView) this.mInflater.inflate(R.layout.activity_help_header, null);
 			tv.setText(getGroup(groupPos).toString());
 			return tv;
 		}

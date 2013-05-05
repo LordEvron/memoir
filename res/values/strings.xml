@@ -30,7 +30,7 @@
 4. You can view the complete movie by clicking the play button above list of videos.
 5. Each time a video is taken/selected/deleted or start/end dates are changed, the movie is updated with the new selections.
 6. Share your movie by clicking the “(share image)” button.</string>
-    <string name="help_mt3">How to change Start/End date for movie</string>
+    <string name="help_mt3">How to change Start/End date of movie</string>
     <string name="help_t3">1. Go to Settings.
 2. Select “Set Start Date” or “Set End Date” to change dates.
 3. Your movie is updated to show videos within selected dates.</string>
