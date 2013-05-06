@@ -33,6 +33,7 @@ import android.widget.Toast;
 public class MainActivity extends Activity {
 	private ShareActionProvider mShareActionProvider;
 	public static int VIDEO_CAPTURE = 0;
+	public static int VIDEO_IMPORT = 1;
 	public Video mVideo = null;
 	public SharedPreferences mPrefs = null;
 	public static FrameLayout mPreview = null;
@@ -41,6 +42,8 @@ public class MainActivity extends Activity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
+		
+		Log.d("asd", "Inside onCreateOptionsMenu");
 		getMenuInflater().inflate(R.menu.main, menu);
 		mShareActionProvider = (ShareActionProvider) menu.findItem(
 				R.id.action_share_video).getActionProvider();
@@ -49,10 +52,10 @@ public class MainActivity extends Activity {
 		if (v != null) {
 			Intent shareIntent = new Intent(Intent.ACTION_SEND);
 			shareIntent.setType("video/mp4");
-			shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(v.path));
+			shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(v.path)));
 			mShareActionProvider.setShareIntent(shareIntent);
 		}
-		return true;
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override
@@ -94,6 +97,12 @@ public class MainActivity extends Activity {
 			 * intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			 * startActivity(intent);
 			 */
+			return true;
+		case R.id.action_import_video:
+			Log.d("asd", " Import Video selected");
+			intent = new Intent(Intent.ACTION_GET_CONTENT);
+			intent.setType("video/*");
+			startActivityForResult(intent, VIDEO_IMPORT);
 			return true;
 		case R.id.action_settings:
 			Log.d("asd", " Settings selected");
@@ -164,11 +173,12 @@ public class MainActivity extends Activity {
 	public void onStart() {
 		super.onStart();
 		
+		Log.d("asd", "In onStart");
 		Video v = MemoirApplication.getMyLifeFile(getApplicationContext());
-		if (v != null) {
+		if (v != null && mShareActionProvider != null) {
 			Intent shareIntent = new Intent(Intent.ACTION_SEND);
 			shareIntent.setType("video/mp4");
-			shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(v.path));
+			shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(v.path)));
 			mShareActionProvider.setShareIntent(shareIntent);
 		}
 
@@ -225,6 +235,7 @@ public class MainActivity extends Activity {
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 
+		Log.d("asd", "onActivityResult");
 		if (requestCode == VIDEO_CAPTURE && resultCode == RESULT_OK) {
 			Uri VideoUri = data.getData();
 
@@ -247,6 +258,9 @@ public class MainActivity extends Activity {
 				mPrefs.edit().putBoolean("com.devapp.memoir.datachanged", true)
 						.commit();
 			}
+		} else if(requestCode == VIDEO_IMPORT && resultCode == RESULT_OK) {
+			Uri selectedVideoLocation = data.getData();
+			Log.d("asd", "video selected is > " + selectedVideoLocation);
 		}
 	}
 }

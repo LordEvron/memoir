@@ -16,6 +16,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.media.MediaPlayer.OnVideoSizeChangedListener;
 import android.net.Uri;
@@ -64,6 +65,7 @@ public class MyLifeFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
+		
 		super.onCreateView(inflater, container, savedInstanceState);
 		View rootView = inflater.inflate(R.layout.fragment_my_life, container,
 				false);
@@ -78,11 +80,14 @@ public class MyLifeFragment extends Fragment {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+		Log.d("asd", "In OnActivity Created");
+		
 		mDateList = (ListView) mRootView.findViewById(R.id.MyLifeDateLV);
 		mMyLifeIV = (ImageView) mRootView.findViewById(R.id.MyLifeIV);
 		mMyLifePB = (ProgressBar) mRootView.findViewById(R.id.MyLifePB);
 		mMyLifeTV = (TextView) mRootView.findViewById(R.id.MyLifeTV);
-		mTransparent = getResources().getColor(android.R.color.transparent);
+//		mTransparent = getResources().getColor(android.R.color.transparent);
+		mTransparent = getResources().getColor(android.R.color.black);
 
 		/** Note : For getting the height and width of the screen */
 		if (android.os.Build.VERSION.SDK_INT >= 14
@@ -156,16 +161,32 @@ public class MyLifeFragment extends Fragment {
 			@Override
 			public void onCompletion(MediaPlayer vmp) {
 				Log.d("qwe", "On Completion listener");
-				updateMyLifeViews(R.drawable.play, mMyLifeVideo.thumbnailPath,
-						View.VISIBLE, View.INVISIBLE, View.VISIBLE);
+				if(mMyLifeVideo != null) {
+					updateMyLifeViews(R.drawable.play, mMyLifeVideo.thumbnailPath,
+							View.VISIBLE, View.INVISIBLE, View.VISIBLE);
+				} else {
+					updateMyLifeViews(R.drawable.no_video, null, View.VISIBLE,
+							View.INVISIBLE, View.INVISIBLE);
+				}
 			}
+		});
+		
+		mVv.setOnErrorListener(new OnErrorListener() {
+			@Override
+			public boolean onError(MediaPlayer arg0, int arg1, int arg2) {
+				Log.e("asd", "On Error :( ");
+				return true;
+			}
+			
 		});
 
 		mMyLifeIV.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View view) {
+				Log.d("asd", "In setOnClickListener");
 				if (view.getTag() != null) {
+					Log.d("asd", "In setOnClickListener2");
 					updateMyLifeViews(R.drawable.play, null, View.INVISIBLE,
 							View.INVISIBLE, View.INVISIBLE);
 					mVv.start();
@@ -211,7 +232,7 @@ public class MyLifeFragment extends Fragment {
 		 * DataRequestService.class); serviceIntent.putExtras(bundle);
 		 * context.startService(serviceIntent);
 		 */
-
+		Log.d("asd", "in OnStart here");
 		if (mPrefs.getBoolean("com.devapp.memoir.datachanged", true) == true) {
 			Log.d("asd", "Inside 1st if");
 			mPrefs.edit().putBoolean("com.devapp.memoir.datachanged", false)
@@ -220,7 +241,9 @@ public class MyLifeFragment extends Fragment {
 		} else {
 			mMyLifeVideo = MemoirApplication.getMyLifeFile(getActivity()
 					.getApplicationContext());
+			Log.d("asd", "In else");
 			if (mMyLifeVideo != null) {
+				Log.d("asd", "In else1");
 				mVv.setVideoPath(mMyLifeVideo.path);
 
 				MediaMetadataRetriever mm = new MediaMetadataRetriever();
@@ -232,6 +255,8 @@ public class MyLifeFragment extends Fragment {
 
 				Log.d("asd", "Video width and height are " + w + "   " + h);
 			} else {
+				Log.d("asd", "In else2");
+
 				updateMyLifeViews(R.drawable.no_video, null, View.VISIBLE,
 						View.INVISIBLE, View.INVISIBLE);
 			}
@@ -245,6 +270,7 @@ public class MyLifeFragment extends Fragment {
 				View.VISIBLE, View.INVISIBLE);
 
 		Intent intent = new Intent(getActivity(), TranscodingService.class);
+//		intent.setAction(TranscodingService.);
 		getActivity().startService(intent);
 	}
 

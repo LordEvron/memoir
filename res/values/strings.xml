@@ -2,6 +2,7 @@
 <resources>
 
     <string name="app_name">Memoir</string>
+    <string name="action_import_video">Import Video</string>
     <string name="action_settings">Settings</string>
     <string name="action_help">Help</string>
     <string name="action_shoot_video">Shoot Video</string>
