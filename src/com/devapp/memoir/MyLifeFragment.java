@@ -174,7 +174,7 @@ public class MyLifeFragment extends Fragment {
 		mVv.setOnErrorListener(new OnErrorListener() {
 			@Override
 			public boolean onError(MediaPlayer arg0, int arg1, int arg2) {
-				Log.e("asd", "On Error :( ");
+				Log.e("asd", "Cant Play This Video :(");
 				return true;
 			}
 			

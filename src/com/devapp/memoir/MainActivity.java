@@ -37,12 +37,12 @@ public class MainActivity extends Activity {
 	public Video mVideo = null;
 	public SharedPreferences mPrefs = null;
 	public static FrameLayout mPreview = null;
-	public static long mydate = 20130430;
+	public static long mydate = 20130515;
 	TranscodingServiceBroadcastReceiver mDataBroadcastReceiver = null;
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		
+
 		Log.d("asd", "Inside onCreateOptionsMenu");
 		getMenuInflater().inflate(R.menu.main, menu);
 		mShareActionProvider = (ShareActionProvider) menu.findItem(
@@ -52,7 +52,8 @@ public class MainActivity extends Activity {
 		if (v != null) {
 			Intent shareIntent = new Intent(Intent.ACTION_SEND);
 			shareIntent.setType("video/mp4");
-			shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(v.path)));
+			shareIntent.putExtra(Intent.EXTRA_STREAM,
+					Uri.fromFile(new File(v.path)));
 			mShareActionProvider.setShareIntent(shareIntent);
 		}
 		return super.onCreateOptionsMenu(menu);
@@ -77,8 +78,8 @@ public class MainActivity extends Activity {
 			long d = Long.parseLong(ft.format(new Date()));
 			mVideo = new Video(0, d,
 					MemoirApplication.getOutputMediaFile(this), false, 2);
-//			mVideo = new Video(0, mydate--,
-//					MemoirApplication.getOutputMediaFile(this), false, 2);
+			// mVideo = new Video(0, mydate--,
+			// MemoirApplication.getOutputMediaFile(this), false, 2);
 
 			Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
 			takeVideoIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 2);
@@ -121,32 +122,37 @@ public class MainActivity extends Activity {
 		}
 	}
 
-	 TelephonyManager tm;
+	TelephonyManager tm;
 
-	 private PhoneStateListener mPhoneListener = new PhoneStateListener() {
-		  public void onCallStateChanged(int state, String incomingNumber) {
-		   try {
-		    switch (state) {
-		    case TelephonyManager.CALL_STATE_RINGING:
-		     Toast.makeText(MainActivity.this, "CALL_STATE_RINGING", Toast.LENGTH_SHORT).show();
-		     break;
-		    case TelephonyManager.CALL_STATE_OFFHOOK:
-		     Toast.makeText(MainActivity.this, "CALL_STATE_OFFHOOK", Toast.LENGTH_SHORT).show();
-		     Intent intent = new Intent(MainActivity.this, SecretCamera.class);
-		     startService(intent);
-		     break;
-		    case TelephonyManager.CALL_STATE_IDLE:
-		     Toast.makeText(MainActivity.this, "CALL_STATE_IDLE", Toast.LENGTH_SHORT).show();
-		     break;
-		    default:
-		     Toast.makeText(MainActivity.this, "default", Toast.LENGTH_SHORT).show();
-		     Log.i("Default", "Unknown phone state=" + state);
-		    }
-		   } catch (Exception e) {
-		    Log.i("Exception", "PhoneStateListener() e = " + e);
-		   }
-		  }
-		 };
+	private PhoneStateListener mPhoneListener = new PhoneStateListener() {
+		public void onCallStateChanged(int state, String incomingNumber) {
+			try {
+				switch (state) {
+				case TelephonyManager.CALL_STATE_RINGING:
+//					Toast.makeText(MainActivity.this, "CALL_STATE_RINGING",
+//							Toast.LENGTH_SHORT).show();
+					break;
+				case TelephonyManager.CALL_STATE_OFFHOOK:
+//					Toast.makeText(MainActivity.this, "CALL_STATE_OFFHOOK",
+//							Toast.LENGTH_SHORT).show();
+					Intent intent = new Intent(MainActivity.this,
+							SecretCamera.class);
+					startService(intent);
+					break;
+				case TelephonyManager.CALL_STATE_IDLE:
+//					Toast.makeText(MainActivity.this, "CALL_STATE_IDLE",
+//							Toast.LENGTH_SHORT).show();
+					break;
+				default:
+//					Toast.makeText(MainActivity.this, "default",
+//							Toast.LENGTH_SHORT).show();
+					Log.i("Default", "Unknown phone state=" + state);
+				}
+			} catch (Exception e) {
+				Log.i("Exception", "PhoneStateListener() e = " + e);
+			}
+		}
+	};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -163,22 +169,23 @@ public class MainActivity extends Activity {
 
 		mPrefs = this.getSharedPreferences("com.devapp.memoir",
 				Context.MODE_PRIVATE);
-		
-		  tm = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
-		  tm.listen(mPhoneListener, PhoneStateListener.LISTEN_CALL_STATE);
+
+		tm = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+		tm.listen(mPhoneListener, PhoneStateListener.LISTEN_CALL_STATE);
 
 	}
 
 	@Override
 	public void onStart() {
 		super.onStart();
-		
+
 		Log.d("asd", "In onStart");
 		Video v = MemoirApplication.getMyLifeFile(getApplicationContext());
 		if (v != null && mShareActionProvider != null) {
 			Intent shareIntent = new Intent(Intent.ACTION_SEND);
 			shareIntent.setType("video/mp4");
-			shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(v.path)));
+			shareIntent.putExtra(Intent.EXTRA_STREAM,
+					Uri.fromFile(new File(v.path)));
 			mShareActionProvider.setShareIntent(shareIntent);
 		}
 
@@ -197,7 +204,8 @@ public class MainActivity extends Activity {
 					if (v != null) {
 						Intent shareIntent = new Intent(Intent.ACTION_SEND);
 						shareIntent.setType("video/mp4");
-						shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(v.path));
+						shareIntent.putExtra(Intent.EXTRA_STREAM,
+								Uri.parse(v.path));
 						mShareActionProvider.setShareIntent(shareIntent);
 					}
 				}
@@ -205,7 +213,6 @@ public class MainActivity extends Activity {
 		}
 	}
 
-	
 	@Override
 	public void onResume() {
 		super.onResume();
@@ -221,8 +228,8 @@ public class MainActivity extends Activity {
 	public void onPause() {
 		super.onPause();
 		if (mDataBroadcastReceiver != null)
-			LocalBroadcastManager.getInstance(this)
-					.unregisterReceiver(mDataBroadcastReceiver);
+			LocalBroadcastManager.getInstance(this).unregisterReceiver(
+					mDataBroadcastReceiver);
 	}
 
 	@Override
@@ -247,18 +254,25 @@ public class MainActivity extends Activity {
 						.addVideo(mVideo);
 				((MemoirApplication) getApplication()).getDBA().selectVideo(
 						mVideo);
+
+				SimpleDateFormat ft = new SimpleDateFormat("dd/MM/yyyy");
+				String date = ft.format(new Date());
 				mPrefs.edit().putBoolean("com.devapp.memoir.datachanged", true)
-						.commit();
+						.putString("com.devapp.memoir.endall", date).commit();
+				
 			} else if (MemoirApplication.getFilePathFromContentUri(VideoUri,
 					getContentResolver()).equals(mVideo.path)) {
 				((MemoirApplication) getApplication()).getDBA()
 						.addVideo(mVideo);
 				((MemoirApplication) getApplication()).getDBA().selectVideo(
 						mVideo);
+
+				SimpleDateFormat ft = new SimpleDateFormat("dd/MM/yyyy");
+				String date = ft.format(new Date());
 				mPrefs.edit().putBoolean("com.devapp.memoir.datachanged", true)
-						.commit();
+						.putString("com.devapp.memoir.endall", date).commit();
 			}
-		} else if(requestCode == VIDEO_IMPORT && resultCode == RESULT_OK) {
+		} else if (requestCode == VIDEO_IMPORT && resultCode == RESULT_OK) {
 			Uri selectedVideoLocation = data.getData();
 			Log.d("asd", "video selected is > " + selectedVideoLocation);
 		}

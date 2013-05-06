@@ -53,6 +53,11 @@ public class MemoirApplication extends Application {
 				f.delete();
 			}
 			Log.d("zxc", "Setting all prefernces to this date" + date);
+		} else {
+			Log.d("asd", "com.devapp.memoir.startall > " + mPrefs.getString("com.devapp.memoir.startall", null));
+			Log.d("asd", "com.devapp.memoir.endall > " + mPrefs.getString("com.devapp.memoir.endall", null));
+			Log.d("asd", "com.devapp.memoir.startselected > " + mPrefs.getString("com.devapp.memoir.startselected", null));
+			Log.d("asd", "com.devapp.memoir.endselected > " + mPrefs.getString("com.devapp.memoir.endselected", null));
 		}
 	}
 

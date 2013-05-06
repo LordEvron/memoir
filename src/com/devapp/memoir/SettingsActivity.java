@@ -24,6 +24,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.DatePicker;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class SettingsActivity extends Activity {
 
@@ -47,25 +48,25 @@ public class SettingsActivity extends Activity {
 		mArrayList = new ArrayList<SettingsItem>();
 
 		Log.d("zxc", "reading those values again");
-		mArrayList
-				.add(new SettingsItem("Set Start Date",
-						mPrefs.getString("com.devapp.memoir.startselected",
-								"No Start Date Set")));
+		mArrayList.add(new SettingsItem("Set Start Date", mPrefs.getString(
+				"com.devapp.memoir.startselected", "No Start Date Set")));
 		mArrayList.add(new SettingsItem("Set End Date", mPrefs.getString(
 				"com.devapp.memoir.endselected", "No End Date Set")));
 
-		mArrayList
-				.add(new SettingsItem("Show Rows With Multiple Videos Only",
-						"You can disable rows which has only single video",
-						mPrefs.getBoolean("com.devapp.memoir.showonlymultiple",
-								false), new OnCheckedChangeListener() {
+		mArrayList.add(new SettingsItem("Show Rows With Multiple Videos Only",
+				"You can disable rows which has only single video",
+				mPrefs.getBoolean("com.devapp.memoir.showonlymultiple", false),
+				new OnCheckedChangeListener() {
 
-									@Override
-									public void onCheckedChanged(
-											CompoundButton arg0, boolean arg1) {
-										mPrefs.edit().putBoolean("com.devapp.memoir.showonlymultiple", arg1).commit();
-									}
-					
+					@Override
+					public void onCheckedChanged(CompoundButton arg0,
+							boolean arg1) {
+						mPrefs.edit()
+								.putBoolean(
+										"com.devapp.memoir.showonlymultiple",
+										arg1).commit();
+					}
+
 				}));
 
 		mSettingsView = (ListView) findViewById(R.id.SettingLV);
@@ -75,44 +76,118 @@ public class SettingsActivity extends Activity {
 			public void onItemClick(AdapterView<?> arg0, View view,
 					int position, long arg3) {
 				Log.d("zxc", "position" + position);
-				DatePickerFragment newFragment = new DatePickerFragment();
 				if (position == 0) {
-					newFragment.setDefaultDate(mPrefs.getString(
-							"com.devapp.memoir.startselected", null),
-							new setDateInterface() {
-								@Override
-								public void setDate(String s) {
-									mPrefs.edit()
-											.putString(
-													"com.devapp.memoir.startselected",
-													s)
-											.putBoolean(
-													"com.devapp.memoir.datechanged",
-													true).commit();
-									mArrayList.get(0).text2 = s;
-									mSettingsView.invalidateViews();
-								}
-							});
+
+					if (mPrefs.getString("com.devapp.memoir.startall", null)
+							.equals(mPrefs.getString(
+									"com.devapp.memoir.endselected", null))) {
+						Toast.makeText(
+								SettingsActivity.this,
+								"Only possible start date is the one already selected",
+								Toast.LENGTH_SHORT).show();
+					} else {
+						DatePickerFragment newFragment = new DatePickerFragment();
+						newFragment.setDefaultDate(mPrefs.getString(
+								"com.devapp.memoir.startselected", null),
+								mPrefs.getString("com.devapp.memoir.startall",
+										null), mPrefs.getString(
+										"com.devapp.memoir.endselected", null),
+								new setDateInterface() {
+									@Override
+									public void setDate(String s) {
+
+										if (s.compareTo(mPrefs.getString(
+												"com.devapp.memoir.startall",
+												null)) < 0) {
+											s = mPrefs
+													.getString(
+															"com.devapp.memoir.startall",
+															null);
+										} else if (s.compareTo(mPrefs
+												.getString(
+														"com.devapp.memoir.endselected",
+														null)) > 0) {
+											s = mPrefs
+													.getString(
+															"com.devapp.memoir.endselected",
+															null);
+										}
+										mPrefs.edit()
+												.putString(
+														"com.devapp.memoir.startselected",
+														s)
+												.putBoolean(
+														"com.devapp.memoir.datachanged",
+														true).commit();
+										mArrayList.get(0).text2 = s;
+										mSettingsView.invalidateViews();
+
+										Toast.makeText(
+												SettingsActivity.this,
+												"Setting Start Date To" + s,
+												Toast.LENGTH_SHORT).show();
+									}
+								});
+						newFragment.show(
+								SettingsActivity.this.getFragmentManager(),
+								"datePicker");
+					}
 				} else if (position == 1) {
-					newFragment.setDefaultDate(mPrefs.getString(
-							"com.devapp.memoir.endselected", null),
-							new setDateInterface() {
-								@Override
-								public void setDate(String s) {
-									mPrefs.edit()
-											.putString(
-													"com.devapp.memoir.endselected",
-													s)
-											.putBoolean(
-													"com.devapp.memoir.datechanged",
-													true).commit();
-									mArrayList.get(1).text2 = s;
-									mSettingsView.invalidateViews();
-								}
-							});
+					if (mPrefs.getString("com.devapp.memoir.startselected",
+							null).equals(
+							mPrefs.getString("com.devapp.memoir.endall", null))) {
+						Toast.makeText(
+								SettingsActivity.this,
+								"Only possible end date is the one already selected",
+								Toast.LENGTH_SHORT).show();
+					} else {
+						DatePickerFragment newFragment = new DatePickerFragment();
+						newFragment.setDefaultDate(mPrefs.getString(
+								"com.devapp.memoir.endselected", null), mPrefs
+								.getString("com.devapp.memoir.startselected",
+										null), mPrefs.getString(
+								"com.devapp.memoir.endall", null),
+								new setDateInterface() {
+									@Override
+									public void setDate(String s) {
+										if (s.compareTo(mPrefs.getString(
+												"com.devapp.memoir.startselected",
+												null)) < 0) {
+											s = mPrefs
+													.getString(
+															"com.devapp.memoir.startselected",
+															null);
+										} else if (s.compareTo(mPrefs
+												.getString(
+														"com.devapp.memoir.endall",
+														null)) > 0) {
+											s = mPrefs
+													.getString(
+															"com.devapp.memoir.endall",
+															null);
+										}
+
+										mPrefs.edit()
+												.putString(
+														"com.devapp.memoir.endselected",
+														s)
+												.putBoolean(
+														"com.devapp.memoir.datachanged",
+														true).commit();
+										mArrayList.get(1).text2 = s;
+										mSettingsView.invalidateViews();
+										
+										Toast.makeText(
+												SettingsActivity.this,
+												"Setting End Date To" + s,
+												Toast.LENGTH_SHORT).show();
+									}
+								});
+						newFragment.show(
+								SettingsActivity.this.getFragmentManager(),
+								"datePicker");
+					}
 				}
-				newFragment.show(SettingsActivity.this.getFragmentManager(),
-						"datePicker");
 			}
 		});
 	}
@@ -151,8 +226,9 @@ public class SettingsActivity extends Activity {
 			text2 = t2;
 			showCheckbox = false;
 		}
-		
-		public SettingsItem(String t1, String t2, boolean cbValue, OnCheckedChangeListener l) {
+
+		public SettingsItem(String t1, String t2, boolean cbValue,
+				OnCheckedChangeListener l) {
 			text1 = t1;
 			text2 = t2;
 			showCheckbox = true;
@@ -191,9 +267,10 @@ public class SettingsActivity extends Activity {
 					.setText(item.text1);
 			((TextView) convertView.findViewById(R.id.SettingsItemTV2))
 					.setText(item.text2);
-			
-			CheckBox cb = (CheckBox)convertView.findViewById(R.id.SettingsItemCB);
-			if(item.showCheckbox) {
+
+			CheckBox cb = (CheckBox) convertView
+					.findViewById(R.id.SettingsItemCB);
+			if (item.showCheckbox) {
 				cb.setChecked(item.checkboxValue);
 				cb.setOnCheckedChangeListener(item.listener);
 				cb.setVisibility(View.VISIBLE);
@@ -221,10 +298,15 @@ public class SettingsActivity extends Activity {
 			DatePickerDialog.OnDateSetListener {
 
 		String defaultDate = null;
+		String minDate = null;
+		String maxDate = null;
 		setDateInterface setDateI = null;
 
-		public void setDefaultDate(String dD, setDateInterface setDateI) {
+		public void setDefaultDate(String dD, String minDate, String maxDate,
+				setDateInterface setDateI) {
 			this.defaultDate = dD;
+			this.minDate = minDate;
+			this.maxDate = maxDate;
 			this.setDateI = setDateI;
 		}
 
@@ -232,6 +314,7 @@ public class SettingsActivity extends Activity {
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
 
 			int year = 0, month = 0, day = 0;
+
 			if (this.defaultDate != null) {
 				day = Integer.parseInt(defaultDate.substring(0, 2));
 				month = Integer.parseInt(defaultDate.substring(3, 5)) - 1;
@@ -243,10 +326,31 @@ public class SettingsActivity extends Activity {
 				year = c.get(Calendar.YEAR);
 				month = c.get(Calendar.MONTH);
 				day = c.get(Calendar.DAY_OF_MONTH);
+
 			}
 
-			// Create a new instance of DatePickerDialog and return it
-			return new DatePickerDialog(getActivity(), this, year, month, day);
+			Calendar cal1 = Calendar.getInstance();
+			cal1.set(Integer.parseInt(minDate.substring(6)),
+					Integer.parseInt(minDate.substring(3, 5)) - 1,
+					Integer.parseInt(minDate.substring(0, 2)));
+
+			Log.d("asd", "Min Date is > " + cal1.getTimeInMillis()
+					+ " where min date is >" + minDate);
+
+			Calendar cal2 = Calendar.getInstance();
+			cal2.set(Integer.parseInt(maxDate.substring(6)),
+					Integer.parseInt(maxDate.substring(3, 5)) - 1,
+					Integer.parseInt(maxDate.substring(0, 2)));
+			Log.d("asd", "Max Date is > " + cal2.getTimeInMillis()
+					+ "  Wjere max date is > " + maxDate);
+
+			DatePickerDialog dpDialog = new DatePickerDialog(getActivity(),
+					this, year, month, day);
+			DatePicker dp = dpDialog.getDatePicker();
+			dp.setMinDate(cal1.getTimeInMillis() - 60 * 60 * 24 * 1000);
+			dp.setMaxDate(cal2.getTimeInMillis() + 60 * 60 * 24 * 1000);
+
+			return dpDialog;
 		}
 
 		public void onDateSet(DatePicker view, int year, int month, int day) {
