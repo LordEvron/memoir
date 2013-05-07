@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -24,16 +25,17 @@ import com.googlecode.mp4parser.authoring.tracks.AppendTrack;
 
 public class TranscodingService extends IntentService {
 
-	private File extStorePath;
+	public String extStorePath;
 	public static String ActionCreateMyLife = "ActionCreateMyLife";
 	public static String ActionTrimVideo = "ActionTrimVideo";
 
 	public TranscodingService() {
 		super("TranscodingService");
-		extStorePath = Environment
-				.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
+//		extStorePath = Environment
+//				.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
+//		extStorePath = getExternalFilesDir(Environment.DIRECTORY_MOVIES).getAbsolutePath();
 	}
-
+	
 	private Movie appendMovie(Movie m1, Movie m2) throws IOException {
 
 		if (m1 == null) {
@@ -89,7 +91,7 @@ public class TranscodingService extends IntentService {
 		endDate = intent.getLongExtra("endDate", -1);
 		Intent broadcastIntent = new Intent("TranscodingComplete");
 
-		File file = new File(extStorePath, "/Memoir/MyLife.mp4");
+		File file = new File(getExternalFilesDir(Environment.DIRECTORY_MOVIES).getAbsolutePath(), "/Memoir/MyLife.mp4");
 		boolean deleted = file.exists() ? file.delete() : false;
 		Log.e("asd", "Memoir file deleted ? " + deleted);
 		
@@ -111,6 +113,7 @@ public class TranscodingService extends IntentService {
 		ArrayList<Movie> inMovies = new ArrayList<Movie>();
 		File videoFile = null;
 
+		Collections.reverse(dateList);
 		for (i = 0; i < dateList.size(); i++) {
 			videoList = (ArrayList<Video>) dateList.get(i);
 
@@ -172,7 +175,7 @@ public class TranscodingService extends IntentService {
 			e.printStackTrace();
 		}
 
-		broadcastIntent.putExtra("OutputFileName", extStorePath
+		broadcastIntent.putExtra("OutputFileName", getExternalFilesDir(Environment.DIRECTORY_MOVIES).getAbsolutePath()
 				+ "/Memoir/MyLife.mp4");
 		LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
 	}

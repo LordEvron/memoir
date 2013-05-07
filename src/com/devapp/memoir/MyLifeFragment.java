@@ -445,6 +445,8 @@ public class MyLifeFragment extends Fragment {
 						playIntent.setAction(Intent.ACTION_VIEW);
 						playIntent.setDataAndType(
 								Uri.fromFile(new File(v.path)), "video/*");
+						
+						Log.d("asd", "Play Video >" + v.path);
 						getActivity().startActivity(playIntent);
 					}
 				});

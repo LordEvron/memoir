@@ -23,7 +23,6 @@ public class MemoirDBA  {
 	private String DATABASE_NAME = "memoir.db";
 	private int DATABASE_VERSION = 1;
 	private Context cxt = null;
-	private SharedPreferences mPrefs = null;
 	
 	public MemoirDBA(Context context) {
 		this.cxt = context;
@@ -53,8 +52,12 @@ public class MemoirDBA  {
 		return mMDBHelper.checkVideoInLimit();
 	}
 	
+	public void updateDatabase() {
+		mMDBHelper.updateDatabase();
+	}
+	
 	private static class MemoirDBHelper extends SQLiteOpenHelper {
-		
+		private SharedPreferences mPrefs = null;
 		private String VIDEOS_TABLE_NAME = "videos";
 		
 		private String V_TABLE_KEY = "key";
@@ -84,6 +87,8 @@ public class MemoirDBA  {
 
 		public MemoirDBHelper(Context context, String name, CursorFactory factory, int version) {
 			super(context, name, factory, version);
+			mPrefs = context.getSharedPreferences("com.devapp.memoir",
+					Context.MODE_PRIVATE);
 		}
 
 		@Override
@@ -242,6 +247,30 @@ public class MemoirDBA  {
 			}
 			c.close();
 			return false;
+		}
+		
+		public void updateDatabase() {
+			Log.d("asd", "Updating database");
+			SQLiteDatabase db = this.getReadableDatabase();
+			StringBuilder sb = new StringBuilder("1 = 0");			
+			String[] columns = {V_TABLE_KEY, V_TABLE_PATH, V_TABLE_THUMBNAIL_PATH}; 
+			Cursor c = db.query(VIDEOS_TABLE_NAME, columns, null, null, null, null, null);
+			if(c.getCount() > 0) {
+				if (c.moveToFirst()) {
+					while(!c.isAfterLast()) {
+						if(!(new File(c.getString(1)).exists())) {
+							sb.append(" or " + V_TABLE_KEY + " = " + c.getInt(0) + " ");
+							new File(c.getString(2)).delete();
+							mPrefs.edit().putBoolean("com.devapp.memoir.datachanged", true).commit();
+						}
+						c.moveToNext();
+					}
+				}
+			}
+			c.close();
+			
+			db = this.getWritableDatabase();
+			db.delete(VIDEOS_TABLE_NAME, sb.toString(), null);
 		}
 	}
 }

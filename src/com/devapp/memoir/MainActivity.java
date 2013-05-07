@@ -1,6 +1,11 @@
 package com.devapp.memoir;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -15,6 +20,7 @@ import android.content.pm.ActivityInfo;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.content.LocalBroadcastManager;
 import android.telephony.PhoneStateListener;
@@ -53,7 +59,7 @@ public class MainActivity extends Activity {
 			Intent shareIntent = new Intent(Intent.ACTION_SEND);
 			shareIntent.setType("video/mp4");
 			shareIntent.putExtra(Intent.EXTRA_STREAM,
-					Uri.fromFile(new File(v.path)));
+					Uri.fromFile(new File(copy(v.path))));
 			mShareActionProvider.setShareIntent(shareIntent);
 		}
 		return super.onCreateOptionsMenu(menu);
@@ -202,7 +208,7 @@ public class MainActivity extends Activity {
 			Intent shareIntent = new Intent(Intent.ACTION_SEND);
 			shareIntent.setType("video/mp4");
 			shareIntent.putExtra(Intent.EXTRA_STREAM,
-					Uri.fromFile(new File(v.path)));
+					Uri.fromFile(new File(copy(v.path))));
 			mShareActionProvider.setShareIntent(shareIntent);
 		}
 
@@ -222,7 +228,7 @@ public class MainActivity extends Activity {
 						Intent shareIntent = new Intent(Intent.ACTION_SEND);
 						shareIntent.setType("video/mp4");
 						shareIntent.putExtra(Intent.EXTRA_STREAM,
-								Uri.parse(v.path));
+								Uri.fromFile(new File(copy(v.path))));
 						mShareActionProvider.setShareIntent(shareIntent);
 					}
 				}
@@ -293,5 +299,34 @@ public class MainActivity extends Activity {
 			Uri selectedVideoLocation = data.getData();
 			Log.d("asd", "video selected is > " + selectedVideoLocation);
 		}
+	}
+	
+	public String copy(String inputFile) {
+		
+		String filePath = this.getExternalFilesDir(Environment.DIRECTORY_MOVIES).getAbsolutePath() + "/Memoir-"
+				+ mPrefs.getString("com.devapp.memoir.startselected", "Day 1").replaceAll("/", "-")
+				+ "-"
+				+ mPrefs.getString("com.devapp.memoir.endselected", "Now").replaceAll("/", "-")
+				+ ".mp4";
+		
+		Log.d("asd", filePath + "   " + inputFile);
+		try {
+		    InputStream in = new FileInputStream(new File(inputFile));
+		    OutputStream out = new FileOutputStream(new File(filePath));
+
+		    // Transfer bytes from in to out
+		    byte[] buf = new byte[1024];
+		    int len;
+		    while ((len = in.read(buf)) > 0) {
+		        out.write(buf, 0, len);
+		    }
+		    in.close();
+		    out.close();
+		} catch(IOException e) {
+			Log.e("asd", "Exception While Copying");
+			e.getStackTrace();
+		}
+	    
+	    return filePath;
 	}
 }

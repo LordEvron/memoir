@@ -60,6 +60,8 @@ public class MemoirApplication extends Application {
 			Log.d("asd", "com.devapp.memoir.startselected > " + mPrefs.getString("com.devapp.memoir.startselected", null));
 			Log.d("asd", "com.devapp.memoir.endselected > " + mPrefs.getString("com.devapp.memoir.endselected", null));
 		}
+		
+		mDBA.updateDatabase();
 	}
 
 	public MemoirDBA getDBA() {
@@ -70,8 +72,9 @@ public class MemoirApplication extends Application {
 		String outputFilename = null;
 
 		if (useExternal) {
-			outputFilename = Environment.getExternalStoragePublicDirectory(
-					Environment.DIRECTORY_MOVIES).getPath();
+//			outputFilename = Environment.getExternalStoragePublicDirectory(
+//					Environment.DIRECTORY_MOVIES).getPath();
+			outputFilename = c.getExternalFilesDir(Environment.DIRECTORY_MOVIES).getAbsolutePath();
 		} else
 			outputFilename = c.getFilesDir().getAbsolutePath();
 
@@ -97,8 +100,9 @@ public class MemoirApplication extends Application {
 				mExternalStorageAvailable = mExternalStorageWriteable = true;
 
 				File mediaStorageDir = new File(
-						Environment
-								.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES),
+//						Environment
+//								.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES),
+								c.getExternalFilesDir(Environment.DIRECTORY_MOVIES).getAbsolutePath(),
 						"Memoir");
 				if (!mediaStorageDir.exists()) {
 					if (!mediaStorageDir.mkdirs()) {
@@ -158,8 +162,9 @@ public class MemoirApplication extends Application {
 				mExternalStorageAvailable = mExternalStorageWriteable = true;
 
 				File mediaStorageDir = new File(
-						Environment
-								.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES),
+//						Environment
+//								.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES),
+						c.getExternalFilesDir(Environment.DIRECTORY_MOVIES).getAbsolutePath(),
 						"Memoir/.thumbnails");
 				if (!mediaStorageDir.exists()) {
 					if (!mediaStorageDir.mkdirs()) {
