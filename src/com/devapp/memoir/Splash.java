@@ -22,6 +22,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.app.Activity;
 import android.content.Context;
@@ -36,10 +37,10 @@ public class Splash extends Activity {
 		setContentView(R.layout.activity_splash);
 		
 		Animation animation = AnimationUtils.loadAnimation(this, R.anim.splashanimations);
-		TextView tv = (TextView) findViewById(R.id.splashtitle);
-		tv.startAnimation(animation);
+		LinearLayout ll = (LinearLayout) findViewById(R.id.splashLL);
+		ll.startAnimation(animation);
 		
-		final int splashtime = 3000;
+		final int splashtime = 2500;
 		final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		Thread splashthread =  new Thread() {
 			int wait = 0;
@@ -58,7 +59,7 @@ public class Splash extends Activity {
 					Intent i;
 			        if(!prefs.getBoolean("first_time", false))
 			        {
-			            i = new Intent(Splash.this, Welcome.class);
+			            i = new Intent(Splash.this, HelpActivity.class);
 			            i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			        }
 			        else

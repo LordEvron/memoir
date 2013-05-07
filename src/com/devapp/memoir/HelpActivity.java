@@ -2,8 +2,11 @@ package com.devapp.memoir;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +26,11 @@ public class HelpActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean("first_time", true);
+        editor.commit();
+        
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
@@ -34,6 +42,14 @@ public class HelpActivity extends Activity {
 		mList.expandGroup(0);
 	}
 
+	@Override
+	public void onBackPressed ()
+	{
+		Intent i = new Intent (HelpActivity.this, MainActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		startActivity (i);
+		finish();
+	}
 	public class MyExpandableListAdapter extends BaseExpandableListAdapter {
 		private int[] groups = { R.string.help_mt1 , R.string.help_mt2, R.string.help_mt3, R.string.help_mt4, R.string.help_mt5, R.string.help_mt6 };
 		private int[][] children = { { R.string.help_t1}, { R.string.help_t2}, { R.string.help_t3}, { R.string.help_t4}, { R.string.help_t5}, { R.string.help_t6}};

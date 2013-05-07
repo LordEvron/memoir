@@ -10,7 +10,7 @@
         android:background="@drawable/images"
         android:padding="3dp"
         android:scaleType="fitXY"
-        android:src="@drawable/memoir" />
+         />
 
 </FrameLayout><!--
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
