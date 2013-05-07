@@ -73,26 +73,35 @@ public class MainActivity extends Activity {
 			return true;
 		case R.id.action_shoot_video:
 			Log.d("asd", "Shoot video selected");
+			if (((MemoirApplication) getApplication()).getDBA()
+					.checkVideoInLimit()) {
 
-			SimpleDateFormat ft = new SimpleDateFormat("yyyyMMdd");
-			long d = Long.parseLong(ft.format(new Date()));
-			mVideo = new Video(0, d,
-					MemoirApplication.getOutputMediaFile(this), false, 2);
-			// mVideo = new Video(0, mydate--,
-			// MemoirApplication.getOutputMediaFile(this), false, 2);
+				SimpleDateFormat ft = new SimpleDateFormat("yyyyMMdd");
+				long d = Long.parseLong(ft.format(new Date()));
+				mVideo = new Video(0, d,
+						MemoirApplication.getOutputMediaFile(this), false, 2,
+						true);
+				// mVideo = new Video(0, mydate--,
+				// MemoirApplication.getOutputMediaFile(this), false, 2);
 
-			Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-			takeVideoIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 2);
-			takeVideoIntent.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION,
-					ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-			File videoFile = new File(mVideo.path);
-			takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT,
-					Uri.fromFile(videoFile));
+				Intent takeVideoIntent = new Intent(
+						MediaStore.ACTION_VIDEO_CAPTURE);
+				takeVideoIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 2);
+				takeVideoIntent.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION,
+						ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+				File videoFile = new File(mVideo.path);
+				takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT,
+						Uri.fromFile(videoFile));
 
-			takeVideoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
-			Log.d("asd", "URI is " + Uri.fromFile(videoFile));
-			startActivityForResult(takeVideoIntent, VIDEO_CAPTURE);
-
+				takeVideoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
+				Log.d("asd", "URI is " + Uri.fromFile(videoFile));
+				startActivityForResult(takeVideoIntent, VIDEO_CAPTURE);
+			} else {
+				Toast.makeText(
+						MainActivity.this,
+						"More than 5 Videos are not allowed for a day, Please delete some videos to shoot more videos.",
+						Toast.LENGTH_LONG).show();
+			}
 			/*
 			 * intent = new Intent(this, CameraActivity.class);
 			 * intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -129,23 +138,31 @@ public class MainActivity extends Activity {
 			try {
 				switch (state) {
 				case TelephonyManager.CALL_STATE_RINGING:
-//					Toast.makeText(MainActivity.this, "CALL_STATE_RINGING",
-//							Toast.LENGTH_SHORT).show();
+					// Toast.makeText(MainActivity.this, "CALL_STATE_RINGING",
+					// Toast.LENGTH_SHORT).show();
 					break;
 				case TelephonyManager.CALL_STATE_OFFHOOK:
-//					Toast.makeText(MainActivity.this, "CALL_STATE_OFFHOOK",
-//							Toast.LENGTH_SHORT).show();
-					Intent intent = new Intent(MainActivity.this,
-							SecretCamera.class);
-					startService(intent);
+					// Toast.makeText(MainActivity.this, "CALL_STATE_OFFHOOK",
+					// Toast.LENGTH_SHORT).show();
+					if (((MemoirApplication) getApplication()).getDBA()
+							.checkVideoInLimit()) {
+						Intent intent = new Intent(MainActivity.this,
+								SecretCamera.class);
+						startService(intent);
+					} else {
+//						Toast.makeText(
+//								MainActivity.this,
+//								"More than 5 Videos are not allowed for a day, Please delete some videos to shoot more videos.",
+//								Toast.LENGTH_LONG).show();
+					}
 					break;
 				case TelephonyManager.CALL_STATE_IDLE:
-//					Toast.makeText(MainActivity.this, "CALL_STATE_IDLE",
-//							Toast.LENGTH_SHORT).show();
+					// Toast.makeText(MainActivity.this, "CALL_STATE_IDLE",
+					// Toast.LENGTH_SHORT).show();
 					break;
 				default:
-//					Toast.makeText(MainActivity.this, "default",
-//							Toast.LENGTH_SHORT).show();
+					// Toast.makeText(MainActivity.this, "default",
+					// Toast.LENGTH_SHORT).show();
 					Log.i("Default", "Unknown phone state=" + state);
 				}
 			} catch (Exception e) {
@@ -201,7 +218,7 @@ public class MainActivity extends Activity {
 
 				if (!outputFile.isEmpty()) {
 					Video v = new Video(context, outputFile);
-					if (v != null) {
+					if (v != null && mShareActionProvider != null) {
 						Intent shareIntent = new Intent(Intent.ACTION_SEND);
 						shareIntent.setType("video/mp4");
 						shareIntent.putExtra(Intent.EXTRA_STREAM,
@@ -259,7 +276,7 @@ public class MainActivity extends Activity {
 				String date = ft.format(new Date());
 				mPrefs.edit().putBoolean("com.devapp.memoir.datachanged", true)
 						.putString("com.devapp.memoir.endall", date).commit();
-				
+
 			} else if (MemoirApplication.getFilePathFromContentUri(VideoUri,
 					getContentResolver()).equals(mVideo.path)) {
 				((MemoirApplication) getApplication()).getDBA()

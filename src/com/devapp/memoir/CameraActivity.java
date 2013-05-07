@@ -67,7 +67,7 @@ public class CameraActivity extends Activity {
 		long d = Long.parseLong(ft.format(new Date()));
 
 		mVideo = new Video(0, d, MemoirApplication.getOutputMediaFile(this),
-				false, 2);
+				false, 2, false);
 		mMediaRecorder.setOutputFile(mVideo.path);
 
 		mMediaRecorder.setPreviewDisplay(mPreview.getHolder().getSurface());

@@ -87,8 +87,6 @@ public class TranscodingService extends IntentService {
 
 		// Log.d("asd", "in onHandleIntent");
 		
-		
-		
 		long startDate, endDate;
 		startDate = intent.getLongExtra("startDate", 0);
 		endDate = intent.getLongExtra("endDate", -1);

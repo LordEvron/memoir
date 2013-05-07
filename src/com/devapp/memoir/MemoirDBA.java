@@ -2,7 +2,9 @@ package com.devapp.memoir;
 
 //import java.sql.Date;
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import android.content.ContentValues;
@@ -47,6 +49,10 @@ public class MemoirDBA  {
 		return mMDBHelper.selectVideo(v);
 	}
 	
+	public boolean checkVideoInLimit() {
+		return mMDBHelper.checkVideoInLimit();
+	}
+	
 	private static class MemoirDBHelper extends SQLiteOpenHelper {
 		
 		private String VIDEOS_TABLE_NAME = "videos";
@@ -57,6 +63,7 @@ public class MemoirDBA  {
 		private String V_TABLE_THUMBNAIL_PATH = "thumbnail";
 		private String V_TABLE_SELECTED = "selected";
 		private String V_TABLE_LENGTH = "length";
+		private String V_TABLE_USER_TAKEN = "usertaken";
 		
 		private int V_TABLE_KEY_INDEX = 0;
 		private int V_TABLE_DATE_INDEX = 1;
@@ -64,6 +71,7 @@ public class MemoirDBA  {
 		private int V_TABLE_THUMBNAIL_PATH_INDEX = 3;
 		private int V_TABLE_SELECTED_INDEX = 4;
 		private int V_TABLE_LENGTH_INDEX = 5;
+		private int V_TABLE_USER_TAKEN_INDEX = 6;
 
 		private String VIDEOS_TABLE_CREATE = "CREATE TABLE " + VIDEOS_TABLE_NAME + " ("
 				+ V_TABLE_KEY + " integer primary key autoincrement, "
@@ -71,7 +79,8 @@ public class MemoirDBA  {
 				+ V_TABLE_PATH + " TEXT, "
 				+ V_TABLE_THUMBNAIL_PATH + " TEXT, "
 				+ V_TABLE_SELECTED + " INTEGER, "
-				+ V_TABLE_LENGTH + " INTEGER);";
+				+ V_TABLE_LENGTH + " INTEGER, "
+				+ V_TABLE_USER_TAKEN + " INTEGER);";
 
 		public MemoirDBHelper(Context context, String name, CursorFactory factory, int version) {
 			super(context, name, factory, version);
@@ -124,7 +133,7 @@ public class MemoirDBA  {
 					}
 					//Log.d("asd", "reading video");
 					
-					Video v = new Video(c.getInt(V_TABLE_KEY_INDEX), c.getLong(V_TABLE_DATE_INDEX), c.getString(V_TABLE_PATH_INDEX), c.getString(V_TABLE_THUMBNAIL_PATH_INDEX), c.getInt(V_TABLE_SELECTED_INDEX) > 0 ? true : false, c.getInt(V_TABLE_LENGTH_INDEX));
+					Video v = new Video(c.getInt(V_TABLE_KEY_INDEX), c.getLong(V_TABLE_DATE_INDEX), c.getString(V_TABLE_PATH_INDEX), c.getString(V_TABLE_THUMBNAIL_PATH_INDEX), c.getInt(V_TABLE_SELECTED_INDEX) > 0 ? true : false, c.getInt(V_TABLE_LENGTH_INDEX), c.getInt(V_TABLE_USER_TAKEN_INDEX) > 0 ? true : false);
 					currentVideoList.add(v);
 					
 					c.moveToNext();
@@ -133,7 +142,7 @@ public class MemoirDBA  {
 			c.close();
 			
 			List<List<Video>> dateList2 = null;
-			if(showOnlyMultiple) {
+			if(showOnlyMultiple && dateList != null) {
 				for(List<Video> lv: dateList) {
 					if(lv.size() > 1) {
 						if(dateList2 == null) {
@@ -142,7 +151,6 @@ public class MemoirDBA  {
 						dateList2.add(lv);
 					}
 				}
-				
 				return dateList2;
 			}
 			
@@ -158,6 +166,7 @@ public class MemoirDBA  {
 			values.put(V_TABLE_THUMBNAIL_PATH, v.thumbnailPath);
 			values.put(V_TABLE_SELECTED, v.selected);
 			values.put(V_TABLE_LENGTH, v.length);
+			values.put(V_TABLE_USER_TAKEN, v.userTaken);
 			
 			//Log.d("asd", "Inserting values Date>" + v.date + "  Path>" + v.path + "   selected>" + v.selected + "  >length" + v.length);
 			
@@ -217,6 +226,21 @@ public class MemoirDBA  {
 			if(db.update(VIDEOS_TABLE_NAME, values, whereClause, null) > 0)
 				return true;
 			
+			return false;
+		}
+		
+		public boolean checkVideoInLimit() {
+			SQLiteDatabase db = this.getReadableDatabase();
+			SimpleDateFormat ft = new SimpleDateFormat("yyyyMMdd");
+			long d = Long.parseLong(ft.format(new Date()));
+
+			String selection = V_TABLE_DATE + " = " + d;
+			Cursor c = db.query(VIDEOS_TABLE_NAME, null, selection, null, null, null, null);
+			if(c.getCount() < 5) {
+				c.close();
+				return true;
+			}
+			c.close();
 			return false;
 		}
 	}

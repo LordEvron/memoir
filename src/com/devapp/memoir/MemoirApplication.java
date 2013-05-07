@@ -29,6 +29,7 @@ public class MemoirApplication extends Application {
 	private MemoirDBA mDBA;
 	private static boolean useExternal = true;
 	private SharedPreferences mPrefs = null;
+	public static Object sync = null;
 	
 	@Override
 	public void onCreate() {

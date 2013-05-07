@@ -54,7 +54,7 @@ public class SettingsActivity extends Activity {
 				"com.devapp.memoir.endselected", "No End Date Set")));
 
 		mArrayList.add(new SettingsItem("Show Rows With Multiple Videos Only",
-				"You can disable rows which has only single video",
+				"You can disable rows which have only single video",
 				mPrefs.getBoolean("com.devapp.memoir.showonlymultiple", false),
 				new OnCheckedChangeListener() {
 
