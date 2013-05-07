@@ -71,10 +71,8 @@ public class TranscodingService extends IntentService {
 
 		return result;
 	}
-
-	@Override
-	protected void onHandleIntent(Intent intent) {
-
+	
+	public void createMyLife(Intent intent) {
 		/*
 		 * //NOTE: Dont delete this code sweetheart I need it for later purpose
 		 * Bundle bundle = intent.getExtras(); PendingIntent receiver =
@@ -86,7 +84,6 @@ public class TranscodingService extends IntentService {
 		 */
 
 		// Log.d("asd", "in onHandleIntent");
-		
 		long startDate, endDate;
 		startDate = intent.getLongExtra("startDate", 0);
 		endDate = intent.getLongExtra("endDate", -1);
@@ -94,11 +91,13 @@ public class TranscodingService extends IntentService {
 
 		File file = new File(extStorePath, "/Memoir/MyLife.mp4");
 		boolean deleted = file.exists() ? file.delete() : false;
+		Log.e("asd", "Memoir file deleted ? " + deleted);
 		
 		List<List<Video>> dateList = ((MemoirApplication) getApplication())
 				.getDBA().getVideos(startDate, endDate, true, false);
 
 		if (dateList == null) {
+			Log.e("asd", "File not being generated");
 			broadcastIntent.putExtra("OutputFileName", "");
 			LocalBroadcastManager.getInstance(this).sendBroadcast(
 					broadcastIntent);
@@ -176,6 +175,17 @@ public class TranscodingService extends IntentService {
 		broadcastIntent.putExtra("OutputFileName", extStorePath
 				+ "/Memoir/MyLife.mp4");
 		LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
+	}
+
+	@Override
+	protected void onHandleIntent(Intent intent) {
+
+		if(intent.getAction().equals(TranscodingService.ActionCreateMyLife)) {
+			createMyLife(intent);
+		} else if(intent.getAction().equals(TranscodingService.ActionTrimVideo)) {
+			
+		}
+		
 	}
 }
 	/*

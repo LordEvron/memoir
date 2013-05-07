@@ -21,6 +21,7 @@ import android.media.MediaPlayer.OnPreparedListener;
 import android.media.MediaPlayer.OnVideoSizeChangedListener;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.DisplayMetrics;
@@ -161,6 +162,8 @@ public class MyLifeFragment extends Fragment {
 			@Override
 			public void onCompletion(MediaPlayer vmp) {
 				Log.d("qwe", "On Completion listener");
+				mMyLifeVideo = MemoirApplication.getMyLifeFile(getActivity()
+						.getApplicationContext());
 				if(mMyLifeVideo != null) {
 					updateMyLifeViews(R.drawable.play, mMyLifeVideo.thumbnailPath,
 							View.VISIBLE, View.INVISIBLE, View.VISIBLE);
@@ -270,7 +273,14 @@ public class MyLifeFragment extends Fragment {
 				View.VISIBLE, View.INVISIBLE);
 
 		Intent intent = new Intent(getActivity(), TranscodingService.class);
-//		intent.setAction(TranscodingService.);
+		intent.setAction(TranscodingService.ActionCreateMyLife);
+		String startDate = mPrefs.getString("com.devapp.memoir.startselected", null);
+		String endDate = mPrefs.getString("com.devapp.memoir.endselected", null);
+		Log.d("asd", startDate.substring(6) + startDate.substring(3,5) + startDate.substring(0, 2));
+		Long start = Long.parseLong(startDate.substring(6) + startDate.substring(3,5) + startDate.substring(0, 2));
+		Long end = Long.parseLong(endDate.substring(6) + endDate.substring(3,5) + endDate.substring(0, 2));
+		intent.putExtra("startDate", start);
+		intent.putExtra("endDate", end);
 		getActivity().startService(intent);
 	}
 
