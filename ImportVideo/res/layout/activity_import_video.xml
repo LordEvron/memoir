@@ -4,30 +4,72 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
-    <FrameLayout android:id="@+id/ImportViewFL1"
+    <FrameLayout
+        android:id="@+id/ImportVideoFL1"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="600px" >
 
         <VideoView
-            android:id="@+id/ImportViewVV1"
+            android:id="@+id/ImportVideoVV1"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="center" />
 
+        <ImageView
+            android:id="@+id/ImportVideoIVPlay"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:src="@drawable/play" />
+
     </FrameLayout>
 
-    <FrameLayout android:id="@+id/ImportViewFL2"
+    <RelativeLayout
+        android:id="@+id/ImportVideoRL1"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" 
-        android:background="#00FF00" >
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
 
-        <TextView
-            android:id="@+id/textView2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Large Text"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+        <ImageView
+            android:id="@+id/ImportVideoIVLeft"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:src="@drawable/leftarrow" />
 
-    </FrameLayout>
+        <ImageView
+            android:id="@+id/ImportVideoIVRight"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/rightarrow" />
+
+        <FrameLayout
+            android:id="@+id/ImportVideoFL"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true"
+            android:layout_toLeftOf="@+id/ImportVideoIVRight"
+            android:layout_toRightOf="@+id/ImportVideoIVLeft" >
+
+            <LinearLayout
+                android:id="@+id/ImportVideoLLContainer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#0000FF"
+                android:orientation="horizontal" />
+
+            <SeekBar
+                android:id="@+id/ImportVideoSB"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:max="1000"
+                android:progress="0"
+
+                android:progressDrawable="@android:color/transparent"
+                android:secondaryProgress="0" />
+
+        </FrameLayout>
+    </RelativeLayout>
 
 </LinearLayout>

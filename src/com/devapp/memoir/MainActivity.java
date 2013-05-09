@@ -298,6 +298,10 @@ public class MainActivity extends Activity {
 		} else if (requestCode == VIDEO_IMPORT && resultCode == RESULT_OK) {
 			Uri selectedVideoLocation = data.getData();
 			Log.d("asd", "video selected is > " + selectedVideoLocation);
+			Intent intent = new Intent(this, ImportVideoActivity.class);
+			intent.setAction(MemoirApplication.getFilePathFromContentUri(selectedVideoLocation, getContentResolver()));
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(intent);
 		}
 	}
 	
