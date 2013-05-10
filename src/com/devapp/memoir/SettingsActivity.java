@@ -328,12 +328,17 @@ public class SettingsActivity extends Activity {
 
 			}
 
+			DatePickerDialog dpDialog = new DatePickerDialog(getActivity(),
+					this, year, month, day);
+			DatePicker dp = dpDialog.getDatePicker();
+
 			Calendar cal1 = Calendar.getInstance();
 			cal1.set((int) (minDate / 10000),
 					(int) ((minDate % 10000) / 100) - 1, (int) (minDate % 100));
 
 			Log.d("asd", "Min Date is > " + cal1.getTimeInMillis()
 					+ " where min date is >" + minDate + "   cal1" + cal1.toString());
+			dp.setMinDate(cal1.getTimeInMillis() - 60 * 60 * 24 * 1000);
 
 			Calendar cal2 = Calendar.getInstance();
 			cal1.set((int) (maxDate / 10000),
@@ -341,10 +346,6 @@ public class SettingsActivity extends Activity {
 			Log.d("asd", "Max Date is > " + cal2.getTimeInMillis()
 					+ "  Wjere max date is > " + maxDate +  "   cal2" + cal2.toString());
 
-			DatePickerDialog dpDialog = new DatePickerDialog(getActivity(),
-					this, year, month, day);
-			DatePicker dp = dpDialog.getDatePicker();
-			dp.setMinDate(cal1.getTimeInMillis() - 60 * 60 * 24 * 1000);
 			dp.setMaxDate(cal2.getTimeInMillis() + 60 * 60 * 24 * 1000);
 
 			/*

@@ -184,13 +184,15 @@ public class MemoirApplication extends Application {
 
 				Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(path,
 						MediaStore.Video.Thumbnails.MINI_KIND);
-				try {
-					newPath = path.substring(0, path.length() - 3) + "png";
-					//Log.d("asd", newPath);
-					FileOutputStream out = new FileOutputStream(newPath);
-					bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
-				} catch (Exception e) {
-					e.printStackTrace();
+				if(bitmap != null) {
+					try {
+						newPath = path.substring(0, path.length() - 3) + "png";
+						Log.d("asd", newPath);
+						FileOutputStream out = new FileOutputStream(newPath);
+						bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
 
 				return newPath;
