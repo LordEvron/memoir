@@ -21,6 +21,20 @@
             android:layout_height="match_parent"
             android:src="@drawable/play" />
 
+        <ImageView
+            android:id="@+id/ImportVideoIVSelect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+			android:layout_gravity="right|top"
+            android:src="@drawable/select" />
+        
+        <ImageView
+            android:id="@+id/ImportVideoIVCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+			android:layout_gravity="right|bottom"
+            android:src="@drawable/cancel" />
+
     </FrameLayout>
 
     <RelativeLayout
@@ -64,10 +78,8 @@
                 android:layout_weight="1"
                 android:max="1000"
                 android:progress="0"
-
                 android:progressDrawable="@android:color/transparent"
                 android:secondaryProgress="0" />
-
         </FrameLayout>
     </RelativeLayout>
 

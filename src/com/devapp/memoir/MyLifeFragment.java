@@ -290,7 +290,7 @@ public class MyLifeFragment extends Fragment {
 		if (mDataBroadcastReceiver == null)
 			mDataBroadcastReceiver = new TranscodingServiceBroadcastReceiver();
 
-		IntentFilter intentFilter = new IntentFilter("TranscodingComplete");
+		IntentFilter intentFilter = new IntentFilter(TranscodingService.ActionCreateMyLife);
 		LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
 				mDataBroadcastReceiver, intentFilter);
 	}

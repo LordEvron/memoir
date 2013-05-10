@@ -3,9 +3,14 @@ package com.devapp.memoir;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import com.devapp.memoir.MyLifeFragment.TranscodingServiceBroadcastReceiver;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
@@ -14,7 +19,9 @@ import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -40,11 +47,13 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 	private VideoView mVideoView = null;
 	private ImageView mImageViewPlay = null;
 	private SeekBar mSeekBar = null;
-	private float mdistanceToTimeRatio = 0;
-	private int mHeight = 0, mWidth = 0;
+	private float mdistanceToTimeRatio = 0, mDuration = 0;
+	private int mHeight = 0, mWidth = 0, mVideoWidth = 0, mVideoHeight = 0;
 	private int mPosition = 0;
-	private Intent mIntent = null;
-
+	private String mPath = null, mVideoDate = null;
+	private static int VIDEO_IMPORT_FROM_GALLERY = 0;
+	private TranscodingServiceBroadcastReceiver mDataBroadcastReceiver = null;
+	private MediaMetadataRetriever mMediaRetriever = null;
 
 	@SuppressLint("NewApi")
 	private void getDisplay() {
@@ -78,6 +87,7 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Log.d("asd", "onCreate");
 
 		Log.d("asd", "Inside on create");
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -85,182 +95,223 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 		getDisplay();
+	}
 
-		setContentView(R.layout.activity_import_video);
-		mFrameLayoutVV = (FrameLayout) findViewById(R.id.ImportVideoFL1);
-		mRelativeLayoutScroll = (RelativeLayout) findViewById(R.id.ImportVideoRL1);
-		mVideoView = (VideoView) findViewById(R.id.ImportVideoVV1);
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		Log.d("asd", "onActivityResult");
+		if (requestCode == VIDEO_IMPORT_FROM_GALLERY && resultCode == RESULT_OK) {
+			Uri selectedVideoLocation = data.getData();
+			mPath = MemoirApplication.getFilePathFromContentUri(
+					selectedVideoLocation, getContentResolver());
+			
+			mMediaRetriever = new MediaMetadataRetriever();
+			mMediaRetriever.setDataSource(this, selectedVideoLocation);
+			mVideoWidth = Integer
+					.parseInt(mMediaRetriever
+							.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
+			mVideoHeight = Integer
+					.parseInt(mMediaRetriever
+							.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
+			mVideoDate = mMediaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DATE).substring(0, 8);
+			
+			Log.d("asd", "Video date is > " + mVideoDate);
+			mDuration = Float.parseFloat(mMediaRetriever
+					.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)) / 1000;
 
-		mFrameLayoutScroll = (FrameLayout) findViewById(R.id.ImportVideoFL);
-		mLinearLayoutContainer = (LinearLayout) findViewById(R.id.ImportVideoLLContainer);
-		mImageViewPlay = (ImageView) findViewById(R.id.ImportVideoIVPlay);
-		mSeekBar = (SeekBar)findViewById(R.id.ImportVideoSB);
+			setContentView(R.layout.activity_import_video);
+			mFrameLayoutVV = (FrameLayout) findViewById(R.id.ImportVideoFL1);
+			mRelativeLayoutScroll = (RelativeLayout) findViewById(R.id.ImportVideoRL1);
+			mVideoView = (VideoView) findViewById(R.id.ImportVideoVV1);
 
-		Log.d("asd", "(mHeight*5/6) >" + (mHeight * 5 / 6)
-				+ "  (mHeight*1/6)> " + (mHeight * 1 / 6) + "  (mWidth*5/6)"
-				+ (mWidth * 5 / 6));
-		mFrameLayoutVV.setLayoutParams(new LinearLayout.LayoutParams(
-				LayoutParams.MATCH_PARENT, (int) (mHeight * 5 / 6)));
-		mRelativeLayoutScroll.setLayoutParams(new LinearLayout.LayoutParams(
-				LayoutParams.MATCH_PARENT, (int) (mHeight * 1 / 6)));
-		mVideoView.setLayoutParams(new FrameLayout.LayoutParams(
-				(int) (mWidth * 5 / 6), LayoutParams.MATCH_PARENT,
-				Gravity.CENTER));
+			mFrameLayoutScroll = (FrameLayout) findViewById(R.id.ImportVideoFL);
+			mLinearLayoutContainer = (LinearLayout) findViewById(R.id.ImportVideoLLContainer);
+			mImageViewPlay = (ImageView) findViewById(R.id.ImportVideoIVPlay);
+			mSeekBar = (SeekBar) findViewById(R.id.ImportVideoSB);
+
+			Log.d("asd", "(mHeight*5/6) >" + (mHeight * 5 / 6)
+					+ "  (mHeight*1/6)> " + (mHeight * 1 / 6)
+					+ "  (mWidth*5/6)" + (mWidth * 5 / 6));
+			mFrameLayoutVV.setLayoutParams(new LinearLayout.LayoutParams(
+					LayoutParams.MATCH_PARENT, (int) (mHeight * 5 / 6)));
+			mRelativeLayoutScroll
+					.setLayoutParams(new LinearLayout.LayoutParams(
+							LayoutParams.MATCH_PARENT, (int) (mHeight * 1 / 6)));
+			mVideoView.setLayoutParams(new FrameLayout.LayoutParams(
+					(int) (mWidth * 5 / 6), LayoutParams.MATCH_PARENT,
+					Gravity.CENTER));
+		}
 	}
 
 	@Override
 	protected void onStart() {
 		super.onStart();
-		
-		mIntent = getIntent();
-		mVideoView.setVideoPath(mIntent.getAction());
-		mVideoView.requestFocus();
+		Log.d("asd", "onStart");
+		if (mPath == null) {
+			Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+			intent.setType("video/*");
+			startActivityForResult(intent, VIDEO_IMPORT_FROM_GALLERY);
+		} else {
+			mVideoView.setVideoPath(mPath);
+			mVideoView.requestFocus();
 
-		mVideoView.setOnPreparedListener(this);
+			mVideoView.setOnPreparedListener(this);
 
-		mVideoView
-				.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+			mVideoView
+					.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 
-					@Override
-					public void onCompletion(MediaPlayer vmp) {
-						Log.d("qwe", "On Completion listener");
-					}
-				});
+						@Override
+						public void onCompletion(MediaPlayer vmp) {
+							Log.d("qwe", "On Completion listener");
+						}
+					});
 
-		mVideoView.setOnErrorListener(new OnErrorListener() {
-			@Override
-			public boolean onError(MediaPlayer arg0, int arg1, int arg2) {
-				Log.e("asd", "Cant Play This Video :(");
-				return true;
-			}
+			mVideoView.setOnErrorListener(new OnErrorListener() {
+				@Override
+				public boolean onError(MediaPlayer arg0, int arg1, int arg2) {
+					Log.e("asd", "Cant Play This Video :(");
+					return true;
+				}
 
-		});
+			});
 
-		mSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+			mSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
-			@Override
-			public void onProgressChanged(SeekBar view, int position, boolean arg2) {
-				Log.d("asd", "Seek bar value >" + position);
-				mVideoView.seekTo(position*100);
-				mPosition = position;
-			}
+				@Override
+				public void onProgressChanged(SeekBar view, int position,
+						boolean arg2) {
+					Log.d("asd", "Seek bar value >" + position);
+					mVideoView.seekTo(position * 100);
+					mPosition = position;
+				}
 
-			@Override
-			public void onStartTrackingTouch(SeekBar arg0) {
-			}
+				@Override
+				public void onStartTrackingTouch(SeekBar arg0) {
+				}
 
-			@Override
-			public void onStopTrackingTouch(SeekBar arg0) {
-			}
-		});
-		
-		mImageViewPlay.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onStopTrackingTouch(SeekBar arg0) {
+				}
+			});
 
-			@Override
-			public void onClick(View view) {
-				mImageViewPlay.setVisibility(View.INVISIBLE);
-            	mVideoView.start();
-            	mVideoView.postDelayed(new Runnable() {
+			mImageViewPlay.setOnClickListener(new OnClickListener() {
 
-					@Override
-					public void run() {
-						mVideoView.pause();
-						mVideoView.seekTo(mPosition*100);
-						mImageViewPlay.setVisibility(View.VISIBLE);
-					}
-            	}, 2000);
-			}
-		});
-		
-/*		mSeekBar.setOnTouchListener(new OnTouchListener() 
-		{
-		    @Override
-		    public boolean onTouch(View v, MotionEvent event) 
-		    {
-		        if(event.getAction() == MotionEvent.ACTION_MOVE)
-		        {
-		        	mChangedPosition = true;
-		            mSeekBar.setProgress(mSeekBar.getProgress());
-		            return false;
-		        }
-		        else if (event.getAction() == MotionEvent.ACTION_UP)
-		        {
-		            if(!mChangedPosition)
-		            {
-		            	mVideoView.start();
-		            	mVideoView.postDelayed(new Runnable() {
+				@Override
+				public void onClick(View view) {
+					mImageViewPlay.setVisibility(View.INVISIBLE);
+					mVideoView.start();
+					mVideoView.postDelayed(new Runnable() {
 
-							@Override
-							public void run() {
-								mVideoView.pause();
-							}
-		            	}, 2000);
-		            	mChangedPosition = false;
-		            }
-		        } 
-		        else if (event.getAction() == MotionEvent.ACTION_DOWN)
-		        {
-	            	mChangedPosition = false;
-		        }
-		        return false;
-		    }
-		});*/
-		
-		((ImageView)findViewById(R.id.ImportVideoIVLeft)).setOnClickListener(new OnClickListener() {
+						@Override
+						public void run() {
+							mVideoView.pause();
+							mVideoView.seekTo(mPosition * 100);
+							mImageViewPlay.setVisibility(View.VISIBLE);
+						}
+					}, 2000);
+				}
+			});
 
-			@Override
-			public void onClick(View view) {
-				mSeekBar.setProgress(mSeekBar.getProgress() - 1);
-			}
-		});
-		
-		((ImageView)findViewById(R.id.ImportVideoIVRight)).setOnClickListener(new OnClickListener() {
+			/*
+			 * mSeekBar.setOnTouchListener(new OnTouchListener() {
+			 * 
+			 * @Override public boolean onTouch(View v, MotionEvent event) {
+			 * if(event.getAction() == MotionEvent.ACTION_MOVE) {
+			 * mChangedPosition = true;
+			 * mSeekBar.setProgress(mSeekBar.getProgress()); return false; }
+			 * else if (event.getAction() == MotionEvent.ACTION_UP) {
+			 * if(!mChangedPosition) { mVideoView.start();
+			 * mVideoView.postDelayed(new Runnable() {
+			 * 
+			 * @Override public void run() { mVideoView.pause(); } }, 2000);
+			 * mChangedPosition = false; } } else if (event.getAction() ==
+			 * MotionEvent.ACTION_DOWN) { mChangedPosition = false; } return
+			 * false; } });
+			 */
 
-			@Override
-			public void onClick(View view) {
-				mSeekBar.setProgress(mSeekBar.getProgress() + 1);
-			}
-		});
+			((ImageView) findViewById(R.id.ImportVideoIVLeft))
+					.setOnClickListener(new OnClickListener() {
+
+						@Override
+						public void onClick(View view) {
+							mSeekBar.setProgress(mSeekBar.getProgress() - 1);
+						}
+					});
+
+			((ImageView) findViewById(R.id.ImportVideoIVRight))
+					.setOnClickListener(new OnClickListener() {
+
+						@Override
+						public void onClick(View view) {
+							mSeekBar.setProgress(mSeekBar.getProgress() + 1);
+						}
+					});
+			((ImageView) findViewById(R.id.ImportVideoIVSelect))
+					.setOnClickListener(new OnClickListener() {
+
+						@Override
+						public void onClick(View view) {
+							Intent intent = new Intent(
+									ImportVideoActivity.this,
+									TranscodingService.class);
+							intent.setAction(TranscodingService.ActionTrimVideo);
+							intent.putExtra("filePath", mPath);
+							Log.d("asd", "mPosition >" + mPosition);
+							intent.putExtra("startTime", (float) mPosition/10);
+							intent.putExtra("endTime", (float) ((float) ((float)mPosition + 20.0)/10.0));
+							intent.putExtra("outputFilePath", MemoirApplication.getOutputMediaFile(ImportVideoActivity.this));
+							startService(intent);
+						}
+					});
+
+			((ImageView) findViewById(R.id.ImportVideoIVCancel))
+					.setOnClickListener(new OnClickListener() {
+
+						@Override
+						public void onClick(View view) {
+							mPath = null;
+							finish();
+						}
+					});
+		}
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
+
+		if (mDataBroadcastReceiver == null)
+			mDataBroadcastReceiver = new TranscodingServiceBroadcastReceiver();
+
+		IntentFilter intentFilter = new IntentFilter(TranscodingService.ActionTrimVideo);
+		LocalBroadcastManager.getInstance(this).registerReceiver(
+				mDataBroadcastReceiver, intentFilter);
 	}
 
 	@Override
 	public void onPrepared(MediaPlayer arg0) {
 		Log.d("asd", "onPrepared");
 
-		MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-		mmr.setDataSource(mIntent.getAction());
-		int videoWidth = Integer
-				.parseInt(mmr
-						.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
-		int videoHeight = Integer
-				.parseInt(mmr
-						.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
 		int containerImageHeight = mLinearLayoutContainer.getHeight();
-		int containerImageWidth = containerImageHeight * videoWidth
-				/ videoHeight;
+		int containerImageWidth = containerImageHeight * mVideoWidth
+				/ mVideoHeight;
 		int containerWidth = mLinearLayoutContainer.getWidth();
 		int containerHeight = mLinearLayoutContainer.getHeight();
 		double noOfFrames = Math.floor(containerWidth / containerImageWidth);
-		float duration = Float.parseFloat(mmr
-				.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)) / 1000;
-		float secondInterval = containerImageWidth * duration / containerWidth;
+		float secondInterval = containerImageWidth * mDuration / containerWidth;
 
-		Log.d("asd", "videoWidth>" + videoWidth + "  videoHeight>"
-				+ videoHeight + "  containerImageHeight" + containerImageHeight);
+		Log.d("asd", "videoWidth>" + mVideoWidth + "  videoHeight>"
+				+ mVideoHeight + "  containerImageHeight" + containerImageHeight);
 		Log.d("asd", "containerImageWidth>" + containerImageWidth
 				+ "   mLinearLayoutContainer.getWidth()"
 				+ mLinearLayoutContainer.getWidth());
 		Log.d("asd", "noOfFrames >" + noOfFrames);
 		Log.d("asd", "New FrameLayout width should be" + noOfFrames
 				* containerImageWidth);
-		Log.d("asd", "Duration of Video in milliseconds is >" + duration);
+		Log.d("asd", "Duration of Video in milliseconds is >" + mDuration);
 
-		mdistanceToTimeRatio = mLinearLayoutContainer.getWidth() / duration;
+		mdistanceToTimeRatio = mLinearLayoutContainer.getWidth() / mDuration;
 
 		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
 				containerImageWidth, containerImageHeight);
@@ -268,34 +319,66 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 		int i = 0;
 		for (i = 0; i < noOfFrames; i++) {
 			ImageView iv = new ImageView(this);
-			Bitmap b = mmr.getFrameAtTime(Math.round(i * secondInterval
+			Bitmap b = mMediaRetriever.getFrameAtTime(Math.round(i * secondInterval
 					* 1000000));
 			if (b != null) {
 				iv.setImageBitmap(b);
 				mLinearLayoutContainer.addView(iv, 0, params);
 			}
 		}
-		
+
 		mLinearLayoutContainer.setLayoutParams(new FrameLayout.LayoutParams(
 				LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
-		Log.d("asd", "mLinearLayoutContainer.getWidth()" + mLinearLayoutContainer.getWidth());
-		
+		Log.d("asd", "mLinearLayoutContainer.getWidth()"
+				+ mLinearLayoutContainer.getWidth());
+
 		Log.d("asd", "mdistanceToTimeRatio" + mdistanceToTimeRatio);
-		Bitmap bm = Bitmap.createBitmap(Math.round(mdistanceToTimeRatio*2), containerHeight, Bitmap.Config.ARGB_8888); 
-		new Canvas(bm).drawColor(getResources().getColor(R.color.selectTransparentBlue)); 
-		Drawable drawable = new BitmapDrawable(getResources(), bm); 
+		Bitmap bm = Bitmap.createBitmap(Math.round(mdistanceToTimeRatio * 2),
+				containerHeight, Bitmap.Config.ARGB_8888);
+		new Canvas(bm).drawColor(getResources().getColor(
+				R.color.selectTransparentBlue));
+		Drawable drawable = new BitmapDrawable(getResources(), bm);
 		mSeekBar.setThumb(drawable);
-		mSeekBar.setThumbOffset((int)mdistanceToTimeRatio);
-		mSeekBar.setPadding((int)mdistanceToTimeRatio, 0, -(int)mdistanceToTimeRatio, 0);
-		mSeekBar.setLayoutParams(new FrameLayout.LayoutParams((int)(noOfFrames*containerImageWidth), LayoutParams.MATCH_PARENT));
-		mSeekBar.setMax((int)Math.floor(duration*10));
+		mSeekBar.setThumbOffset((int) mdistanceToTimeRatio);
+		mSeekBar.setPadding((int) mdistanceToTimeRatio, 0,
+				-(int) mdistanceToTimeRatio, 0);
+		mSeekBar.setLayoutParams(new FrameLayout.LayoutParams(
+				(int) (noOfFrames * containerImageWidth),
+				LayoutParams.MATCH_PARENT));
+		mSeekBar.setMax((int) Math.floor(mDuration * 10));
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
+		if (mDataBroadcastReceiver != null)
+			LocalBroadcastManager.getInstance(this)
+					.unregisterReceiver(mDataBroadcastReceiver);
 	}
 
+	public class TranscodingServiceBroadcastReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			Log.d("qwe", "OnReceive :) ");
+			if (intent.hasExtra("OutputFileName")) {
+				String outputFile = intent.getStringExtra("OutputFileName");
+				intent.putExtra("videoDate", mVideoDate);
+				if (!outputFile.isEmpty()) {
+					if (getParent() == null) {
+					    ImportVideoActivity.this.setResult(Activity.RESULT_OK, intent);
+					} else {
+					    getParent().setResult(Activity.RESULT_OK, intent);
+					}
+				} else {
+					ImportVideoActivity.this.setResult(Activity.RESULT_CANCELED, null);
+				}
+			}
+			finish();
+		}
+	}
+
+	
 	@Override
 	protected void onStop() {
 		super.onStop();

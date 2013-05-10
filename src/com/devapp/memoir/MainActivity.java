@@ -116,8 +116,8 @@ public class MainActivity extends Activity {
 			return true;
 		case R.id.action_import_video:
 			Log.d("asd", " Import Video selected");
-			intent = new Intent(Intent.ACTION_GET_CONTENT);
-			intent.setType("video/*");
+			intent = new Intent(this, ImportVideoActivity.class);
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivityForResult(intent, VIDEO_IMPORT);
 			return true;
 		case R.id.action_settings:
@@ -156,10 +156,10 @@ public class MainActivity extends Activity {
 								SecretCamera.class);
 						startService(intent);
 					} else {
-//						Toast.makeText(
-//								MainActivity.this,
-//								"More than 5 Videos are not allowed for a day, Please delete some videos to shoot more videos.",
-//								Toast.LENGTH_LONG).show();
+						// Toast.makeText(
+						// MainActivity.this,
+						// "More than 5 Videos are not allowed for a day, Please delete some videos to shoot more videos.",
+						// Toast.LENGTH_LONG).show();
 					}
 					break;
 				case TelephonyManager.CALL_STATE_IDLE:
@@ -242,7 +242,8 @@ public class MainActivity extends Activity {
 		if (mDataBroadcastReceiver == null)
 			mDataBroadcastReceiver = new TranscodingServiceBroadcastReceiver();
 
-		IntentFilter intentFilter = new IntentFilter("TranscodingComplete");
+		IntentFilter intentFilter = new IntentFilter(
+				TranscodingService.ActionCreateMyLife);
 		LocalBroadcastManager.getInstance(this).registerReceiver(
 				mDataBroadcastReceiver, intentFilter);
 	}
@@ -296,41 +297,50 @@ public class MainActivity extends Activity {
 						.putString("com.devapp.memoir.endall", date).commit();
 			}
 		} else if (requestCode == VIDEO_IMPORT && resultCode == RESULT_OK) {
-			Uri selectedVideoLocation = data.getData();
-			Log.d("asd", "video selected is > " + selectedVideoLocation);
-			Intent intent = new Intent(this, ImportVideoActivity.class);
-			intent.setAction(MemoirApplication.getFilePathFromContentUri(selectedVideoLocation, getContentResolver()));
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			startActivity(intent);
+			Log.d("asd",
+					"video after import is > "
+							+ data.getStringExtra("OutputFileName"));
+			Log.d("asd", "video date is > " + data.getStringExtra("videoDate"));
+
+			long d = Long.parseLong(data.getStringExtra("videoDate"));
+			mVideo = new Video(0, d, data.getStringExtra("OutputFileName"),
+					false, 2, true);
+			((MemoirApplication) getApplication()).getDBA().addVideo(mVideo);
+			((MemoirApplication) getApplication()).getDBA().selectVideo(mVideo);
+			mPrefs.edit().putBoolean("com.devapp.memoir.datachanged", true).commit();
 		}
 	}
-	
+
 	public String copy(String inputFile) {
-		
-		String filePath = this.getExternalFilesDir(Environment.DIRECTORY_MOVIES).getAbsolutePath() + "/Memoir-"
-				+ mPrefs.getString("com.devapp.memoir.startselected", "Day 1").replaceAll("/", "-")
+
+		String filePath = this
+				.getExternalFilesDir(Environment.DIRECTORY_MOVIES)
+				.getAbsolutePath()
+				+ "/Memoir-"
+				+ mPrefs.getString("com.devapp.memoir.startselected", "Day 1")
+						.replaceAll("/", "-")
 				+ "-"
-				+ mPrefs.getString("com.devapp.memoir.endselected", "Now").replaceAll("/", "-")
-				+ ".mp4";
-		
+				+ mPrefs.getString("com.devapp.memoir.endselected", "Now")
+						.replaceAll("/", "-") + ".mp4";
+
 		Log.d("asd", filePath + "   " + inputFile);
 		try {
-		    InputStream in = new FileInputStream(new File(inputFile));
-		    OutputStream out = new FileOutputStream(new File(filePath));
+			InputStream in = new FileInputStream(new File(inputFile));
+			OutputStream out = new FileOutputStream(new File(filePath));
 
-		    // Transfer bytes from in to out
-		    byte[] buf = new byte[1024];
-		    int len;
-		    while ((len = in.read(buf)) > 0) {
-		        out.write(buf, 0, len);
-		    }
-		    in.close();
-		    out.close();
-		} catch(IOException e) {
+			// Transfer bytes from in to out
+			byte[] buf = new byte[1024];
+			int len;
+			while ((len = in.read(buf)) > 0) {
+				out.write(buf, 0, len);
+			}
+			in.close();
+			out.close();
+		} catch (IOException e) {
 			Log.e("asd", "Exception While Copying");
 			e.getStackTrace();
 		}
-	    
-	    return filePath;
+
+		return filePath;
 	}
 }
