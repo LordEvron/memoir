@@ -141,6 +141,9 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 			mVideoView.setLayoutParams(new FrameLayout.LayoutParams(
 					(int) (mWidth * 5 / 6), LayoutParams.MATCH_PARENT,
 					Gravity.CENTER));
+		} else {
+			mPath = null;
+			finish();
 		}
 	}
 
@@ -373,7 +376,10 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 				} else {
 					ImportVideoActivity.this.setResult(Activity.RESULT_CANCELED, null);
 				}
+			} else {
+				ImportVideoActivity.this.setResult(Activity.RESULT_CANCELED, null);
 			}
+			mPath = null;
 			finish();
 		}
 	}

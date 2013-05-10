@@ -36,14 +36,14 @@ public class MemoirApplication extends Application {
 		mDBA = new MemoirDBA(getApplicationContext());
 		mPrefs = this.getSharedPreferences("com.devapp.memoir", Context.MODE_PRIVATE);
 
-		if(mPrefs.getString("com.devapp.memoir.startall", null) == null) {
+		if(!mPrefs.contains("com.devapp.memoir.startall")) {
 			SharedPreferences.Editor editor = mPrefs.edit();			
-			SimpleDateFormat ft = new SimpleDateFormat("dd/MM/yyyy");
-			String date = ft.format(new Date());
-			editor.putString("com.devapp.memoir.startall", date);
-			editor.putString("com.devapp.memoir.endall", date);
-			editor.putString("com.devapp.memoir.startselected", date);
-			editor.putString("com.devapp.memoir.endselected", date);
+			SimpleDateFormat ft = new SimpleDateFormat("yyyyMMdd");
+			long date = Long.parseLong(ft.format(new Date()));
+			editor.putLong("com.devapp.memoir.startall", date);
+			editor.putLong("com.devapp.memoir.endall", date);
+			editor.putLong("com.devapp.memoir.startselected", date);
+			editor.putLong("com.devapp.memoir.endselected", date);
 			editor.putBoolean("com.devapp.memoir.datachanged", false);
 			editor.putBoolean("com.devapp.memoir.showonlymultiple", false);
 			editor.commit();
@@ -55,13 +55,22 @@ public class MemoirApplication extends Application {
 			}
 			Log.d("zxc", "Setting all prefernces to this date" + date);
 		} else {
-			Log.d("asd", "com.devapp.memoir.startall > " + mPrefs.getString("com.devapp.memoir.startall", null));
-			Log.d("asd", "com.devapp.memoir.endall > " + mPrefs.getString("com.devapp.memoir.endall", null));
-			Log.d("asd", "com.devapp.memoir.startselected > " + mPrefs.getString("com.devapp.memoir.startselected", null));
-			Log.d("asd", "com.devapp.memoir.endselected > " + mPrefs.getString("com.devapp.memoir.endselected", null));
+			Log.d("asd", "com.devapp.memoir.startall > " + mPrefs.getLong("com.devapp.memoir.startall", 0));
+			Log.d("asd", "com.devapp.memoir.endall > " + mPrefs.getLong("com.devapp.memoir.endall", 0));
+			Log.d("asd", "com.devapp.memoir.startselected > " + mPrefs.getLong("com.devapp.memoir.startselected", 0));
+			Log.d("asd", "com.devapp.memoir.endselected > " + mPrefs.getLong("com.devapp.memoir.endselected", 0));
 		}
 		
 		mDBA.updateDatabase();
+	}
+	
+	public static String convertDate(long date, String defaultS) {
+		if(date == 0) {
+			return defaultS;
+		}
+		String dateS = String.valueOf(date);
+		dateS = dateS.substring(6,8) + "/" + dateS.substring(4,6) + "/" + dateS.substring(0, 4);
+		return dateS;
 	}
 
 	public MemoirDBA getDBA() {

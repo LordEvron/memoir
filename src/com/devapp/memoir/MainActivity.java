@@ -279,10 +279,10 @@ public class MainActivity extends Activity {
 				((MemoirApplication) getApplication()).getDBA().selectVideo(
 						mVideo);
 
-				SimpleDateFormat ft = new SimpleDateFormat("dd/MM/yyyy");
-				String date = ft.format(new Date());
+				SimpleDateFormat ft = new SimpleDateFormat("yyyyMMdd");
+				long date = Long.parseLong(ft.format(new Date()));
 				mPrefs.edit().putBoolean("com.devapp.memoir.datachanged", true)
-						.putString("com.devapp.memoir.endall", date).commit();
+						.putLong("com.devapp.memoir.endall", date).commit();
 
 			} else if (MemoirApplication.getFilePathFromContentUri(VideoUri,
 					getContentResolver()).equals(mVideo.path)) {
@@ -291,10 +291,10 @@ public class MainActivity extends Activity {
 				((MemoirApplication) getApplication()).getDBA().selectVideo(
 						mVideo);
 
-				SimpleDateFormat ft = new SimpleDateFormat("dd/MM/yyyy");
-				String date = ft.format(new Date());
+				SimpleDateFormat ft = new SimpleDateFormat("yyyyMMdd");
+				long date = Long.parseLong(ft.format(new Date()));
 				mPrefs.edit().putBoolean("com.devapp.memoir.datachanged", true)
-						.putString("com.devapp.memoir.endall", date).commit();
+						.putLong("com.devapp.memoir.endall", date).commit();
 			}
 		} else if (requestCode == VIDEO_IMPORT && resultCode == RESULT_OK) {
 			Log.d("asd",
@@ -317,10 +317,10 @@ public class MainActivity extends Activity {
 				.getExternalFilesDir(Environment.DIRECTORY_MOVIES)
 				.getAbsolutePath()
 				+ "/Memoir-"
-				+ mPrefs.getString("com.devapp.memoir.startselected", "Day 1")
+				+ MemoirApplication.convertDate(mPrefs.getLong("com.devapp.memoir.startselected",0), "Day 1")
 						.replaceAll("/", "-")
 				+ "-"
-				+ mPrefs.getString("com.devapp.memoir.endselected", "Now")
+				+ MemoirApplication.convertDate(mPrefs.getLong("com.devapp.memoir.endselected",0), "Now")
 						.replaceAll("/", "-") + ".mp4";
 
 		Log.d("asd", filePath + "   " + inputFile);

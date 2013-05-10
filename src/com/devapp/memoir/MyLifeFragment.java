@@ -203,6 +203,8 @@ public class MyLifeFragment extends Fragment {
 		super.onStart();
 
 		// Log.d("qwe", "OnStart of my Fragement");
+		((MemoirApplication) getActivity().getApplication()).getDBA().setStartEndDates();
+		
 		mVideos = ((MemoirApplication) getActivity().getApplication()).getDBA()
 				.getVideos(
 						0,
@@ -274,13 +276,8 @@ public class MyLifeFragment extends Fragment {
 
 		Intent intent = new Intent(getActivity(), TranscodingService.class);
 		intent.setAction(TranscodingService.ActionCreateMyLife);
-		String startDate = mPrefs.getString("com.devapp.memoir.startselected", null);
-		String endDate = mPrefs.getString("com.devapp.memoir.endselected", null);
-		Log.d("asd", startDate.substring(6) + startDate.substring(3,5) + startDate.substring(0, 2));
-		Long start = Long.parseLong(startDate.substring(6) + startDate.substring(3,5) + startDate.substring(0, 2));
-		Long end = Long.parseLong(endDate.substring(6) + endDate.substring(3,5) + endDate.substring(0, 2));
-		intent.putExtra("startDate", start);
-		intent.putExtra("endDate", end);
+		intent.putExtra("startDate", mPrefs.getLong("com.devapp.memoir.startselected", 0));
+		intent.putExtra("endDate", mPrefs.getLong("com.devapp.memoir.endselected", 0));
 		getActivity().startService(intent);
 	}
 
@@ -321,9 +318,9 @@ public class MyLifeFragment extends Fragment {
 		mMyLifePB.setVisibility(PBVis);
 
 		String text = "       Memoir - My Life            "
-				+ mPrefs.getString("com.devapp.memoir.startselected", "Day 1")
+				+ MemoirApplication.convertDate(mPrefs.getLong("com.devapp.memoir.startselected",0), "Day 1")
 				+ " - "
-				+ mPrefs.getString("com.devapp.memoir.endselected", "Now");
+				+ MemoirApplication.convertDate(mPrefs.getLong("com.devapp.memoir.endselected",0), "Now");
 		mMyLifeTV.setText(text);
 		mMyLifeTV.setVisibility(TVVis);
 	}
