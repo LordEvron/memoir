@@ -51,6 +51,8 @@ public class MemoirApplication extends Application {
 			editor.putLong("com.devapp.memoir.endselected", date);
 			editor.putBoolean("com.devapp.memoir.datachanged", false);
 			editor.putBoolean("com.devapp.memoir.showonlymultiple", false);
+			editor.putBoolean("com.devapp.memoir.shootoncall", true);
+			editor.putInt("com.devapp.memoir.noofseconds", 2);
 			editor.commit();
 
 			Video v = getMyLifeFile(this);

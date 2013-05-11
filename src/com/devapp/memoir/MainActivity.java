@@ -92,7 +92,8 @@ public class MainActivity extends Activity {
 
 				Intent takeVideoIntent = new Intent(
 						MediaStore.ACTION_VIDEO_CAPTURE);
-				takeVideoIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 2);
+				takeVideoIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, mPrefs.getInt(
+						"com.devapp.memoir.noofseconds", 2));
 				takeVideoIntent.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION,
 						ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 				File videoFile = new File(mVideo.path);

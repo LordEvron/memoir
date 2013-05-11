@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,7 +25,12 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.DatePicker;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.NumberPicker;
+import android.widget.NumberPicker.OnValueChangeListener;
+import android.widget.RelativeLayout;
+import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -64,13 +72,36 @@ public class SettingsActivity extends Activity {
 					@Override
 					public void onCheckedChanged(CompoundButton arg0,
 							boolean arg1) {
+						Log.e("asd", "Calling check changed of show multiple value >" + arg1);
+						CheckBox cb = (CheckBox)arg0;
 						mPrefs.edit()
 								.putBoolean(
-										"com.devapp.memoir.showonlymultiple",
-										arg1).commit();
+										"com.devapp.memoir.showonlymultiple",cb.isChecked()
+										).commit();
 					}
 
 				}));
+
+		mArrayList.add(new SettingsItem("Allow Memoir to shoot videos on Call",
+				"Memoir shoots videos while you are on a call", mPrefs
+						.getBoolean("com.devapp.memoir.shootoncall", true),
+				new OnCheckedChangeListener() {
+
+					@Override
+					public void onCheckedChanged(CompoundButton arg0,
+							boolean arg1) {
+						Log.e("asd", "Calling check changed of shoot video value >" + arg1);
+						CheckBox cb = (CheckBox)arg0;
+						mPrefs.edit()
+								.putBoolean("com.devapp.memoir.shootoncall",
+										cb.isChecked()).commit();
+					}
+
+				}));
+
+		mArrayList.add(new SettingsItem(
+				"Choose the number of seconds to record", "No Of Seconds Currently : " + mPrefs
+				.getInt("com.devapp.memoir.noofseconds", 2)));
 
 		mSettingsView = (ListView) findViewById(R.id.SettingLV);
 		mSettingsView.setOnItemClickListener(new OnItemClickListener() {
@@ -97,9 +128,10 @@ public class SettingsActivity extends Activity {
 									@Override
 									public void setDate(long d) {
 
-										if (d < mPrefs.getLong(
-												"com.devapp.memoir.startall",
-												0)) {
+										if (d < mPrefs
+												.getLong(
+														"com.devapp.memoir.startall",
+														0)) {
 											d = mPrefs
 													.getLong(
 															"com.devapp.memoir.startall",
@@ -120,11 +152,16 @@ public class SettingsActivity extends Activity {
 												.putBoolean(
 														"com.devapp.memoir.datachanged",
 														true).commit();
-										mArrayList.get(0).text2 = MemoirApplication.convertDate(d, "");
+										mArrayList.get(0).text2 = MemoirApplication
+												.convertDate(d, "");
 										mSettingsView.invalidateViews();
 
-										Toast.makeText(SettingsActivity.this,
-												"Setting Start Date To" + MemoirApplication.convertDate(d, ""),
+										Toast.makeText(
+												SettingsActivity.this,
+												"Setting Start Date To"
+														+ MemoirApplication
+																.convertDate(d,
+																		""),
 												Toast.LENGTH_SHORT).show();
 									}
 								});
@@ -133,8 +170,8 @@ public class SettingsActivity extends Activity {
 								"datePicker");
 					}
 				} else if (position == 1) {
-					if (mPrefs.getLong("com.devapp.memoir.startselected", 0) == 
-							mPrefs.getLong("com.devapp.memoir.endall", 0)) {
+					if (mPrefs.getLong("com.devapp.memoir.startselected", 0) == mPrefs
+							.getLong("com.devapp.memoir.endall", 0)) {
 						Toast.makeText(
 								SettingsActivity.this,
 								"Only possible end date is the one already selected",
@@ -143,9 +180,8 @@ public class SettingsActivity extends Activity {
 						DatePickerFragment newFragment = new DatePickerFragment();
 						newFragment.setDefaultDate(mPrefs.getLong(
 								"com.devapp.memoir.endselected", 0), mPrefs
-								.getLong("com.devapp.memoir.startselected",
-										0), mPrefs.getLong(
-								"com.devapp.memoir.endall", 0),
+								.getLong("com.devapp.memoir.startselected", 0),
+								mPrefs.getLong("com.devapp.memoir.endall", 0),
 								new setDateInterface() {
 									@Override
 									public void setDate(long d) {
@@ -157,10 +193,8 @@ public class SettingsActivity extends Activity {
 													.getLong(
 															"com.devapp.memoir.startselected",
 															0);
-										} else if (d > mPrefs
-												.getLong(
-														"com.devapp.memoir.endall",
-														0)) {
+										} else if (d > mPrefs.getLong(
+												"com.devapp.memoir.endall", 0)) {
 											d = mPrefs.getLong(
 													"com.devapp.memoir.endall",
 													0);
@@ -173,11 +207,16 @@ public class SettingsActivity extends Activity {
 												.putBoolean(
 														"com.devapp.memoir.datachanged",
 														true).commit();
-										mArrayList.get(1).text2 = MemoirApplication.convertDate(d, "");
+										mArrayList.get(1).text2 = MemoirApplication
+												.convertDate(d, "");
 										mSettingsView.invalidateViews();
 
-										Toast.makeText(SettingsActivity.this,
-												"Setting End Date To" + MemoirApplication.convertDate(d, ""),
+										Toast.makeText(
+												SettingsActivity.this,
+												"Setting End Date To"
+														+ MemoirApplication
+																.convertDate(d,
+																		""),
 												Toast.LENGTH_SHORT).show();
 									}
 								});
@@ -185,6 +224,30 @@ public class SettingsActivity extends Activity {
 								SettingsActivity.this.getFragmentManager(),
 								"datePicker");
 					}
+				} else if(position == 4) {
+					NumberPickerFragment newFragment = new NumberPickerFragment();
+					newFragment.setDefault(mPrefs.getInt(
+							"com.devapp.memoir.noofseconds", 1), new OnValueChangeListener() {
+
+								@Override
+								public void onValueChange(NumberPicker arg0, int arg1,
+										int arg2) {
+									Log.d("asd", "On Value changed to " + arg1);
+									mPrefs.edit()
+									.putInt("com.devapp.memoir.noofseconds", arg1).commit();
+									mArrayList.get(4).text2 = "No Of Seconds Currently : " + arg1;
+									mSettingsView.invalidateViews();
+									
+									Toast.makeText(
+											SettingsActivity.this,
+											"No Of Seconds Set To " + arg1,
+											Toast.LENGTH_SHORT).show();
+								}
+							});
+					newFragment.show(
+							SettingsActivity.this.getFragmentManager(),
+							"numberPicker");
+					
 				}
 			}
 		});
@@ -233,7 +296,6 @@ public class SettingsActivity extends Activity {
 			checkboxValue = cbValue;
 			listener = l;
 		}
-
 	}
 
 	public class SettingsArrayAdapter extends
@@ -241,11 +303,13 @@ public class SettingsActivity extends Activity {
 
 		private ArrayList<SettingsItem> mList;
 		private LayoutInflater mInflater;
+		private Context mContext;
 
 		public SettingsArrayAdapter(Context context,
 				ArrayList<SettingsItem> List) {
 			super(context, R.layout.activity_settings_item);
 
+			this.mContext = context;
 			this.mList = List;
 			this.mInflater = LayoutInflater.from(context);
 		}
@@ -269,8 +333,18 @@ public class SettingsActivity extends Activity {
 			CheckBox cb = (CheckBox) convertView
 					.findViewById(R.id.SettingsItemCB);
 			if (item.showCheckbox) {
+				cb.setTag(item);
+				cb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+					@Override
+					public void onCheckedChanged(CompoundButton arg0,
+							boolean arg1) {
+						SettingsItem item = (SettingsItem) arg0.getTag();
+						item.checkboxValue = arg1;
+						item.listener.onCheckedChanged(arg0, arg1);
+					}
+				});
 				cb.setChecked(item.checkboxValue);
-				cb.setOnCheckedChangeListener(item.listener);
 				cb.setVisibility(View.VISIBLE);
 			} else {
 				cb.setVisibility(View.INVISIBLE);
@@ -336,65 +410,71 @@ public class SettingsActivity extends Activity {
 			cal1.set((int) (minDate / 10000),
 					(int) ((minDate % 10000) / 100) - 1, (int) (minDate % 100));
 
-			Log.d("asd", "Min Date is > " + cal1.getTimeInMillis()
-					+ " where min date is >" + minDate + "   cal1" + cal1.toString());
+			Log.d("asd",
+					"Min Date is > " + cal1.getTimeInMillis()
+							+ " where min date is >" + minDate + "   cal1"
+							+ cal1.toString());
 			dp.setMinDate(cal1.getTimeInMillis() - 60 * 60 * 24 * 1000);
 
 			Calendar cal2 = Calendar.getInstance();
 			cal1.set((int) (maxDate / 10000),
 					(int) ((maxDate % 10000) / 100) - 1, (int) (maxDate % 100));
-			Log.d("asd", "Max Date is > " + cal2.getTimeInMillis()
-					+ "  Wjere max date is > " + maxDate +  "   cal2" + cal2.toString());
+			Log.d("asd",
+					"Max Date is > " + cal2.getTimeInMillis()
+							+ "  Wjere max date is > " + maxDate + "   cal2"
+							+ cal2.toString());
 
 			dp.setMaxDate(cal2.getTimeInMillis() + 60 * 60 * 24 * 1000);
 
-			/*
-			 * if (this.defaultDate != null) {
-			 * 
-			 * day = Integer.parseInt(defaultDate.substring(0, 2)); month =
-			 * Integer.parseInt(defaultDate.substring(3, 5)) - 1; year =
-			 * Integer.parseInt(defaultDate.substring(6)); Log.d("zxc",
-			 * "Date is >" + year + month + day); } else { // Use the current
-			 * date as the default date in the picker final Calendar c =
-			 * Calendar.getInstance(); year = c.get(Calendar.YEAR); month =
-			 * c.get(Calendar.MONTH); day = c.get(Calendar.DAY_OF_MONTH);
-			 * 
-			 * }
-			 * 
-			 * Calendar cal1 = Calendar.getInstance();
-			 * cal1.set(Integer.parseInt(minDate.substring(6)),
-			 * Integer.parseInt(minDate.substring(3, 5)) - 1,
-			 * Integer.parseInt(minDate.substring(0, 2)));
-			 * 
-			 * Log.d("asd", "Min Date is > " + cal1.getTimeInMillis() +
-			 * " where min date is >" + minDate);
-			 * 
-			 * Calendar cal2 = Calendar.getInstance();
-			 * cal2.set(Integer.parseInt(maxDate.substring(6)),
-			 * Integer.parseInt(maxDate.substring(3, 5)) - 1,
-			 * Integer.parseInt(maxDate.substring(0, 2))); Log.d("asd",
-			 * "Max Date is > " + cal2.getTimeInMillis() +
-			 * "  Wjere max date is > " + maxDate);
-			 * 
-			 * DatePickerDialog dpDialog = new DatePickerDialog(getActivity(),
-			 * this, year, month, day); DatePicker dp =
-			 * dpDialog.getDatePicker(); dp.setMinDate(cal1.getTimeInMillis() -
-			 * 60 * 60 * 24 * 1000); dp.setMaxDate(cal2.getTimeInMillis() + 60 *
-			 * 60 * 24 * 1000);
-			 */
 			return dpDialog;
 		}
 
 		public void onDateSet(DatePicker view, int year, int month, int day) {
 			month++;
-/*			String d = null, m = null;
-			d = (day < 10) ? ("0" + day) : ("" + day);
-			m = (month < 10) ? ("0" + month) : ("" + month);*/
-			this.setDateI.setDate(year*10000 + month*100 + day);
+			/*
+			 * String d = null, m = null; d = (day < 10) ? ("0" + day) : ("" +
+			 * day); m = (month < 10) ? ("0" + month) : ("" + month);
+			 */
+			this.setDateI.setDate(year * 10000 + month * 100 + day);
 		}
 	}
 
 	public interface setDateInterface {
 		public void setDate(long d);
+	}
+
+	public static class NumberPickerFragment extends DialogFragment {
+
+		NumberPicker mNumberPicker = null;
+		int defaultValue = 2;
+		OnValueChangeListener listener = null;
+		
+		public void setDefault(int dValue, OnValueChangeListener l) {
+			this.defaultValue = dValue;
+			listener = l;
+		}
+		
+		@Override
+		public Dialog onCreateDialog(Bundle savedInstanceState) {
+
+			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+			builder.setTitle("Choose number of Seconds");
+			mNumberPicker = new NumberPicker(getActivity());
+			mNumberPicker.setMinValue(1);
+			mNumberPicker.setMaxValue(5);
+			mNumberPicker.setValue(defaultValue);
+			builder.setView(mNumberPicker);
+			
+			builder.setNeutralButton("Set", new OnClickListener() {
+				@Override
+				public void onClick(DialogInterface arg0, int arg1) {
+					Log.d("asd", "Seconds selected");
+					mNumberPicker.getValue();
+					listener.onValueChange(mNumberPicker, mNumberPicker.getValue(), 0);
+				}
+			});
+			return builder.create();
+		}
+
 	}
 }

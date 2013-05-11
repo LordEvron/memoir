@@ -6,6 +6,7 @@ import java.util.Date;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
@@ -29,6 +30,7 @@ public class CameraActivity extends Activity {
 	private MediaRecorder mMediaRecorder;
 	private boolean isRecording = false;
 	private Video mVideo = null;
+	private SharedPreferences mPrefs = null;
 	Button captureButton;
 
 	@Override
@@ -40,6 +42,9 @@ public class CameraActivity extends Activity {
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 		setContentView(R.layout.camera_activity);
+
+		mPrefs = this.getSharedPreferences("com.devapp.memoir",
+				Context.MODE_PRIVATE);
 
 		mCamera = getCameraInstance();
 
@@ -71,7 +76,8 @@ public class CameraActivity extends Activity {
 		mMediaRecorder.setOutputFile(mVideo.path);
 
 		mMediaRecorder.setPreviewDisplay(mPreview.getHolder().getSurface());
-		mMediaRecorder.setMaxDuration(2000); 
+		mMediaRecorder.setMaxDuration(mPrefs.getInt(
+				"com.devapp.memoir.noofseconds", 1) * 1000); 
 		mMediaRecorder.setOnInfoListener(new MediaRecorder.OnInfoListener() {
 			@Override
 			public void onInfo(MediaRecorder mr, int what, int extra) {

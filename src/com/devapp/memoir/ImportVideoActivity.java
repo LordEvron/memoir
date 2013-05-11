@@ -11,6 +11,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
@@ -54,7 +55,8 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 	private static int VIDEO_IMPORT_FROM_GALLERY = 0;
 	private TranscodingServiceBroadcastReceiver mDataBroadcastReceiver = null;
 	private MediaMetadataRetriever mMediaRetriever = null;
-
+	private SharedPreferences mPrefs = null;
+	
 	@SuppressLint("NewApi")
 	private void getDisplay() {
 		/** Note : For getting the height and width of the screen */
@@ -93,7 +95,8 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
+		mPrefs = this.getSharedPreferences("com.devapp.memoir",
+				Context.MODE_PRIVATE);
 		getDisplay();
 	}
 
@@ -262,7 +265,8 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 							intent.putExtra("filePath", mPath);
 							Log.d("asd", "mPosition >" + mPosition);
 							intent.putExtra("startTime", (float) mPosition/10);
-							intent.putExtra("endTime", (float) ((float) ((float)mPosition + 20.0)/10.0));
+							intent.putExtra("endTime", (float) ((float) ((float)mPosition + (mPrefs.getInt(
+									"com.devapp.memoir.noofseconds", 1) * 10.0))/10.0));
 							intent.putExtra("outputFilePath", MemoirApplication.getOutputMediaFile(ImportVideoActivity.this));
 							startService(intent);
 						}
@@ -336,7 +340,8 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 				+ mLinearLayoutContainer.getWidth());
 
 		Log.d("asd", "mdistanceToTimeRatio" + mdistanceToTimeRatio);
-		Bitmap bm = Bitmap.createBitmap(Math.round(mdistanceToTimeRatio * 2),
+		Bitmap bm = Bitmap.createBitmap(Math.round(mdistanceToTimeRatio * mPrefs.getInt(
+				"com.devapp.memoir.noofseconds", 1)),
 				containerHeight, Bitmap.Config.ARGB_8888);
 		new Canvas(bm).drawColor(getResources().getColor(
 				R.color.selectTransparentBlue));

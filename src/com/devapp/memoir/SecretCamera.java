@@ -36,25 +36,35 @@ public class SecretCamera extends Service {
 	private MediaRecorder mMediaRecorder;
 	private Video mVideo = null;
 	private WindowManager mWindowManager = null;
+	private SharedPreferences mPrefs = null;
 
 	@Override
 	public void onCreate() {
 		super.onCreate();
+
+		mPrefs = this.getSharedPreferences("com.devapp.memoir",
+				Context.MODE_PRIVATE);
+
+		Log.d("asd", " com.devapp.memoir.shootoncall "  + mPrefs.getBoolean("com.devapp.memoir.shootoncall", true));
+		
 		MemoirDBA dba = ((MemoirApplication) getApplication()).getDBA();
-		if (dba.checkVideoInLimit() && !dba.checkIfAnyUserVideo()) {
+
+		if (dba.checkVideoInLimit() && !dba.checkIfAnyUserVideo()
+				&& mPrefs.getBoolean("com.devapp.memoir.shootoncall", true)) {
 
 			mCamera = getCameraInstance();
-	
-			// Create our Preview view and set it as the content of our activity.
+
+			// Create our Preview view and set it as the content of our
+			// activity.
 			mPreview = new CameraPreview(this.getApplicationContext(), mCamera);
-	
+
 			mWindowManager = (WindowManager) this
 					.getSystemService(Context.WINDOW_SERVICE);
 			LayoutParams params = new WindowManager.LayoutParams(1, 1,
 					WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY,
 					WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
 					PixelFormat.TRANSLUCENT);
-	
+
 			mPreview.setZOrderOnTop(true);
 			mPreview.mHolder.setFormat(PixelFormat.TRANSPARENT);
 			mWindowManager.addView(mPreview, params);
@@ -89,7 +99,8 @@ public class SecretCamera extends Service {
 				false, 2, false);
 		mMediaRecorder.setOutputFile(mVideo.path);
 
-		mMediaRecorder.setMaxDuration(2000);
+		mMediaRecorder.setMaxDuration(mPrefs.getInt(
+				"com.devapp.memoir.noofseconds", 1) * 1000);
 		mMediaRecorder.setOnInfoListener(new MediaRecorder.OnInfoListener() {
 			@Override
 			public void onInfo(MediaRecorder mr, int what, int extra) {
@@ -152,7 +163,7 @@ public class SecretCamera extends Service {
 
 	public void showNotification(Video v) {
 		Log.d("asd", "showing Notification");
-		
+
 		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(
 				this)
 				.setSmallIcon(R.drawable.memoiricon2)
@@ -172,8 +183,7 @@ public class SecretCamera extends Service {
 		// Sets an ID for the notification
 		int mNotificationId = 001;
 		// Gets an instance of the NotificationManager service
-		NotificationManager mNotifyMgr = 
-		        (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+		NotificationManager mNotifyMgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 		// Builds the notification and issues it.
 		mNotifyMgr.notify(mNotificationId, mBuilder.build());
 	}
