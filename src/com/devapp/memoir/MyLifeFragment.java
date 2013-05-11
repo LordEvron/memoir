@@ -12,8 +12,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.ColorFilter;
+import android.graphics.LightingColorFilter;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnErrorListener;
@@ -317,8 +322,8 @@ public class MyLifeFragment extends Fragment {
 
 		mMyLifePB.setVisibility(PBVis);
 
-		String text = "       Memoir - My Life            "
-				+ MemoirApplication.convertDate(mPrefs.getLong("com.devapp.memoir.startselected",0), "Day 1")
+		String text = "   Memoir - My Life\n"
+				+ MemoirApplication.convertDate(mPrefs.getLong("com.devapp.memoir.startselected",0), "Long Time Ago")
 				+ " - "
 				+ MemoirApplication.convertDate(mPrefs.getLong("com.devapp.memoir.endselected",0), "Now");
 		mMyLifeTV.setText(text);
@@ -371,7 +376,7 @@ public class MyLifeFragment extends Fragment {
 
 			// NOTE: assuming VideoList can never be null here.
 			List<Video> VideoList = this.mList.get(position);
-			String date = String.valueOf(VideoList.get(0).date);
+			String date = MemoirApplication.getDateStringWRTToday(VideoList.get(0).date);
 
 			if (convertView == null) {
 				// Log.d("asd", "convertView turned out to be null ");
@@ -382,9 +387,7 @@ public class MyLifeFragment extends Fragment {
 				// Log.d("asd", "ConvertView exists");
 
 				if (!((TextView) convertView
-						.findViewById(R.id.MyLifeListItemTV)).getText().equals(
-						date.substring(6) + "/" + date.substring(4, 6) + "/"
-								+ date.substring(0, 4))) {
+						.findViewById(R.id.MyLifeListItemTV)).getText().equals(date)) {
 					/**
 					 * NOTE: Comparing dates of this list item and the item from
 					 * position if they are same then continue otherwise needs
@@ -416,8 +419,7 @@ public class MyLifeFragment extends Fragment {
 			}
 
 			((TextView) convertView.findViewById(R.id.MyLifeListItemTV))
-					.setText(date.substring(6) + "/" + date.substring(4, 6)
-							+ "/" + date.substring(0, 4));
+					.setText(date);
 
 			mLinearLayout = (LinearLayout) convertView
 					.findViewById(R.id.MyLifeListItemInnerLL);
@@ -454,7 +456,8 @@ public class MyLifeFragment extends Fragment {
 						if (mActionMode != null) {
 							return false;
 						}
-
+					    ((ImageView) view).setColorFilter(new LightingColorFilter(0xFFFFFF, 0x005050));
+					    
 						// Start the CAB using the ActionMode.Callback defined
 						// above
 						mActionMode = getActivity().startActionMode(
@@ -482,6 +485,7 @@ public class MyLifeFragment extends Fragment {
 			}
 
 			public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+
 				switch (item.getItemId()) {
 				case R.id.select_button:
 					mode.finish(); // Action picked, so close the CAB
@@ -566,6 +570,7 @@ public class MyLifeFragment extends Fragment {
 
 			public void onDestroyActionMode(ActionMode mode) {
 				mActionMode = null;
+				mSelectedVideoIV.setColorFilter(null);
 			}
 		};
 

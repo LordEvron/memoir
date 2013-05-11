@@ -42,7 +42,6 @@
             android:layout_margin="5dp"
             android:textStyle="bold|italic"
             android:lines="2"
-            android:text="       My Life       12/12/2012 - 12/12/2012"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
     </FrameLayout>

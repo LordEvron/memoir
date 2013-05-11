@@ -53,6 +53,10 @@ public class MemoirDBA {
 	public boolean checkVideoInLimit() {
 		return mMDBHelper.checkVideoInLimit();
 	}
+	
+	public boolean checkIfAnyUserVideo() {
+		return mMDBHelper.checkIfAnyUserVideo();
+	}
 
 	public void updateDatabase() {
 		mMDBHelper.updateDatabase();
@@ -186,9 +190,9 @@ public class MemoirDBA {
 			values.put(V_TABLE_DATE, v.date);
 			values.put(V_TABLE_PATH, v.path);
 			values.put(V_TABLE_THUMBNAIL_PATH, v.thumbnailPath);
-			values.put(V_TABLE_SELECTED, v.selected);
+			values.put(V_TABLE_SELECTED, v.selected == true ? 1 : 0);
 			values.put(V_TABLE_LENGTH, v.length);
-			values.put(V_TABLE_USER_TAKEN, v.userTaken);
+			values.put(V_TABLE_USER_TAKEN, v.userTaken == true ? 1 : 0);
 
 			// Log.d("asd", "Inserting values Date>" + v.date + "  Path>" +
 			// v.path + "   selected>" + v.selected + "  >length" + v.length);
@@ -260,6 +264,23 @@ public class MemoirDBA {
 			Cursor c = db.query(VIDEOS_TABLE_NAME, null, selection, null, null,
 					null, null);
 			if (c.getCount() < 5) {
+				c.close();
+				return true;
+			}
+			c.close();
+			return false;
+		}
+		
+		public boolean checkIfAnyUserVideo() {
+			SQLiteDatabase db = this.getReadableDatabase();
+			SimpleDateFormat ft = new SimpleDateFormat("yyyyMMdd");
+			long d = Long.parseLong(ft.format(new Date()));
+
+			String selection = V_TABLE_DATE + " = " + d + " AND " + V_TABLE_USER_TAKEN + " > 0";
+			Cursor c = db.query(VIDEOS_TABLE_NAME, null, selection, null, null,
+					null, null);
+			Log.d("asd", "Inside checkIfAnyUserVideo count >" + c.getCount());
+			if (c.getCount() > 0) {
 				c.close();
 				return true;
 			}

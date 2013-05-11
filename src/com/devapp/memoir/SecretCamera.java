@@ -4,17 +4,21 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.media.AudioManager;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -36,22 +40,27 @@ public class SecretCamera extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		MemoirDBA dba = ((MemoirApplication) getApplication()).getDBA();
+		if (dba.checkVideoInLimit() && !dba.checkIfAnyUserVideo()) {
 
-		mCamera = getCameraInstance();
-
-		// Create our Preview view and set it as the content of our activity.
-		mPreview = new CameraPreview(this.getApplicationContext(), mCamera);
-
-		mWindowManager = (WindowManager) this
-				.getSystemService(Context.WINDOW_SERVICE);
-		LayoutParams params = new WindowManager.LayoutParams(1, 1,
-				WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY,
-				WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
-				PixelFormat.TRANSLUCENT);
-
-		mPreview.setZOrderOnTop(true);
-		mPreview.mHolder.setFormat(PixelFormat.TRANSPARENT);
-		mWindowManager.addView(mPreview, params);
+			mCamera = getCameraInstance();
+	
+			// Create our Preview view and set it as the content of our activity.
+			mPreview = new CameraPreview(this.getApplicationContext(), mCamera);
+	
+			mWindowManager = (WindowManager) this
+					.getSystemService(Context.WINDOW_SERVICE);
+			LayoutParams params = new WindowManager.LayoutParams(1, 1,
+					WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY,
+					WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
+					PixelFormat.TRANSLUCENT);
+	
+			mPreview.setZOrderOnTop(true);
+			mPreview.mHolder.setFormat(PixelFormat.TRANSPARENT);
+			mWindowManager.addView(mPreview, params);
+		} else {
+			stopSelf();
+		}
 	}
 
 	private boolean prepareVideoRecorder() {
@@ -61,7 +70,7 @@ public class SecretCamera extends Service {
 		mCamera.lock();
 		mCamera.unlock();
 		mMediaRecorder.setCamera(mCamera);
-		//mCamera.setDisplayOrientation(180);
+		// mCamera.setDisplayOrientation(180);
 		// mCamera.enableShutterSound(false);
 
 		AudioManager mgr = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
@@ -77,9 +86,8 @@ public class SecretCamera extends Service {
 		long d = Long.parseLong(ft.format(new Date()));
 
 		mVideo = new Video(0, d, MemoirApplication.getOutputMediaFile(this),
-				false, 2, true);
-		mMediaRecorder
-				.setOutputFile(mVideo.path);
+				false, 2, false);
+		mMediaRecorder.setOutputFile(mVideo.path);
 
 		mMediaRecorder.setMaxDuration(2000);
 		mMediaRecorder.setOnInfoListener(new MediaRecorder.OnInfoListener() {
@@ -131,12 +139,43 @@ public class SecretCamera extends Service {
 
 		((MemoirApplication) getApplication()).getDBA().addVideo(mVideo);
 		((MemoirApplication) getApplication()).getDBA().selectVideo(mVideo);
-		
-		SharedPreferences mPrefs = this.getSharedPreferences("com.devapp.memoir",
-				Context.MODE_PRIVATE);
+
+		SharedPreferences mPrefs = this.getSharedPreferences(
+				"com.devapp.memoir", Context.MODE_PRIVATE);
 		mPrefs.edit().putBoolean("com.devapp.memoir.datachanged", true)
-		.commit();
+				.commit();
+
+		showNotification(mVideo);
+
 		stopSelf();
+	}
+
+	public void showNotification(Video v) {
+		Log.d("asd", "showing Notification");
+		
+		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(
+				this)
+				.setSmallIcon(R.drawable.memoiricon2)
+				.setAutoCancel(true)
+				.setLargeIcon(BitmapFactory.decodeFile(v.thumbnailPath))
+				.setContentTitle(
+						"Memoir has taken a video while you were on call")
+				.setContentText(
+						"Memoir provides a feature that it would take a video while you are on call so incase you forget to take a video for a day , it does it for you");
+
+		Intent resultIntent = new Intent(this, MainActivity.class);
+		PendingIntent resultPendingIntent = PendingIntent.getActivity(this, 0,
+				resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+		mBuilder.setContentIntent(resultPendingIntent);
+
+		// Sets an ID for the notification
+		int mNotificationId = 001;
+		// Gets an instance of the NotificationManager service
+		NotificationManager mNotifyMgr = 
+		        (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+		// Builds the notification and issues it.
+		mNotifyMgr.notify(mNotificationId, mBuilder.build());
 	}
 
 	private void releaseMediaRecorder() {

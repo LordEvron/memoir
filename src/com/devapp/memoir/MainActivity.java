@@ -137,46 +137,6 @@ public class MainActivity extends Activity {
 		}
 	}
 
-	TelephonyManager tm;
-
-	private PhoneStateListener mPhoneListener = new PhoneStateListener() {
-		public void onCallStateChanged(int state, String incomingNumber) {
-			try {
-				switch (state) {
-				case TelephonyManager.CALL_STATE_RINGING:
-					// Toast.makeText(MainActivity.this, "CALL_STATE_RINGING",
-					// Toast.LENGTH_SHORT).show();
-					break;
-				case TelephonyManager.CALL_STATE_OFFHOOK:
-					// Toast.makeText(MainActivity.this, "CALL_STATE_OFFHOOK",
-					// Toast.LENGTH_SHORT).show();
-					if (((MemoirApplication) getApplication()).getDBA()
-							.checkVideoInLimit()) {
-						Intent intent = new Intent(MainActivity.this,
-								SecretCamera.class);
-						startService(intent);
-					} else {
-						// Toast.makeText(
-						// MainActivity.this,
-						// "More than 5 Videos are not allowed for a day, Please delete some videos to shoot more videos.",
-						// Toast.LENGTH_LONG).show();
-					}
-					break;
-				case TelephonyManager.CALL_STATE_IDLE:
-					// Toast.makeText(MainActivity.this, "CALL_STATE_IDLE",
-					// Toast.LENGTH_SHORT).show();
-					break;
-				default:
-					// Toast.makeText(MainActivity.this, "default",
-					// Toast.LENGTH_SHORT).show();
-					Log.i("Default", "Unknown phone state=" + state);
-				}
-			} catch (Exception e) {
-				Log.i("Exception", "PhoneStateListener() e = " + e);
-			}
-		}
-	};
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -192,10 +152,6 @@ public class MainActivity extends Activity {
 
 		mPrefs = this.getSharedPreferences("com.devapp.memoir",
 				Context.MODE_PRIVATE);
-
-		tm = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
-		tm.listen(mPhoneListener, PhoneStateListener.LISTEN_CALL_STATE);
-
 	}
 
 	@Override
