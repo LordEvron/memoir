@@ -62,6 +62,11 @@
             android:name="com.devapp.memoir.ImportVideoActivity"
             android:screenOrientation="landscape" >
         </activity>
+	<activity
+            android:name="com.devapp.memoir.WelcomeScreen"
+            android:theme="@android:style/Theme.NoTitleBar"
+             >
+        </activity>
 
         <receiver android:name="com.devapp.memoir.BootupBroadcastReceiver" >
             <intent-filter>

@@ -57,9 +57,9 @@ public class Splash extends Activity {
 					System.out.println ("Exception = " + e);
 				} finally {
 					Intent i;
-			        if(!prefs.getBoolean("first_time", false))
+			        if(true/*!prefs.getBoolean("first_time", false)*/)
 			        {
-			            i = new Intent(Splash.this, HelpActivity.class);
+			            i = new Intent(Splash.this, WelcomeScreen.class);
 			            i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			        }
 			        else
