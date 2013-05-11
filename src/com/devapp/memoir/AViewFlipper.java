@@ -28,7 +28,7 @@ public class AViewFlipper extends ViewFlipper {
 		int width = getWidth();
 		
 		float margin = 2;
-		float radius = 5;
+		float radius = 10;
 		float cx = width / 2 - ((radius + margin) * 2 * getChildCount() / 2);
 		float cy = getHeight()- 15;
 		
@@ -37,7 +37,7 @@ public class AViewFlipper extends ViewFlipper {
 		{
 		if (i == getDisplayedChild())
 		{
-		paint.setColor(Color.BLUE);
+		paint.setColor(Color.CYAN);
 		canvas.drawCircle(cx, cy, radius, paint);
 		
 		} else

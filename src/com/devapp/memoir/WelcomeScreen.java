@@ -1,7 +1,10 @@
 package com.devapp.memoir;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
@@ -22,6 +25,12 @@ public class WelcomeScreen extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_welcome_screen);
+		
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean("first_time", true);
+        editor.commit();
+        
 		page = (ViewFlipper) findViewById(R.id.welcomeVF);
 
 		animFlipInForeward = AnimationUtils.loadAnimation(this, R.anim.flipin);
@@ -54,6 +63,15 @@ public class WelcomeScreen extends Activity {
 
 	}
 
+	@Override
+	public void onBackPressed ()
+	{
+		Intent i = new Intent (WelcomeScreen.this, MainActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		startActivity (i);
+		finish();
+	}
+	
 	private void SwipeRight() {
 		page.setInAnimation(animFlipInBackward);
 		page.setOutAnimation(animFlipOutBackward);
