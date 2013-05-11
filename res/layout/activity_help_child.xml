@@ -3,8 +3,6 @@
     android:id="@+id/ActivityHelpChildTV"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_gravity="center"
-    android:gravity="center"
-    android:lineSpacingMultiplier="1.1" >
-
+    android:lineSpacingMultiplier="1.2"
+     >
 </TextView>
