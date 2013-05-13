@@ -1,11 +1,5 @@
 package com.devapp.memoir;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
-import com.devapp.memoir.services.TranscodingService;
-
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -21,11 +15,10 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -39,6 +32,8 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.VideoView;
+
+import com.devapp.memoir.services.TranscodingService;
 
 
 public class ImportVideoActivity extends Activity implements OnPreparedListener {
@@ -291,12 +286,9 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 		int i = 0;
 		for (i = 0; i < noOfFrames; i++) {
 			ImageView iv = new ImageView(this);
-			Bitmap b = mMediaRetriever.getFrameAtTime(Math.round(i
-					* secondInterval * 1000000));
-			if (b != null) {
-				iv.setImageBitmap(b);
-				mLinearLayoutContainer.addView(iv, 0, params);
-			}
+			new getFrameTask().executeOnExecutor(
+					AsyncTask.THREAD_POOL_EXECUTOR,(new FrameIVStruct(Math.round(i * secondInterval * 1000000), iv)));
+			mLinearLayoutContainer.addView(iv, 0, params);
 		}
 
 		mLinearLayoutContainer.setLayoutParams(new FrameLayout.LayoutParams(
@@ -356,6 +348,36 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 			mPath = null;
 			finish();
 		}
+	}
+	
+	public class FrameIVStruct {
+		int frameAt = 0;
+		ImageView iv = null;
+		Bitmap b = null;
+		
+		FrameIVStruct(int fa, ImageView iv) {
+			this.frameAt = fa;
+			this.iv = iv;
+		}
+	}
+	
+	public class getFrameTask extends AsyncTask<FrameIVStruct, Void, FrameIVStruct> {
+		
+		@Override
+		protected FrameIVStruct doInBackground(FrameIVStruct... arg0) {
+			FrameIVStruct struct = arg0[0];
+			struct.b = mMediaRetriever.getFrameAtTime(struct.frameAt);
+			return struct;
+		}
+
+		@Override
+		protected void onPostExecute(FrameIVStruct result) {
+			if (result != null) {
+				result.iv.setImageBitmap(result.b);
+			}
+			super.onPostExecute(result);
+		}
+		
 	}
 
 	@Override

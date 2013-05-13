@@ -25,6 +25,7 @@ import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.ActionMode;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -33,6 +34,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup.LayoutParams;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
@@ -66,7 +68,7 @@ public class MyLifeFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		
+
 		View rootView = inflater.inflate(R.layout.fragment_my_life, container,
 				false);
 
@@ -79,18 +81,20 @@ public class MyLifeFragment extends Fragment {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		
+
 		Activity activity = this.getActivity();
 		mDateList = (ListView) activity.findViewById(R.id.MyLifeDateLV);
 		mMyLifeIV = (ImageView) activity.findViewById(R.id.MyLifeIV);
 		mMyLifePB = (ProgressBar) activity.findViewById(R.id.MyLifePB);
 		mMyLifeTV = (TextView) activity.findViewById(R.id.MyLifeTV);
-//		mTransparent = getResources().getColor(android.R.color.transparent);
+		// mTransparent = getResources().getColor(android.R.color.transparent);
 		mTransparent = getResources().getColor(android.R.color.black);
 
 		((FrameLayout) activity.findViewById(R.id.MyLifeFL))
-				.setLayoutParams(new LinearLayout.LayoutParams(MemoirApplication.mWidth,
-						(int) (MemoirApplication.mWidth * MemoirApplication.mWidth / MemoirApplication.mHeight)));
+				.setLayoutParams(new LinearLayout.LayoutParams(
+						MemoirApplication.mWidth,
+						(int) (MemoirApplication.mWidth
+								* MemoirApplication.mWidth / MemoirApplication.mHeight)));
 
 		mVv = (VideoView) activity.findViewById(R.id.MyLifeVV);
 		mMc = new MediaController(getActivity());
@@ -100,28 +104,29 @@ public class MyLifeFragment extends Fragment {
 		mVv.setOnPreparedListener(new OnPreparedListener() {
 			@Override
 			public void onPrepared(MediaPlayer mp) {
-				if(mMyLifeVideo != null) {
-					LinearLayout ll = (LinearLayout) getActivity().findViewById(
-							R.id.MyLifeLL);
-					ll.setLayoutParams(new FrameLayout.LayoutParams(mVv.getWidth(),
-							mVv.getHeight() - 155));
+				if (mMyLifeVideo != null) {
+					LinearLayout ll = (LinearLayout) getActivity()
+							.findViewById(R.id.MyLifeLL);
+					ll.setLayoutParams(new FrameLayout.LayoutParams(mVv
+							.getWidth(), mVv.getHeight() - 155));
 					mMc.setAnchorView(ll);
-					updateMyLifeViews(R.drawable.play, mMyLifeVideo.thumbnailPath,
-							View.VISIBLE, View.INVISIBLE, View.VISIBLE);
+					updateMyLifeViews(R.drawable.play,
+							mMyLifeVideo.thumbnailPath, View.VISIBLE,
+							View.INVISIBLE, View.VISIBLE);
 				}
 
-/*				mp.setOnVideoSizeChangedListener(new OnVideoSizeChangedListener() {
-					@Override
-					public void onVideoSizeChanged(MediaPlayer arg0, int arg1,
-							int arg2) {
-						Log.d("asd", "onVideoSizeChanged Called");
-						LinearLayout ll = (LinearLayout) getActivity()
-								.findViewById(R.id.MyLifeLL);
-						ll.setLayoutParams(new FrameLayout.LayoutParams(mVv
-								.getWidth(), mVv.getHeight() - 155));
-						mMc.setAnchorView(ll);
-					}
-				});*/
+				/*
+				 * mp.setOnVideoSizeChangedListener(new
+				 * OnVideoSizeChangedListener() {
+				 * 
+				 * @Override public void onVideoSizeChanged(MediaPlayer arg0,
+				 * int arg1, int arg2) { Log.d("asd",
+				 * "onVideoSizeChanged Called"); LinearLayout ll =
+				 * (LinearLayout) getActivity() .findViewById(R.id.MyLifeLL);
+				 * ll.setLayoutParams(new FrameLayout.LayoutParams(mVv
+				 * .getWidth(), mVv.getHeight() - 155)); mMc.setAnchorView(ll);
+				 * } });
+				 */
 			}
 		});
 
@@ -129,28 +134,29 @@ public class MyLifeFragment extends Fragment {
 
 			@Override
 			public void onCompletion(MediaPlayer vmp) {
-				mMyLifeVideo = ((MemoirApplication)getActivity()
+				mMyLifeVideo = ((MemoirApplication) getActivity()
 						.getApplication()).getMyLifeFile(getActivity()
 						.getApplicationContext());
-//				mMyLifeVideo = MemoirApplication.getMyLifeFile(getActivity()
-//						.getApplicationContext());
-				if(mMyLifeVideo != null) {
-					updateMyLifeViews(R.drawable.play, mMyLifeVideo.thumbnailPath,
-							View.VISIBLE, View.INVISIBLE, View.VISIBLE);
+				// mMyLifeVideo = MemoirApplication.getMyLifeFile(getActivity()
+				// .getApplicationContext());
+				if (mMyLifeVideo != null) {
+					updateMyLifeViews(R.drawable.play,
+							mMyLifeVideo.thumbnailPath, View.VISIBLE,
+							View.INVISIBLE, View.VISIBLE);
 				} else {
 					updateMyLifeViews(R.drawable.no_video, null, View.VISIBLE,
 							View.INVISIBLE, View.INVISIBLE);
 				}
 			}
 		});
-		
+
 		mVv.setOnErrorListener(new OnErrorListener() {
 			@Override
 			public boolean onError(MediaPlayer arg0, int arg1, int arg2) {
 				Log.e("asd", "Cant Play This Video :(");
 				return true;
 			}
-			
+
 		});
 
 		mMyLifeIV.setOnClickListener(new OnClickListener() {
@@ -170,8 +176,9 @@ public class MyLifeFragment extends Fragment {
 	public void onStart() {
 		super.onStart();
 
-		((MemoirApplication) getActivity().getApplication()).getDBA().setStartEndDates();
-		
+		((MemoirApplication) getActivity().getApplication()).getDBA()
+				.setStartEndDates();
+
 		mVideos = ((MemoirApplication) getActivity().getApplication()).getDBA()
 				.getVideos(
 						0,
@@ -190,8 +197,10 @@ public class MyLifeFragment extends Fragment {
 
 		Intent intent = new Intent(getActivity(), TranscodingService.class);
 		intent.setAction(TranscodingService.ActionCreateMyLife);
-		intent.putExtra("startDate", mPrefs.getLong("com.devapp.memoir.startselected", 0));
-		intent.putExtra("endDate", mPrefs.getLong("com.devapp.memoir.endselected", 0));
+		intent.putExtra("startDate",
+				mPrefs.getLong("com.devapp.memoir.startselected", 0));
+		intent.putExtra("endDate",
+				mPrefs.getLong("com.devapp.memoir.endselected", 0));
 		getActivity().startService(intent);
 		mMyLifeVideo = null;
 	}
@@ -202,7 +211,8 @@ public class MyLifeFragment extends Fragment {
 		if (mDataBroadcastReceiver == null)
 			mDataBroadcastReceiver = new TranscodingServiceBroadcastReceiver();
 
-		IntentFilter intentFilter = new IntentFilter(TranscodingService.ActionCreateMyLife);
+		IntentFilter intentFilter = new IntentFilter(
+				TranscodingService.ActionCreateMyLife);
 		LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
 				mDataBroadcastReceiver, intentFilter);
 
@@ -211,8 +221,8 @@ public class MyLifeFragment extends Fragment {
 					.commit();
 			refreshLifeTimeVideo();
 		} else {
-			mMyLifeVideo = ((MemoirApplication)getActivity().getApplication()).getMyLifeFile(getActivity()
-					.getApplicationContext());
+			mMyLifeVideo = ((MemoirApplication) getActivity().getApplication())
+					.getMyLifeFile(getActivity().getApplicationContext());
 			if (mMyLifeVideo != null) {
 				mVv.setVideoPath(mMyLifeVideo.path);
 			} else {
@@ -248,9 +258,13 @@ public class MyLifeFragment extends Fragment {
 		mMyLifePB.setVisibility(PBVis);
 
 		String text = "   Memoir - My Life\n"
-				+ MemoirApplication.convertDate(mPrefs.getLong("com.devapp.memoir.startselected",0), "Long Time Ago")
+				+ MemoirApplication.convertDate(
+						mPrefs.getLong("com.devapp.memoir.startselected", 0),
+						"Long Time Ago")
 				+ " - "
-				+ MemoirApplication.convertDate(mPrefs.getLong("com.devapp.memoir.endselected",0), "Now");
+				+ MemoirApplication.convertDate(
+						mPrefs.getLong("com.devapp.memoir.endselected", 0),
+						"Now");
 		mMyLifeTV.setText(text);
 		mMyLifeTV.setVisibility(TVVis);
 	}
@@ -263,11 +277,12 @@ public class MyLifeFragment extends Fragment {
 				String outputFile = intent.getStringExtra("OutputFileName");
 
 				if (!outputFile.isEmpty()) {
-					mMyLifeVideo = ((MemoirApplication)getActivity().getApplication()).getMyLifeFile(getActivity()
+					mMyLifeVideo = ((MemoirApplication) getActivity()
+							.getApplication()).getMyLifeFile(getActivity()
 							.getApplicationContext());
-					
-					//Log.d("asd", "Setting video path here >"
-					//		+ mMyLifeVideo.path);
+
+					// Log.d("asd", "Setting video path here >"
+					// + mMyLifeVideo.path);
 					mVv.setVideoPath(mMyLifeVideo.path);
 				} else {
 					updateMyLifeViews(R.drawable.no_video, null, View.VISIBLE,
@@ -277,7 +292,8 @@ public class MyLifeFragment extends Fragment {
 		}
 	}
 
-	public class MyLifeDateListArrayAdapter extends ArrayAdapter<List<Video>> {
+	public class MyLifeDateListArrayAdapter extends ArrayAdapter<List<Video>>
+			implements View.OnClickListener, View.OnLongClickListener {
 
 		private Context mContext;
 		private List<List<Video>> mList;
@@ -286,6 +302,7 @@ public class MyLifeFragment extends Fragment {
 		private Object mActionMode;
 		private Video mSelectedVideo = null;
 		private ImageView mSelectedVideoIV = null;
+		private ViewGroup.MarginLayoutParams params = null;
 
 		public MyLifeDateListArrayAdapter(Context context,
 				List<List<Video>> List) {
@@ -294,19 +311,27 @@ public class MyLifeFragment extends Fragment {
 			this.mContext = context;
 			this.mList = List;
 			this.mInflater = LayoutInflater.from(context);
+			this.params = new ViewGroup.MarginLayoutParams(
+					(int) TypedValue.applyDimension(
+							TypedValue.COMPLEX_UNIT_DIP, 90, getResources()
+									.getDisplayMetrics()), (int) TypedValue.applyDimension(
+											TypedValue.COMPLEX_UNIT_DIP, 68, getResources()
+											.getDisplayMetrics()));
 		}
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			List<Video> VideoList = this.mList.get(position);
-			String date = MemoirApplication.getDateStringWRTToday(VideoList.get(0).date);
+			String date = MemoirApplication.getDateStringWRTToday(VideoList
+					.get(0).date);
 
 			if (convertView == null) {
 				convertView = mInflater.inflate(
 						R.layout.fragment_my_life_list_item, null);
 			} else {
 				if (!((TextView) convertView
-						.findViewById(R.id.MyLifeListItemTV)).getText().equals(date)) {
+						.findViewById(R.id.MyLifeListItemTV)).getText().equals(
+						date)) {
 					/**
 					 * NOTE: Comparing dates of this list item and the item from
 					 * position if they are same then continue otherwise needs
@@ -344,53 +369,66 @@ public class MyLifeFragment extends Fragment {
 					.findViewById(R.id.MyLifeListItemInnerLL);
 
 			for (Video v : VideoList) {
-				FrameLayout FL = (FrameLayout) mInflater.inflate(
-						R.layout.fragment_my_life_video_item, null);
-				mLinearLayout.addView(FL);
 
-				ImageView iv = (ImageView) FL.findViewById(R.id.imageView1);
-				if(v.thumbnailPath != null) {
-					iv.setImageBitmap(BitmapFactory.decodeFile(v.thumbnailPath));
-				} else {
-					MemoirApplication.mTL.loadImage(v.path, iv);
-				}
+				ImageView iv = (ImageView) mInflater.inflate(
+						R.layout.fragment_my_life_video_item, null);
+				mLinearLayout.addView(iv, this.params);
+
+				MemoirApplication.mTL.loadImage(v.path, iv);
+
+				/*
+				 * FrameLayout FL = (FrameLayout) mInflater.inflate(
+				 * R.layout.fragment_my_life_video_item, null);
+				 * mLinearLayout.addView(FL);
+				 * 
+				 * ImageView iv = (ImageView) FL.findViewById(R.id.imageView1);
+				 * 
+				 * if(v.thumbnailPath != null) {
+				 * iv.setImageBitmap(BitmapFactory.decodeFile(v.thumbnailPath));
+				 * } else { MemoirApplication.mTL.loadImage(v.path, iv); }
+				 */
 				iv.setTag(v);
 				if (v.selected) {
 					iv.setBackgroundColor(getResources().getColor(
 							R.color.selectBlue));
 				}
 
-				iv.setOnClickListener(new View.OnClickListener() {
-					public void onClick(View view) {
-						Video v = (Video) view.getTag();
-						Intent playIntent = new Intent();
-						playIntent.setAction(Intent.ACTION_VIEW);
-						playIntent.setDataAndType(
-								Uri.fromFile(new File(v.path)), "video/*");
-						
-						getActivity().startActivity(playIntent);
-					}
-				});
+				iv.setOnClickListener(this);
 
-				iv.setOnLongClickListener(new View.OnLongClickListener() {
-					public boolean onLongClick(View view) {
-						if (mActionMode != null) {
-							return false;
-						}
-					    ((ImageView) view).setColorFilter(new LightingColorFilter(0xFFFFFF, 0x005050));
-					    
-						mActionMode = getActivity().startActionMode(
-								mActionModeCallback);
-						mSelectedVideoIV = (ImageView) view;
-						mSelectedVideo = (Video) mSelectedVideoIV.getTag();
-						return true;
-					}
-				});
+				iv.setOnLongClickListener(this);
 			}
 
 			return convertView;
 		}
 
+		@Override
+		public boolean onLongClick(View view) {
+			if (mActionMode != null) {
+				return false;
+			}
+			((ImageView) view)
+					.setColorFilter(new LightingColorFilter(
+							0xFFFFFF, 0x005050));
+
+			mActionMode = getActivity().startActionMode(
+					mActionModeCallback);
+			mSelectedVideoIV = (ImageView) view;
+			mSelectedVideo = (Video) mSelectedVideoIV.getTag();
+			return true;
+		}
+
+		@Override
+		public void onClick(View view) {
+			Video v = (Video) view.getTag();
+			Intent playIntent = new Intent();
+			playIntent.setAction(Intent.ACTION_VIEW);
+			playIntent.setDataAndType(
+					Uri.fromFile(new File(v.path)), "video/*");
+
+			getActivity().startActivity(playIntent);
+		}
+
+		
 		private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
 
 			public boolean onCreateActionMode(ActionMode mode, Menu menu) {
@@ -425,8 +463,7 @@ public class MyLifeFragment extends Fragment {
 						}
 						mSelectedVideo.selected = true;
 						LinearLayout container = (LinearLayout) mSelectedVideoIV
-								.getParent().getParent().getParent()
-								.getParent();
+								.getParent().getParent().getParent();
 						container.setTag("dirty");
 						mDateAdapter.notifyDataSetChanged();
 						mSelectedVideo = null;
@@ -475,8 +512,7 @@ public class MyLifeFragment extends Fragment {
 						}
 
 						LinearLayout container = (LinearLayout) mSelectedVideoIV
-								.getParent().getParent().getParent()
-								.getParent();
+								.getParent().getParent().getParent();
 						container.setTag("dirty");
 						mDateAdapter.notifyDataSetChanged();
 						mSelectedVideo = null;

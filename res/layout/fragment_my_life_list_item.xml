@@ -24,9 +24,9 @@
         <LinearLayout
             android:id="@+id/MyLifeListItemInnerLL"
             android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:orientation="horizontal" >
-        </LinearLayout>
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" />
+        
     </HorizontalScrollView>
 
 </LinearLayout>

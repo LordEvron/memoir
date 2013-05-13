@@ -91,6 +91,7 @@ public class ThumbnailLoader {
 		}
 
 		File f = new File(MemoirApplication.convertPath(imageUrl));
+
 		if (f.exists()) {
 
 			imageObject iO1 = new imageObject();
@@ -102,7 +103,7 @@ public class ThumbnailLoader {
 			if (imageView != null) {
 				iO1.imageViews.add(imageView);
 			}
-			iO1.imageBitmap = BitmapFactory.decodeFile(imageUrl);
+			iO1.imageBitmap = BitmapFactory.decodeFile(MemoirApplication.convertPath(imageUrl));
 
 			synchronized (getClass()) {
 				imageCache.put(imageUrl, iO1);

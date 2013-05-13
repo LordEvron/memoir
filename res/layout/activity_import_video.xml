@@ -45,17 +45,17 @@
 
         <ImageView
             android:id="@+id/ImportVideoIVLeft"
-            android:layout_width="50dp"
+            android:layout_width="40dp"
             android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
-            android:src="@drawable/leftarrow" />
+            android:src="@drawable/leftarrow2" />
 
         <ImageView
             android:id="@+id/ImportVideoIVRight"
-            android:layout_width="50dp"
+            android:layout_width="40dp"
             android:layout_height="match_parent"
             android:layout_alignParentRight="true"
-            android:src="@drawable/rightarrow" />
+            android:src="@drawable/rightarrow2" />
 
         <FrameLayout
             android:id="@+id/ImportVideoFL"
