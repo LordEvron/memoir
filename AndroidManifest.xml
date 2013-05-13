@@ -13,7 +13,7 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <uses-feature android:name="android.hardware.camera" />
 
@@ -21,24 +21,35 @@
         android:name="com.devapp.memoir.MemoirApplication"
         android:allowBackup="true"
         android:icon="@drawable/memoiricon2"
-        android:label="@string/app_name"
-        android:theme="@style/Theme.NoBackground" >
-        <activity
-            android:name="com.devapp.memoir.Splash"
-            android:label="@string/app_name" >
+        android:label="@string/app_name" >
+        <activity android:name="com.devapp.memoir.Splash"
+            android:theme="@style/Theme.Splash" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name="com.devapp.memoir.Welcome"
-            android:theme="@android:style/Theme.NoTitleBar" >
+            android:name="com.devapp.memoir.WelcomeScreen"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
         </activity>
+        
         <activity android:name="com.devapp.memoir.MainActivity" >
         </activity>
         <activity
-            android:name="com.devapp.memoir.CameraActivity"
+            android:name="com.devapp.memoir.SettingsActivity"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" 
+            android:label="@string/title_activity_settings" >
+        </activity>
+        <activity
+            android:name="com.devapp.memoir.HelpActivity"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" 
+            android:label="@string/activity_help" >
+        </activity>
+        <activity
+            android:name="com.devapp.memoir.ImportVideoActivity"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" 
             android:screenOrientation="landscape" >
         </activity>
 
@@ -46,26 +57,6 @@
         </service>
         <service android:name="com.devapp.memoir.services.SecretCamera" >
         </service>
-        <service android:name="com.devapp.memoir.RecorderService" >
-        </service>
-
-        <activity
-            android:name="com.devapp.memoir.SettingsActivity"
-            android:label="@string/title_activity_settings" >
-        </activity>
-        <activity
-            android:name="com.devapp.memoir.HelpActivity"
-            android:label="@string/activity_help" >
-        </activity>
-        <activity
-            android:name="com.devapp.memoir.ImportVideoActivity"
-            android:screenOrientation="landscape" >
-        </activity>
-	<activity
-            android:name="com.devapp.memoir.WelcomeScreen"
-            android:theme="@android:style/Theme.NoTitleBar"
-             >
-        </activity>
 
         <receiver android:name="com.devapp.memoir.BootupBroadcastReceiver" >
             <intent-filter>
@@ -74,7 +65,7 @@
             <intent-filter>
                 <action android:name="com.devapp.memoir.BootupBroadcastReceiver" />
             </intent-filter>
-            </receiver>
+        </receiver>
     </application>
 
 </manifest>

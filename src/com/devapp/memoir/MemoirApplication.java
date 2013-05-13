@@ -2,10 +2,14 @@ package com.devapp.memoir;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Application;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -18,7 +22,9 @@ import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.MediaStore.MediaColumns;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 
 import com.devapp.memoir.database.MemoirDBA;
 import com.devapp.memoir.database.Video;
@@ -28,6 +34,7 @@ public class MemoirApplication extends Application {
 	private MemoirDBA mDBA;
 	private static boolean useExternal = true;
 	private SharedPreferences mPrefs = null;
+	public static int mWidth = 0, mHeight = 0;
 
 	@Override
 	public void onCreate() {
@@ -142,7 +149,7 @@ public class MemoirApplication extends Application {
 		} else {
 			daysAgo = String.format("Today");
 		}
-		Log.d("asd", daysAgo);
+		//Log.d("asd", daysAgo);
 		return daysAgo;
 	}
 
@@ -306,5 +313,36 @@ public class MemoirApplication extends Application {
 		filePath = cursor.getString(columnIndex);
 		cursor.close();
 		return filePath;
+	}
+	
+	@SuppressLint("NewApi")
+	public static void setDisplayMatrix(Activity a) {
+		/** Note : For getting the height and width of the screen */
+		if (android.os.Build.VERSION.SDK_INT >= 14
+				&& android.os.Build.VERSION.SDK_INT <= 16) {
+			Display display = a.getWindowManager()
+					.getDefaultDisplay();
+			try {
+				Method mGetRawH = Display.class.getMethod("getRawHeight");
+				Method mGetRawW = Display.class.getMethod("getRawWidth");
+				mWidth = (Integer) mGetRawW.invoke(display);
+				mHeight = (Integer) mGetRawH.invoke(display);
+			} catch (NoSuchMethodException e) {
+				e.printStackTrace();
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+			}
+		} else {
+			Display display = a.getWindowManager()
+					.getDefaultDisplay();
+			DisplayMetrics outMetrics = new DisplayMetrics();
+			display.getRealMetrics(outMetrics);
+			mHeight = outMetrics.heightPixels;
+			mWidth = outMetrics.widthPixels;
+		}
 	}
 }

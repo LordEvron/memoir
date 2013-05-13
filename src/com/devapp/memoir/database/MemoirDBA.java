@@ -13,6 +13,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import com.devapp.memoir.MemoirApplication;
 
@@ -23,6 +24,10 @@ public class MemoirDBA {
 	private int DATABASE_VERSION = 1;
 	private Context cxt = null;
 
+	private List<List<Video>> localVideos = null;
+	private long localSD = 0, localED = 0;
+	private boolean localSelected = false, localShowOnlyMultiple = false;
+
 	public MemoirDBA(Context context) {
 		this.cxt = context;
 		mMDBHelper = new MemoirDBHelper(context, DATABASE_NAME, null,
@@ -31,22 +36,34 @@ public class MemoirDBA {
 
 	public List<List<Video>> getVideos(long startDate, long endDate,
 			boolean selected, boolean showOnlyMultiple) {
-		return mMDBHelper.getVideos(this.cxt, startDate, endDate, selected,
-				showOnlyMultiple);
+		if(localVideos == null || startDate != localSD || endDate != localED || selected != localSelected || showOnlyMultiple != localShowOnlyMultiple) {
+			localVideos = mMDBHelper.getVideos(this.cxt, startDate, endDate, selected,
+					showOnlyMultiple);
+			localSD = startDate;
+			localED = endDate;
+			localSelected = selected;
+			localShowOnlyMultiple = showOnlyMultiple;
+		} else {
+			Log.d("asd", "Reading videos from cache");
+		}
+		return localVideos;
 	}
 
 	public long addVideo(Video v) {
+		localVideos = null;
 		v.thumbnailPath = MemoirApplication.storeThumbnail(cxt, v.path);
 		return mMDBHelper.addVideo(v);
 	}
 
 	public int deleteVideo(Video v) {
+		localVideos = null;
 		if (!v.path.isEmpty())
 			return mMDBHelper.deleteVideo(v);
 		return 0;
 	}
 
 	public boolean selectVideo(Video v) {
+		localVideos = null;
 		return mMDBHelper.selectVideo(v);
 	}
 

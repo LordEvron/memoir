@@ -45,6 +45,7 @@ public class MainActivity extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 
+		Log.d("asd", "Oncreate options Meny start");
 		getMenuInflater().inflate(R.menu.main, menu);
 		mShareActionProvider = (ShareActionProvider) menu.findItem(
 				R.id.action_share_video).getActionProvider();
@@ -57,7 +58,9 @@ public class MainActivity extends Activity {
 					Uri.fromFile(new File(copy(v.path))));
 			mShareActionProvider.setShareIntent(shareIntent);
 		}
-		return super.onCreateOptionsMenu(menu);
+		Log.d("asd", "Oncreate options Meny end");
+		return true;
+//		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override
@@ -141,7 +144,7 @@ public class MainActivity extends Activity {
 	@Override
 	public void onStart() {
 		super.onStart();
-
+		Log.d("asd", "In onStart of activity");
 		Video v = MemoirApplication.getMyLifeFile(getApplicationContext());
 		if (v != null && mShareActionProvider != null) {
 			Intent shareIntent = new Intent(Intent.ACTION_SEND);
@@ -150,7 +153,7 @@ public class MainActivity extends Activity {
 					Uri.fromFile(new File(copy(v.path))));
 			mShareActionProvider.setShareIntent(shareIntent);
 		}
-
+		Log.d("asd", "at end of onStart of activity");
 	}
 
 	public class TranscodingServiceBroadcastReceiver extends BroadcastReceiver {
