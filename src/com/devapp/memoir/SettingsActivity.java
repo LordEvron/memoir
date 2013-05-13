@@ -13,7 +13,6 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,12 +24,9 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.DatePicker;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.NumberPicker.OnValueChangeListener;
-import android.widget.RelativeLayout;
-import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -72,7 +68,6 @@ public class SettingsActivity extends Activity {
 					@Override
 					public void onCheckedChanged(CompoundButton arg0,
 							boolean arg1) {
-						Log.e("asd", "Calling check changed of show multiple value >" + arg1);
 						CheckBox cb = (CheckBox)arg0;
 						mPrefs.edit()
 								.putBoolean(
@@ -90,7 +85,6 @@ public class SettingsActivity extends Activity {
 					@Override
 					public void onCheckedChanged(CompoundButton arg0,
 							boolean arg1) {
-						Log.e("asd", "Calling check changed of shoot video value >" + arg1);
 						CheckBox cb = (CheckBox)arg0;
 						mPrefs.edit()
 								.putBoolean("com.devapp.memoir.shootoncall",
@@ -109,7 +103,6 @@ public class SettingsActivity extends Activity {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View view,
 					int position, long arg3) {
-				Log.d("zxc", "position" + position);
 				if (position == 0) {
 
 					if (mPrefs.getLong("com.devapp.memoir.startall", 0) == mPrefs
@@ -232,7 +225,6 @@ public class SettingsActivity extends Activity {
 								@Override
 								public void onValueChange(NumberPicker arg0, int arg1,
 										int arg2) {
-									Log.d("asd", "On Value changed to " + arg1);
 									mPrefs.edit()
 									.putInt("com.devapp.memoir.noofseconds", arg1).commit();
 									mArrayList.get(4).text2 = "No Of Seconds Currently : " + arg1;
@@ -316,10 +308,7 @@ public class SettingsActivity extends Activity {
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			Log.d("asd", "in getView for position " + position);
-
 			if (convertView == null) {
-				Log.d("asd", "convertView turned out to be null ");
 				convertView = mInflater.inflate(
 						R.layout.activity_settings_item, null);
 			}
@@ -388,18 +377,14 @@ public class SettingsActivity extends Activity {
 			int year = 0, month = 0, day = 0;
 
 			if (this.defaultDate != 0) {
-
 				day = (int) (defaultDate % 100);
 				month = (int) ((defaultDate % 10000) / 100);
 				year = (int) (defaultDate / 10000);
-				Log.d("zxc", "Date is >" + year + month + day);
 			} else {
-				// Use the current date as the default date in the picker
 				final Calendar c = Calendar.getInstance();
 				year = c.get(Calendar.YEAR);
 				month = c.get(Calendar.MONTH);
 				day = c.get(Calendar.DAY_OF_MONTH);
-
 			}
 
 			DatePickerDialog dpDialog = new DatePickerDialog(getActivity(),
@@ -410,19 +395,11 @@ public class SettingsActivity extends Activity {
 			cal1.set((int) (minDate / 10000),
 					(int) ((minDate % 10000) / 100) - 1, (int) (minDate % 100));
 
-			Log.d("asd",
-					"Min Date is > " + cal1.getTimeInMillis()
-							+ " where min date is >" + minDate + "   cal1"
-							+ cal1.toString());
 			dp.setMinDate(cal1.getTimeInMillis() - 60 * 60 * 24 * 1000);
 
 			Calendar cal2 = Calendar.getInstance();
 			cal1.set((int) (maxDate / 10000),
 					(int) ((maxDate % 10000) / 100) - 1, (int) (maxDate % 100));
-			Log.d("asd",
-					"Max Date is > " + cal2.getTimeInMillis()
-							+ "  Wjere max date is > " + maxDate + "   cal2"
-							+ cal2.toString());
 
 			dp.setMaxDate(cal2.getTimeInMillis() + 60 * 60 * 24 * 1000);
 
@@ -431,10 +408,6 @@ public class SettingsActivity extends Activity {
 
 		public void onDateSet(DatePicker view, int year, int month, int day) {
 			month++;
-			/*
-			 * String d = null, m = null; d = (day < 10) ? ("0" + day) : ("" +
-			 * day); m = (month < 10) ? ("0" + month) : ("" + month);
-			 */
 			this.setDateI.setDate(year * 10000 + month * 100 + day);
 		}
 	}
@@ -458,7 +431,6 @@ public class SettingsActivity extends Activity {
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
 
 			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-			builder.setTitle("Choose number of Seconds");
 			mNumberPicker = new NumberPicker(getActivity());
 			mNumberPicker.setMinValue(1);
 			mNumberPicker.setMaxValue(5);
@@ -468,13 +440,11 @@ public class SettingsActivity extends Activity {
 			builder.setNeutralButton("Set", new OnClickListener() {
 				@Override
 				public void onClick(DialogInterface arg0, int arg1) {
-					Log.d("asd", "Seconds selected");
 					mNumberPicker.getValue();
 					listener.onValueChange(mNumberPicker, mNumberPicker.getValue(), 0);
 				}
 			});
 			return builder.create();
 		}
-
 	}
 }

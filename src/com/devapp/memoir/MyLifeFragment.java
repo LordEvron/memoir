@@ -12,22 +12,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.ColorFilter;
 import android.graphics.LightingColorFilter;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.media.MediaPlayer.OnVideoSizeChangedListener;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -49,6 +42,9 @@ import android.widget.MediaController;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.VideoView;
+
+import com.devapp.memoir.database.Video;
+import com.devapp.memoir.services.TranscodingService;
 
 public class MyLifeFragment extends Fragment {
 
@@ -86,7 +82,6 @@ public class MyLifeFragment extends Fragment {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		Log.d("asd", "In OnActivity Created");
 		
 		mDateList = (ListView) mRootView.findViewById(R.id.MyLifeDateLV);
 		mMyLifeIV = (ImageView) mRootView.findViewById(R.id.MyLifeIV);
@@ -134,7 +129,6 @@ public class MyLifeFragment extends Fragment {
 		mVv.setOnPreparedListener(new OnPreparedListener() {
 			@Override
 			public void onPrepared(MediaPlayer mp) {
-				Log.d("qwe", "in onPreapraed");
 
 				LinearLayout ll = (LinearLayout) getActivity().findViewById(
 						R.id.MyLifeLL);
@@ -144,9 +138,6 @@ public class MyLifeFragment extends Fragment {
 
 				updateMyLifeViews(R.drawable.play, mMyLifeVideo.thumbnailPath,
 						View.VISIBLE, View.INVISIBLE, View.VISIBLE);
-
-				// mRootView.findViewById(R.id.MyLifePlayIV).setVisibility(
-				// View.VISIBLE);
 
 				mp.setOnVideoSizeChangedListener(new OnVideoSizeChangedListener() {
 					@Override
@@ -166,7 +157,6 @@ public class MyLifeFragment extends Fragment {
 
 			@Override
 			public void onCompletion(MediaPlayer vmp) {
-				Log.d("qwe", "On Completion listener");
 				mMyLifeVideo = MemoirApplication.getMyLifeFile(getActivity()
 						.getApplicationContext());
 				if(mMyLifeVideo != null) {
@@ -192,9 +182,7 @@ public class MyLifeFragment extends Fragment {
 
 			@Override
 			public void onClick(View view) {
-				Log.d("asd", "In setOnClickListener");
 				if (view.getTag() != null) {
-					Log.d("asd", "In setOnClickListener2");
 					updateMyLifeViews(R.drawable.play, null, View.INVISIBLE,
 							View.INVISIBLE, View.INVISIBLE);
 					mVv.start();
@@ -207,7 +195,6 @@ public class MyLifeFragment extends Fragment {
 	public void onStart() {
 		super.onStart();
 
-		// Log.d("qwe", "OnStart of my Fragement");
 		((MemoirApplication) getActivity().getApplication()).getDBA().setStartEndDates();
 		
 		mVideos = ((MemoirApplication) getActivity().getApplication()).getDBA()
@@ -220,53 +207,25 @@ public class MyLifeFragment extends Fragment {
 		mDateAdapter = new MyLifeDateListArrayAdapter(getActivity(), mVideos);
 		mDateList.setAdapter(mDateAdapter);
 
-		// PendingIntent createPendingResult(int requestCode, Intent data, int
-		// flags)
-		/*
-		 * Intent dataIntent = new Intent(); PendingIntent pendingIntent =
-		 * this.getActivity().createPendingResult(0, dataIntent,
-		 * PendingIntent.FLAG_ONE_SHOT); Intent intent = new
-		 * Intent(this.getActivity(), TranscodingService.class); Bundle b = new
-		 * Bundle(); b.putParcelable("pendingIntent", pendingIntent);
-		 * intent.putExtras(b); this.getActivity().startService(intent);
-		 */
-
-		/*
-		 * Intent broadcastReceiverIntent = new Intent(this.getActivity(),
-		 * DataBroadcastReceiver.class); //create pending intent for
-		 * broadcasting the DataBroadcastReceiver PendingIntent pi =
-		 * PendingIntent.getBroadcast(context, 0, broadcastReceiverIntent, 0);
-		 * Bundle bundle = new Bundle(); bundle.putParcelable("receiver", pi);
-		 * //we want to start our service (for handling our time-consuming
-		 * operation) Intent serviceIntent = new Intent(context,
-		 * DataRequestService.class); serviceIntent.putExtras(bundle);
-		 * context.startService(serviceIntent);
-		 */
-		Log.d("asd", "in OnStart here");
 		if (mPrefs.getBoolean("com.devapp.memoir.datachanged", true) == true) {
-			Log.d("asd", "Inside 1st if");
 			mPrefs.edit().putBoolean("com.devapp.memoir.datachanged", false)
 					.commit();
 			refreshLifeTimeVideo();
 		} else {
 			mMyLifeVideo = MemoirApplication.getMyLifeFile(getActivity()
 					.getApplicationContext());
-			Log.d("asd", "In else");
 			if (mMyLifeVideo != null) {
-				Log.d("asd", "In else1");
 				mVv.setVideoPath(mMyLifeVideo.path);
 
-				MediaMetadataRetriever mm = new MediaMetadataRetriever();
+				/*MediaMetadataRetriever mm = new MediaMetadataRetriever();
 				mm.setDataSource(mMyLifeVideo.path);
 				String h = mm
 						.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
 				String w = mm
 						.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
 
-				Log.d("asd", "Video width and height are " + w + "   " + h);
+				Log.d("asd", "Video width and height are " + w + "   " + h);*/
 			} else {
-				Log.d("asd", "In else2");
-
 				updateMyLifeViews(R.drawable.no_video, null, View.VISIBLE,
 						View.INVISIBLE, View.INVISIBLE);
 			}
@@ -275,7 +234,6 @@ public class MyLifeFragment extends Fragment {
 
 	public void refreshLifeTimeVideo() {
 
-		Log.d("asd", "Isnide refreshLifeTimeVideo");
 		updateMyLifeViews(R.drawable.no_video, null, View.INVISIBLE,
 				View.VISIBLE, View.INVISIBLE);
 
@@ -334,14 +292,13 @@ public class MyLifeFragment extends Fragment {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			Log.d("qwe", "OnReceive :) ");
 			if (intent.hasExtra("OutputFileName")) {
 				String outputFile = intent.getStringExtra("OutputFileName");
 
 				if (!outputFile.isEmpty()) {
 					mMyLifeVideo = new Video(context, outputFile);
-					Log.d("asd", "Setting video path here >"
-							+ mMyLifeVideo.path);
+					//Log.d("asd", "Setting video path here >"
+					//		+ mMyLifeVideo.path);
 					mVv.setVideoPath(mMyLifeVideo.path);
 				} else {
 					updateMyLifeViews(R.drawable.no_video, null, View.VISIBLE,
@@ -372,20 +329,13 @@ public class MyLifeFragment extends Fragment {
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			// Log.d("asd", "in getView for position " + position);
-
-			// NOTE: assuming VideoList can never be null here.
 			List<Video> VideoList = this.mList.get(position);
 			String date = MemoirApplication.getDateStringWRTToday(VideoList.get(0).date);
 
 			if (convertView == null) {
-				// Log.d("asd", "convertView turned out to be null ");
-
 				convertView = mInflater.inflate(
 						R.layout.fragment_my_life_list_item, null);
 			} else {
-				// Log.d("asd", "ConvertView exists");
-
 				if (!((TextView) convertView
 						.findViewById(R.id.MyLifeListItemTV)).getText().equals(date)) {
 					/**
@@ -445,21 +395,17 @@ public class MyLifeFragment extends Fragment {
 						playIntent.setDataAndType(
 								Uri.fromFile(new File(v.path)), "video/*");
 						
-						Log.d("asd", "Play Video >" + v.path);
 						getActivity().startActivity(playIntent);
 					}
 				});
 
 				iv.setOnLongClickListener(new View.OnLongClickListener() {
-					// Called when the user long-clicks on someView
 					public boolean onLongClick(View view) {
 						if (mActionMode != null) {
 							return false;
 						}
 					    ((ImageView) view).setColorFilter(new LightingColorFilter(0xFFFFFF, 0x005050));
 					    
-						// Start the CAB using the ActionMode.Callback defined
-						// above
 						mActionMode = getActivity().startActionMode(
 								mActionModeCallback);
 						mSelectedVideoIV = (ImageView) view;

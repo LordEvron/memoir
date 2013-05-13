@@ -25,12 +25,13 @@ public class WelcomeScreen extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_welcome_screen);
-		
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(this);
 		SharedPreferences.Editor editor = prefs.edit();
-        editor.putBoolean("first_time", true);
-        editor.commit();
-        
+		editor.putBoolean("first_time", true);
+		editor.commit();
+
 		page = (ViewFlipper) findViewById(R.id.welcomeVF);
 
 		animFlipInForeward = AnimationUtils.loadAnimation(this, R.anim.flipin);
@@ -43,8 +44,8 @@ public class WelcomeScreen extends Activity {
 		SimpleOnGestureListener simpleOnGestureListener = new SimpleOnGestureListener() {
 
 			@Override
-			public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
-					float velocityY) {
+			public boolean onFling(MotionEvent e1, MotionEvent e2,
+					float velocityX, float velocityY) {
 
 				float sensitvity = 50;
 				if ((e1.getX() - e2.getX()) > sensitvity) {
@@ -52,26 +53,22 @@ public class WelcomeScreen extends Activity {
 				} else if ((e2.getX() - e1.getX()) > sensitvity) {
 					SwipeRight();
 				}
-
 				return true;
 			}
-
 		};
-		
-		gestureDetector = new GestureDetector(this,
-				simpleOnGestureListener);
+
+		gestureDetector = new GestureDetector(this, simpleOnGestureListener);
 
 	}
 
 	@Override
-	public void onBackPressed ()
-	{
-		Intent i = new Intent (WelcomeScreen.this, MainActivity.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		startActivity (i);
+	public void onBackPressed() {
+		Intent i = new Intent(WelcomeScreen.this, MainActivity.class);
+		i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		startActivity(i);
 		finish();
 	}
-	
+
 	private void SwipeRight() {
 		page.setInAnimation(animFlipInBackward);
 		page.setOutAnimation(animFlipOutBackward);
@@ -86,8 +83,6 @@ public class WelcomeScreen extends Activity {
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		// TODO Auto-generated method stub
 		return gestureDetector.onTouchEvent(event);
 	}
-
 }

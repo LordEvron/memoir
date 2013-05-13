@@ -1,4 +1,4 @@
-package com.devapp.memoir;
+package com.devapp.memoir.services;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -10,11 +10,9 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
-import android.media.AudioManager;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.os.IBinder;
@@ -25,9 +23,14 @@ import android.view.SurfaceView;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 
+import com.devapp.memoir.MainActivity;
+import com.devapp.memoir.MemoirApplication;
+import com.devapp.memoir.R;
+import com.devapp.memoir.database.MemoirDBA;
+import com.devapp.memoir.database.Video;
+
 // TODO : Add orientation support right now if the phone is held in right hand the videos would be 180 degree reversed.
 // Remove the camera sound 
-// Add a notification to the user that video is recorded and he can come and see it 
 
 public class SecretCamera extends Service {
 
@@ -45,8 +48,6 @@ public class SecretCamera extends Service {
 		mPrefs = this.getSharedPreferences("com.devapp.memoir",
 				Context.MODE_PRIVATE);
 
-		Log.d("asd", " com.devapp.memoir.shootoncall "  + mPrefs.getBoolean("com.devapp.memoir.shootoncall", true));
-		
 		MemoirDBA dba = ((MemoirApplication) getApplication()).getDBA();
 
 		if (dba.checkVideoInLimit() && !dba.checkIfAnyUserVideo()
@@ -54,8 +55,6 @@ public class SecretCamera extends Service {
 
 			mCamera = getCameraInstance();
 
-			// Create our Preview view and set it as the content of our
-			// activity.
 			mPreview = new CameraPreview(this.getApplicationContext(), mCamera);
 
 			mWindowManager = (WindowManager) this
@@ -83,8 +82,8 @@ public class SecretCamera extends Service {
 		// mCamera.setDisplayOrientation(180);
 		// mCamera.enableShutterSound(false);
 
-		AudioManager mgr = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-		mgr.setStreamMute(AudioManager.STREAM_MUSIC, true);
+		//AudioManager mgr = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+		//mgr.setStreamMute(AudioManager.STREAM_MUSIC, true);
 
 		mMediaRecorder.setPreviewDisplay(mPreview.getHolder().getSurface());
 		mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
@@ -105,7 +104,6 @@ public class SecretCamera extends Service {
 			@Override
 			public void onInfo(MediaRecorder mr, int what, int extra) {
 				if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
-					Log.d("asd", "Calling stop recording :) ");
 					stopRecording();
 				}
 			}
@@ -145,8 +143,8 @@ public class SecretCamera extends Service {
 		releaseMediaRecorder();
 		releaseCamera();
 		mWindowManager.removeView(mPreview);
-		AudioManager mgr = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-		mgr.setStreamMute(AudioManager.STREAM_MUSIC, false);
+		//AudioManager mgr = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+		//mgr.setStreamMute(AudioManager.STREAM_MUSIC, false);
 
 		((MemoirApplication) getApplication()).getDBA().addVideo(mVideo);
 		((MemoirApplication) getApplication()).getDBA().selectVideo(mVideo);
@@ -162,7 +160,6 @@ public class SecretCamera extends Service {
 	}
 
 	public void showNotification(Video v) {
-		Log.d("asd", "showing Notification");
 
 		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(
 				this)
@@ -180,11 +177,8 @@ public class SecretCamera extends Service {
 
 		mBuilder.setContentIntent(resultPendingIntent);
 
-		// Sets an ID for the notification
 		int mNotificationId = 001;
-		// Gets an instance of the NotificationManager service
 		NotificationManager mNotifyMgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-		// Builds the notification and issues it.
 		mNotifyMgr.notify(mNotificationId, mBuilder.build());
 	}
 
@@ -205,14 +199,14 @@ public class SecretCamera extends Service {
 		}
 	}
 
-	private boolean checkCameraHardware(Context context) {
+/*	private boolean checkCameraHardware(Context context) {
 		if (context.getPackageManager().hasSystemFeature(
 				PackageManager.FEATURE_CAMERA)) {
 			return true;
 		} else {
 			return false;
 		}
-	}
+	}*/
 
 	public static Camera getCameraInstance() {
 		Camera c = null;
@@ -238,7 +232,6 @@ public class SecretCamera extends Service {
 		}
 
 		public void surfaceCreated(SurfaceHolder holder) {
-			Log.d("asd", "On surfaceCreated called");
 		}
 
 		public void surfaceDestroyed(SurfaceHolder holder) {
@@ -247,7 +240,6 @@ public class SecretCamera extends Service {
 		public void surfaceChanged(SurfaceHolder holder, int format, int w,
 				int h) {
 
-			Log.d("asd", "On surface changed called");
 			try {
 				if ((mCamera != null) && (previewing == false)) {
 					mCamera.setPreviewDisplay(holder);

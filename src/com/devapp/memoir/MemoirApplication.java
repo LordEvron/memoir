@@ -1,12 +1,7 @@
 package com.devapp.memoir;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -18,22 +13,21 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.MediaStore.MediaColumns;
-import android.support.v4.content.LocalBroadcastManager;
-import android.text.format.DateUtils;
 import android.util.Log;
+
+import com.devapp.memoir.database.MemoirDBA;
+import com.devapp.memoir.database.Video;
 
 public class MemoirApplication extends Application {
 
 	private MemoirDBA mDBA;
 	private static boolean useExternal = true;
 	private SharedPreferences mPrefs = null;
-	public static Object sync = null;
 
 	@Override
 	public void onCreate() {
@@ -60,8 +54,7 @@ public class MemoirApplication extends Application {
 				File f = new File(v.path);
 				f.delete();
 			}
-			Log.d("zxc", "Setting all prefernces to this date" + date);
-		} else {
+		}/* else {
 			Log.d("asd",
 					"com.devapp.memoir.startall > "
 							+ mPrefs.getLong("com.devapp.memoir.startall", 0));
@@ -75,7 +68,7 @@ public class MemoirApplication extends Application {
 			Log.d("asd",
 					"com.devapp.memoir.endselected > "
 							+ mPrefs.getLong("com.devapp.memoir.endselected", 0));
-		}
+		}*/
 
 		this.sendBroadcast(new Intent(
 				"com.devapp.memoir.BootupBroadcastReceiver"));
@@ -140,7 +133,6 @@ public class MemoirApplication extends Application {
 		int ago = 0;
 
 		if (difference >= DAY_IN_MILLIS) {
-			// Find the product
 			ago = (int) (difference / DAY_IN_MILLIS);
 			if(ago <= 10) {
 				daysAgo = String.format("%d days ago", ago);
@@ -182,14 +174,14 @@ public class MemoirApplication extends Application {
 
 	public static String getOutputMediaFile(Context c) {
 
-		boolean mExternalStorageAvailable = false;
-		boolean mExternalStorageWriteable = false;
+		//boolean mExternalStorageAvailable = false;
+		//boolean mExternalStorageWriteable = false;
 
 		if (useExternal) {
 			String state = Environment.getExternalStorageState();
 			if (Environment.MEDIA_MOUNTED.equals(state)) {
 				// We can read and write the media
-				mExternalStorageAvailable = mExternalStorageWriteable = true;
+				//mExternalStorageAvailable = mExternalStorageWriteable = true;
 
 				File mediaStorageDir = new File(
 				// Environment
@@ -211,23 +203,16 @@ public class MemoirApplication extends Application {
 				return fileName;
 
 			} else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-				// We can only read the media
-				mExternalStorageAvailable = true;
-				mExternalStorageWriteable = false;
+				//mExternalStorageAvailable = true;
+				//mExternalStorageWriteable = false;
 			} else {
-				// Something else is wrong. It may be one of many other states,
-				// but all we need
-				// to know is we can neither read nor write
-				mExternalStorageAvailable = mExternalStorageWriteable = false;
+				//mExternalStorageAvailable = mExternalStorageWriteable = false;
 			}
 		} else {
-			Log.d("asd", "getDataDirectory > "
-					+ c.getFilesDir().getAbsolutePath());
 			File mediaStorageDir = new File(c.getFilesDir().getAbsolutePath(),
 					"Memoir");
 			if (!mediaStorageDir.exists()) {
 				if (!mediaStorageDir.mkdirs()) {
-					// Log.d("Memoir", "failed to create directory");
 					return null;
 				}
 			}
@@ -235,7 +220,6 @@ public class MemoirApplication extends Application {
 					.format(new Date());
 			String fileName = mediaStorageDir.getPath() + File.separator
 					+ "VID_" + timeStamp + ".mp4";
-			// Log.d("asd", "FileName is " + fileName);
 			return fileName;
 		}
 
@@ -243,15 +227,14 @@ public class MemoirApplication extends Application {
 	}
 
 	public static String storeThumbnail(Context c, String path) {
-		boolean mExternalStorageAvailable = false;
-		boolean mExternalStorageWriteable = false;
+		//boolean mExternalStorageAvailable = false;
+		//boolean mExternalStorageWriteable = false;
 		String newPath = null;
 
 		if (useExternal) {
 			String state = Environment.getExternalStorageState();
 			if (Environment.MEDIA_MOUNTED.equals(state)) {
-				// We can read and write the media
-				mExternalStorageAvailable = mExternalStorageWriteable = true;
+				//mExternalStorageAvailable = mExternalStorageWriteable = true;
 
 				File mediaStorageDir = new File(
 				// Environment
@@ -270,7 +253,6 @@ public class MemoirApplication extends Application {
 				if (bitmap != null) {
 					try {
 						newPath = path.substring(0, path.length() - 3) + "png";
-						Log.d("asd", newPath);
 						FileOutputStream out = new FileOutputStream(newPath);
 						bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
 					} catch (Exception e) {
@@ -281,23 +263,17 @@ public class MemoirApplication extends Application {
 				return newPath;
 
 			} else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-				// We can only read the media
-				mExternalStorageAvailable = true;
-				mExternalStorageWriteable = false;
+				//mExternalStorageAvailable = true;
+				//mExternalStorageWriteable = false;
 			} else {
-				// Something else is wrong. It may be one of many other states,
-				// but all we need
-				// to know is we can neither read nor write
-				mExternalStorageAvailable = mExternalStorageWriteable = false;
+				//mExternalStorageAvailable = mExternalStorageWriteable = false;
 			}
 		} else {
-			// Log.d("asd", "getDataDirectory > "
-			// + c.getFilesDir().getAbsolutePath());
 			File mediaStorageDir = new File(c.getFilesDir().getAbsolutePath(),
 					"Memoir/.thumbnails");
 			if (!mediaStorageDir.exists()) {
 				if (!mediaStorageDir.mkdirs()) {
-					Log.d("Memoir", "failed to create directory");
+					Log.e("Memoir", "failed to create directory");
 					return null;
 				}
 			}
@@ -317,23 +293,6 @@ public class MemoirApplication extends Application {
 		return null;
 	}
 
-	public static Bitmap getImageBitmap(String url) {
-		Bitmap bm = null;
-		try {
-			URL aURL = new URL(url);
-			URLConnection conn = aURL.openConnection();
-			conn.connect();
-			InputStream is = conn.getInputStream();
-			BufferedInputStream bis = new BufferedInputStream(is);
-			bm = BitmapFactory.decodeStream(bis);
-			bis.close();
-			is.close();
-		} catch (IOException e) {
-			Log.e("asd", "Error getting bitmap", e);
-		}
-		return bm;
-	}
-
 	public static String getFilePathFromContentUri(Uri selectedVideoUri,
 			ContentResolver contentResolver) {
 		String filePath;
@@ -348,5 +307,4 @@ public class MemoirApplication extends Application {
 		cursor.close();
 		return filePath;
 	}
-
 }

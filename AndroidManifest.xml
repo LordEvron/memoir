@@ -21,14 +21,13 @@
         android:name="com.devapp.memoir.MemoirApplication"
         android:allowBackup="true"
         android:icon="@drawable/memoiricon2"
-        android:label="@string/app_name" >
+        android:label="@string/app_name"
+        android:theme="@style/Theme.NoBackground" >
         <activity
             android:name="com.devapp.memoir.Splash"
-            android:label="@string/app_name"
-            android:theme="@android:style/Theme.NoTitleBar" >
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -43,9 +42,9 @@
             android:screenOrientation="landscape" >
         </activity>
 
-        <service android:name="com.devapp.memoir.TranscodingService" >
+        <service android:name="com.devapp.memoir.services.TranscodingService" >
         </service>
-        <service android:name="com.devapp.memoir.SecretCamera" >
+        <service android:name="com.devapp.memoir.services.SecretCamera" >
         </service>
         <service android:name="com.devapp.memoir.RecorderService" >
         </service>

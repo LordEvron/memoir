@@ -1,6 +1,5 @@
-package com.devapp.memoir;
+package com.devapp.memoir.database;
 
-//import java.sql.Date;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -14,7 +13,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
+
+import com.devapp.memoir.MemoirApplication;
 
 public class MemoirDBA {
 
@@ -53,7 +53,7 @@ public class MemoirDBA {
 	public boolean checkVideoInLimit() {
 		return mMDBHelper.checkVideoInLimit();
 	}
-	
+
 	public boolean checkIfAnyUserVideo() {
 		return mMDBHelper.checkIfAnyUserVideo();
 	}
@@ -61,7 +61,7 @@ public class MemoirDBA {
 	public void updateDatabase() {
 		mMDBHelper.updateDatabase();
 	}
-	
+
 	public void setStartEndDates() {
 		mMDBHelper.setStartEndDates();
 	}
@@ -142,14 +142,11 @@ public class MemoirDBA {
 			if (c.moveToFirst()) {
 				while (!c.isAfterLast()) {
 					long date = c.getLong(V_TABLE_DATE_INDEX);
-					// Log.d("asd", "Date of this video is >" + date);
 					if (date != currentDate) {
-						// Log.d("asd", "New video from a new day");
 						currentVideoList = new ArrayList<Video>();
 						dateList.add(currentVideoList);
 						currentDate = date;
 					}
-					// Log.d("asd", "reading video");
 
 					Video v = new Video(
 							c.getInt(V_TABLE_KEY_INDEX),
@@ -196,7 +193,6 @@ public class MemoirDBA {
 
 			// Log.d("asd", "Inserting values Date>" + v.date + "  Path>" +
 			// v.path + "   selected>" + v.selected + "  >length" + v.length);
-
 			return db.insert(VIDEOS_TABLE_NAME, null, values);
 		}
 
@@ -213,28 +209,6 @@ public class MemoirDBA {
 			file = new File(v.path.substring(0, v.path.length() - 3) + "png");
 			file.delete();
 
-			/**
-			 * NOTE: We dont need this here as we are doing it through UI for
-			 * now
-			 * 
-			 * @Swati : Dont delete this for now :p
-			 */
-			/*
-			 * if(v.selected) { int key = 0;
-			 * 
-			 * String selection = V_TABLE_DATE + " = " + v.date; Cursor c =
-			 * db.query(VIDEOS_TABLE_NAME, null, selection, null, null, null,
-			 * null);
-			 * 
-			 * if(c.getCount() > 0) { if (c.moveToFirst()) {
-			 * if(!c.isAfterLast()) { key = c.getInt(V_TABLE_KEY_INDEX); } }
-			 * c.close();
-			 * 
-			 * ContentValues values = new ContentValues();
-			 * values.remove(V_TABLE_SELECTED); values.put(V_TABLE_SELECTED, 1);
-			 * whereClause = V_TABLE_KEY + " = " + key;
-			 * db.update(VIDEOS_TABLE_NAME, values, whereClause, null); } }
-			 */
 			return returnValue;
 		}
 
@@ -270,16 +244,16 @@ public class MemoirDBA {
 			c.close();
 			return false;
 		}
-		
+
 		public boolean checkIfAnyUserVideo() {
 			SQLiteDatabase db = this.getReadableDatabase();
 			SimpleDateFormat ft = new SimpleDateFormat("yyyyMMdd");
 			long d = Long.parseLong(ft.format(new Date()));
 
-			String selection = V_TABLE_DATE + " = " + d + " AND " + V_TABLE_USER_TAKEN + " > 0";
+			String selection = V_TABLE_DATE + " = " + d + " AND "
+					+ V_TABLE_USER_TAKEN + " > 0";
 			Cursor c = db.query(VIDEOS_TABLE_NAME, null, selection, null, null,
 					null, null);
-			Log.d("asd", "Inside checkIfAnyUserVideo count >" + c.getCount());
 			if (c.getCount() > 0) {
 				c.close();
 				return true;
@@ -289,7 +263,6 @@ public class MemoirDBA {
 		}
 
 		public void updateDatabase() {
-			Log.d("asd", "Updating database");
 			SQLiteDatabase db = this.getReadableDatabase();
 			StringBuilder sb = new StringBuilder("1 = 0");
 			String[] columns = { V_TABLE_KEY, V_TABLE_PATH,
@@ -321,13 +294,14 @@ public class MemoirDBA {
 		public void setStartEndDates() {
 			SQLiteDatabase db = this.getReadableDatabase();
 			String[] columns = { V_TABLE_DATE };
-			int endall = 0, startall = 0;
 			String orderBy = V_TABLE_DATE + " DESC";
 			Cursor c = db.query(VIDEOS_TABLE_NAME, columns, null, null, null,
 					null, orderBy);
 			if (c.getCount() > 0) {
 				if (c.moveToFirst()) {
-					mPrefs.edit().putLong("com.devapp.memoir.endall", c.getInt(0)).commit();
+					mPrefs.edit()
+							.putLong("com.devapp.memoir.endall", c.getInt(0))
+							.commit();
 				}
 			}
 			c.close();
@@ -337,12 +311,12 @@ public class MemoirDBA {
 					orderBy);
 			if (c.getCount() > 0) {
 				if (c.moveToFirst()) {
-					mPrefs.edit().putLong("com.devapp.memoir.startall", c.getInt(0)).commit();
+					mPrefs.edit()
+							.putLong("com.devapp.memoir.startall", c.getInt(0))
+							.commit();
 				}
 			}
 			c.close();
-
-			
 		}
 	}
 }

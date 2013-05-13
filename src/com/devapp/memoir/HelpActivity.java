@@ -2,17 +2,12 @@ package com.devapp.memoir;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.AbsListView;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
@@ -116,42 +111,5 @@ public class HelpActivity extends Activity {
 			else 
 				return false;
 		}
-
 	}
 }
-
-/*
- * ((TextView)findViewById(R.id.HelpActivityMTV2)).setOnClickListener(new
- * myClickListener((TextView) findViewById(R.id.HelpActivityTV2)));
- * ((TextView
- * )findViewById(R.id.HelpActivityMTV3)).setOnClickListener(new
- * myClickListener((TextView) findViewById(R.id.HelpActivityTV3)));
- * ((TextView
- * )findViewById(R.id.HelpActivityMTV4)).setOnClickListener(new
- * myClickListener((TextView) findViewById(R.id.HelpActivityTV4)));
- * ((TextView
- * )findViewById(R.id.HelpActivityMTV5)).setOnClickListener(new
- * myClickListener((TextView) findViewById(R.id.HelpActivityTV5)));
- * ((TextView
- * )findViewById(R.id.HelpActivityMTV6)).setOnClickListener(new
- * myClickListener((TextView) findViewById(R.id.HelpActivityTV6)));
- */
-
-/*	public class myClickListener implements View.OnClickListener {
-
-TextView tv = null;
-
-myClickListener(TextView tv) {
-	this.tv = tv;
-}
-
-@Override
-public void onClick(View arg0) {
-	if (this.tv.getVisibility() == View.INVISIBLE) {
-		this.tv.setVisibility(View.VISIBLE);
-	} else {
-		this.tv.setVisibility(View.INVISIBLE);
-	}
-}
-}*/
-

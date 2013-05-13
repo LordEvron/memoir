@@ -17,24 +17,21 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.content.LocalBroadcastManager;
-import android.telephony.PhoneStateListener;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
-import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ShareActionProvider;
 import android.widget.Toast;
+
+import com.devapp.memoir.database.Video;
+import com.devapp.memoir.services.TranscodingService;
 
 public class MainActivity extends Activity {
 	private ShareActionProvider mShareActionProvider;
@@ -43,13 +40,11 @@ public class MainActivity extends Activity {
 	public Video mVideo = null;
 	public SharedPreferences mPrefs = null;
 	public static FrameLayout mPreview = null;
-	public static long mydate = 20130515;
 	TranscodingServiceBroadcastReceiver mDataBroadcastReceiver = null;
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 
-		Log.d("asd", "Inside onCreateOptionsMenu");
 		getMenuInflater().inflate(R.menu.main, menu);
 		mShareActionProvider = (ShareActionProvider) menu.findItem(
 				R.id.action_share_video).getActionProvider();
@@ -78,7 +73,6 @@ public class MainActivity extends Activity {
 			 */
 			return true;
 		case R.id.action_shoot_video:
-			Log.d("asd", "Shoot video selected");
 			if (((MemoirApplication) getApplication()).getDBA()
 					.checkVideoInLimit()) {
 
@@ -87,8 +81,6 @@ public class MainActivity extends Activity {
 				mVideo = new Video(0, d,
 						MemoirApplication.getOutputMediaFile(this), false, 2,
 						true);
-				// mVideo = new Video(0, mydate--,
-				// MemoirApplication.getOutputMediaFile(this), false, 2);
 
 				Intent takeVideoIntent = new Intent(
 						MediaStore.ACTION_VIDEO_CAPTURE);
@@ -101,7 +93,6 @@ public class MainActivity extends Activity {
 						Uri.fromFile(videoFile));
 
 				takeVideoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
-				Log.d("asd", "URI is " + Uri.fromFile(videoFile));
 				startActivityForResult(takeVideoIntent, VIDEO_CAPTURE);
 			} else {
 				Toast.makeText(
@@ -109,26 +100,18 @@ public class MainActivity extends Activity {
 						"More than 5 Videos are not allowed for a day, Please delete some videos to shoot more videos.",
 						Toast.LENGTH_LONG).show();
 			}
-			/*
-			 * intent = new Intent(this, CameraActivity.class);
-			 * intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			 * startActivity(intent);
-			 */
 			return true;
 		case R.id.action_import_video:
-			Log.d("asd", " Import Video selected");
 			intent = new Intent(this, ImportVideoActivity.class);
 			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivityForResult(intent, VIDEO_IMPORT);
 			return true;
 		case R.id.action_settings:
-			Log.d("asd", " Settings selected");
 			intent = new Intent(this, SettingsActivity.class);
 			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(intent);
 			return true;
 		case R.id.action_help:
-			Log.d("asd", " Help selected");
 			intent = new Intent(this, HelpActivity.class);
 			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(intent);
@@ -159,7 +142,6 @@ public class MainActivity extends Activity {
 	public void onStart() {
 		super.onStart();
 
-		Log.d("asd", "In onStart");
 		Video v = MemoirApplication.getMyLifeFile(getApplicationContext());
 		if (v != null && mShareActionProvider != null) {
 			Intent shareIntent = new Intent(Intent.ACTION_SEND);
@@ -175,7 +157,6 @@ public class MainActivity extends Activity {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			Log.d("qwe", "OnReceive2 :) ");
 			if (intent.hasExtra("OutputFileName")) {
 				String outputFile = intent.getStringExtra("OutputFileName");
 
@@ -223,12 +204,11 @@ public class MainActivity extends Activity {
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 
-		Log.d("asd", "onActivityResult");
 		if (requestCode == VIDEO_CAPTURE && resultCode == RESULT_OK) {
 			Uri VideoUri = data.getData();
 
-			Log.d("zxc", "VideoUri.getPath() >" + VideoUri.getPath()
-					+ " mVideo.path>" + mVideo.path + " Video URI >" + VideoUri);
+			//Log.d("zxc", "VideoUri.getPath() >" + VideoUri.getPath()
+			//		+ " mVideo.path>" + mVideo.path + " Video URI >" + VideoUri);
 
 			if (VideoUri.getPath().equals(mVideo.path)) {
 				((MemoirApplication) getApplication()).getDBA()
@@ -254,10 +234,10 @@ public class MainActivity extends Activity {
 						.putLong("com.devapp.memoir.endall", date).commit();
 			}
 		} else if (requestCode == VIDEO_IMPORT && resultCode == RESULT_OK) {
-			Log.d("asd",
-					"video after import is > "
-							+ data.getStringExtra("OutputFileName"));
-			Log.d("asd", "video date is > " + data.getStringExtra("videoDate"));
+			//Log.d("asd",
+			//		"video after import is > "
+			//				+ data.getStringExtra("OutputFileName"));
+			//Log.d("asd", "video date is > " + data.getStringExtra("videoDate"));
 
 			long d = Long.parseLong(data.getStringExtra("videoDate"));
 			mVideo = new Video(0, d, data.getStringExtra("OutputFileName"),
@@ -280,12 +260,10 @@ public class MainActivity extends Activity {
 				+ MemoirApplication.convertDate(mPrefs.getLong("com.devapp.memoir.endselected",0), "Now")
 						.replaceAll("/", "-") + ".mp4";
 
-		Log.d("asd", filePath + "   " + inputFile);
 		try {
 			InputStream in = new FileInputStream(new File(inputFile));
 			OutputStream out = new FileOutputStream(new File(filePath));
 
-			// Transfer bytes from in to out
 			byte[] buf = new byte[1024];
 			int len;
 			while ((len = in.read(buf)) > 0) {
