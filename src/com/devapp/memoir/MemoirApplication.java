@@ -19,6 +19,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.MediaStore.MediaColumns;
@@ -28,17 +29,20 @@ import android.view.Display;
 
 import com.devapp.memoir.database.MemoirDBA;
 import com.devapp.memoir.database.Video;
+import com.devapp.memoir.services.ThumbnailLoader;
 
 public class MemoirApplication extends Application {
 
 	private MemoirDBA mDBA;
-	private static boolean useExternal = true;
+	public static boolean useExternal = true;
 	private SharedPreferences mPrefs = null;
 	public static int mWidth = 0, mHeight = 0;
+	public static ThumbnailLoader mTL = null;
 
 	@Override
 	public void onCreate() {
 		mDBA = new MemoirDBA(getApplicationContext());
+		mTL = ThumbnailLoader.initialize(this, mDBA);
 		mPrefs = this.getSharedPreferences("com.devapp.memoir",
 				Context.MODE_PRIVATE);
 
@@ -153,11 +157,15 @@ public class MemoirApplication extends Application {
 		return daysAgo;
 	}
 
+	public static String convertPath(String path) {
+		return path.substring(0, path.length() - 3) + "png";
+	}
+	
 	public MemoirDBA getDBA() {
 		return mDBA;
 	}
 
-	public static Video getMyLifeFile(Context c) {
+	public Video getMyLifeFile(Context c) {
 		String outputFilename = null;
 
 		if (useExternal) {
@@ -173,10 +181,14 @@ public class MemoirApplication extends Application {
 		File f = new File(outputFilename);
 
 		if (f.exists()) {
-			return new Video(c, outputFilename);
-		} else {
-			return null;
+			Video v = new Video(outputFilename);
+			if(!(new File(convertPath(outputFilename)).exists())) {
+				MemoirApplication.mTL.convertThumbnail(outputFilename);
+			}
+			v.thumbnailPath = convertPath(outputFilename);
+			return v;
 		}
+		return null;
 	}
 
 	public static String getOutputMediaFile(Context c) {
@@ -233,72 +245,22 @@ public class MemoirApplication extends Application {
 		return null;
 	}
 
-	public static String storeThumbnail(Context c, String path) {
-		//boolean mExternalStorageAvailable = false;
-		//boolean mExternalStorageWriteable = false;
-		String newPath = null;
+	public class storeThumbnailTask extends AsyncTask<Void, Void, Void> {
 
-		if (useExternal) {
-			String state = Environment.getExternalStorageState();
-			if (Environment.MEDIA_MOUNTED.equals(state)) {
-				//mExternalStorageAvailable = mExternalStorageWriteable = true;
 
-				File mediaStorageDir = new File(
-				// Environment
-				// .getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES),
-						c.getExternalFilesDir(Environment.DIRECTORY_MOVIES)
-								.getAbsolutePath(), "Memoir/.thumbnails");
-				if (!mediaStorageDir.exists()) {
-					if (!mediaStorageDir.mkdirs()) {
-						// Log.d("Memoir", "failed to create directory");
-						return null;
-					}
-				}
-
-				Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(path,
-						MediaStore.Video.Thumbnails.MINI_KIND);
-				if (bitmap != null) {
-					try {
-						newPath = path.substring(0, path.length() - 3) + "png";
-						FileOutputStream out = new FileOutputStream(newPath);
-						bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-
-				return newPath;
-
-			} else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-				//mExternalStorageAvailable = true;
-				//mExternalStorageWriteable = false;
-			} else {
-				//mExternalStorageAvailable = mExternalStorageWriteable = false;
-			}
-		} else {
-			File mediaStorageDir = new File(c.getFilesDir().getAbsolutePath(),
-					"Memoir/.thumbnails");
-			if (!mediaStorageDir.exists()) {
-				if (!mediaStorageDir.mkdirs()) {
-					Log.e("Memoir", "failed to create directory");
-					return null;
-				}
-			}
-			Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(path,
-					MediaStore.Video.Thumbnails.MINI_KIND);
-			try {
-				newPath = path.substring(0, path.length() - 3) + "png";
-				FileOutputStream out = new FileOutputStream(newPath);
-				bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-
-			return newPath;
+		
+		public void updateDatebaseForThumbnail() {
+			
 		}
 
-		return null;
+		@Override
+		protected Void doInBackground(Void... arg0) {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
+	
+
 
 	public static String getFilePathFromContentUri(Uri selectedVideoUri,
 			ContentResolver contentResolver) {

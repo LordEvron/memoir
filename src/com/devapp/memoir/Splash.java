@@ -42,7 +42,6 @@ public class Splash extends Activity {
 						i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 					}
 					startActivity(i);
-					Log.d("asd", "Calling the start Activity");
 					finish();
 				}
 			}
@@ -73,7 +72,6 @@ public class Splash extends Activity {
 			MemoirDBA dba = arg0[0];
 			dba.getVideos(0, -1, false, PreferenceManager
 					.getDefaultSharedPreferences(Splash.this).getBoolean("com.devapp.memoir.showonlymultiple", false));
-			Log.d("asd", "Done reading videos");
 			return null;
 		}
 	}

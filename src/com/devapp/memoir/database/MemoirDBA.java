@@ -43,15 +43,13 @@ public class MemoirDBA {
 			localED = endDate;
 			localSelected = selected;
 			localShowOnlyMultiple = showOnlyMultiple;
-		} else {
-			Log.d("asd", "Reading videos from cache");
 		}
 		return localVideos;
 	}
 
 	public long addVideo(Video v) {
 		localVideos = null;
-		v.thumbnailPath = MemoirApplication.storeThumbnail(cxt, v.path);
+		MemoirApplication.mTL.loadImage(v.path, null);
 		return mMDBHelper.addVideo(v);
 	}
 
@@ -79,6 +77,10 @@ public class MemoirDBA {
 		mMDBHelper.updateDatabase();
 	}
 
+	public void updateDatabaseForThumbnail(String path, String thumbnailPath) {
+		mMDBHelper.updateDatabaseForThumbnail(path, thumbnailPath);
+	}
+	
 	public void setStartEndDates() {
 		mMDBHelper.setStartEndDates();
 	}
@@ -334,6 +336,24 @@ public class MemoirDBA {
 				}
 			}
 			c.close();
+			
+			if(mPrefs.getLong("com.devapp.memoir.endselected", 0) > mPrefs.getLong("com.devapp.memoir.endall", 0)) {
+				mPrefs.edit().putLong("com.devapp.memoir.endselected", mPrefs.getLong("com.devapp.memoir.endall", 0)).commit();
+			}
+			
+			if(mPrefs.getLong("com.devapp.memoir.startselected", 0) < mPrefs.getLong("com.devapp.memoir.startall", 0)) {
+				mPrefs.edit().putLong("com.devapp.memoir.startselected", mPrefs.getLong("com.devapp.memoir.startall", 0)).commit();
+			}
+			
 		}
+		
+		public void updateDatabaseForThumbnail(String path, String thumbnailPath) {
+			SQLiteDatabase db = this.getWritableDatabase();
+			ContentValues values = new ContentValues();
+			values.put(V_TABLE_THUMBNAIL_PATH, thumbnailPath);
+			String whereClause = V_TABLE_PATH + " = '" + path + "'";
+			db.update(VIDEOS_TABLE_NAME, values, whereClause, null);
+		}
+
 	}
 }

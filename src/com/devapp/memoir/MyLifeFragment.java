@@ -62,7 +62,6 @@ public class MyLifeFragment extends Fragment {
 
 	public int mTransparent = 0;
 	public Video mMyLifeVideo = null;
-//	public int mHeight = 0, mWidth = 0;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -80,7 +79,6 @@ public class MyLifeFragment extends Fragment {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		Log.d("asd", "At the start of onActivityCreated");
 		
 		Activity activity = this.getActivity();
 		mDateList = (ListView) activity.findViewById(R.id.MyLifeDateLV);
@@ -102,15 +100,15 @@ public class MyLifeFragment extends Fragment {
 		mVv.setOnPreparedListener(new OnPreparedListener() {
 			@Override
 			public void onPrepared(MediaPlayer mp) {
-				Log.d("asd", "OnPrepared called");
-				LinearLayout ll = (LinearLayout) getActivity().findViewById(
-						R.id.MyLifeLL);
-				ll.setLayoutParams(new FrameLayout.LayoutParams(mVv.getWidth(),
-						mVv.getHeight() - 155));
-				mMc.setAnchorView(ll);
-
-				updateMyLifeViews(R.drawable.play, mMyLifeVideo.thumbnailPath,
-						View.VISIBLE, View.INVISIBLE, View.VISIBLE);
+				if(mMyLifeVideo != null) {
+					LinearLayout ll = (LinearLayout) getActivity().findViewById(
+							R.id.MyLifeLL);
+					ll.setLayoutParams(new FrameLayout.LayoutParams(mVv.getWidth(),
+							mVv.getHeight() - 155));
+					mMc.setAnchorView(ll);
+					updateMyLifeViews(R.drawable.play, mMyLifeVideo.thumbnailPath,
+							View.VISIBLE, View.INVISIBLE, View.VISIBLE);
+				}
 
 /*				mp.setOnVideoSizeChangedListener(new OnVideoSizeChangedListener() {
 					@Override
@@ -131,8 +129,11 @@ public class MyLifeFragment extends Fragment {
 
 			@Override
 			public void onCompletion(MediaPlayer vmp) {
-				mMyLifeVideo = MemoirApplication.getMyLifeFile(getActivity()
+				mMyLifeVideo = ((MemoirApplication)getActivity()
+						.getApplication()).getMyLifeFile(getActivity()
 						.getApplicationContext());
+//				mMyLifeVideo = MemoirApplication.getMyLifeFile(getActivity()
+//						.getApplicationContext());
 				if(mMyLifeVideo != null) {
 					updateMyLifeViews(R.drawable.play, mMyLifeVideo.thumbnailPath,
 							View.VISIBLE, View.INVISIBLE, View.VISIBLE);
@@ -163,13 +164,11 @@ public class MyLifeFragment extends Fragment {
 				}
 			}
 		});
-		Log.d("asd", "At the end of onActivityCreated");
 	}
 
 	@Override
 	public void onStart() {
 		super.onStart();
-		Log.d("asd", "OnStart Called");
 
 		((MemoirApplication) getActivity().getApplication()).getDBA().setStartEndDates();
 		
@@ -194,6 +193,7 @@ public class MyLifeFragment extends Fragment {
 		intent.putExtra("startDate", mPrefs.getLong("com.devapp.memoir.startselected", 0));
 		intent.putExtra("endDate", mPrefs.getLong("com.devapp.memoir.endselected", 0));
 		getActivity().startService(intent);
+		mMyLifeVideo = null;
 	}
 
 	@Override
@@ -211,7 +211,7 @@ public class MyLifeFragment extends Fragment {
 					.commit();
 			refreshLifeTimeVideo();
 		} else {
-			mMyLifeVideo = MemoirApplication.getMyLifeFile(getActivity()
+			mMyLifeVideo = ((MemoirApplication)getActivity().getApplication()).getMyLifeFile(getActivity()
 					.getApplicationContext());
 			if (mMyLifeVideo != null) {
 				mVv.setVideoPath(mMyLifeVideo.path);
@@ -263,7 +263,9 @@ public class MyLifeFragment extends Fragment {
 				String outputFile = intent.getStringExtra("OutputFileName");
 
 				if (!outputFile.isEmpty()) {
-					mMyLifeVideo = new Video(context, outputFile);
+					mMyLifeVideo = ((MemoirApplication)getActivity().getApplication()).getMyLifeFile(getActivity()
+							.getApplicationContext());
+					
 					//Log.d("asd", "Setting video path here >"
 					//		+ mMyLifeVideo.path);
 					mVv.setVideoPath(mMyLifeVideo.path);
@@ -347,7 +349,11 @@ public class MyLifeFragment extends Fragment {
 				mLinearLayout.addView(FL);
 
 				ImageView iv = (ImageView) FL.findViewById(R.id.imageView1);
-				iv.setImageBitmap(BitmapFactory.decodeFile(v.thumbnailPath));
+				if(v.thumbnailPath != null) {
+					iv.setImageBitmap(BitmapFactory.decodeFile(v.thumbnailPath));
+				} else {
+					MemoirApplication.mTL.loadImage(v.path, iv);
+				}
 				iv.setTag(v);
 				if (v.selected) {
 					iv.setBackgroundColor(getResources().getColor(

@@ -50,7 +50,7 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 	private ImageView mImageViewPlay = null;
 	private SeekBar mSeekBar = null;
 	private float mdistanceToTimeRatio = 0, mDuration = 0;
-	private int mHeight = 0, mWidth = 0, mVideoWidth = 0, mVideoHeight = 0;
+	private int mVideoWidth = 0, mVideoHeight = 0;
 	private int mPosition = 0;
 	private String mPath = null, mVideoDate = null;
 	private static int VIDEO_IMPORT_FROM_GALLERY = 0;
@@ -58,49 +58,23 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 	private MediaMetadataRetriever mMediaRetriever = null;
 	private SharedPreferences mPrefs = null;
 
-	@SuppressLint("NewApi")
-	private void getDisplay() {
-		/** Note : For getting the height and width of the screen */
-		if (android.os.Build.VERSION.SDK_INT >= 14
-				&& android.os.Build.VERSION.SDK_INT <= 16) {
-			Display display = this.getWindowManager().getDefaultDisplay();
-			try {
-				Method mGetRawH = Display.class.getMethod("getRawHeight");
-				Method mGetRawW = Display.class.getMethod("getRawWidth");
-				mWidth = (Integer) mGetRawW.invoke(display);
-				mHeight = (Integer) mGetRawH.invoke(display);
-			} catch (NoSuchMethodException e) {
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				e.printStackTrace();
-			}
-		} else {
-			Display display = this.getWindowManager().getDefaultDisplay();
-			DisplayMetrics outMetrics = new DisplayMetrics();
-			display.getRealMetrics(outMetrics);
-			mHeight = outMetrics.heightPixels;
-			mWidth = outMetrics.widthPixels;
-		}
-	}
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Log.d("asd", "Start of onCreate");
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		mPrefs = this.getSharedPreferences("com.devapp.memoir",
 				Context.MODE_PRIVATE);
-		getDisplay();
+		Log.d("asd", "End of onCreate");
 	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
+		Log.d("asd", "Start of onActivityResult");
+
 		if (requestCode == VIDEO_IMPORT_FROM_GALLERY && resultCode == RESULT_OK) {
 			Uri selectedVideoLocation = data.getData();
 			mPath = MemoirApplication.getFilePathFromContentUri(
@@ -135,22 +109,24 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 			//		+ "  (mHeight*1/6)> " + (mHeight * 1 / 6)
 			//		+ "  (mWidth*5/6)" + (mWidth * 5 / 6));
 			mFrameLayoutVV.setLayoutParams(new LinearLayout.LayoutParams(
-					LayoutParams.MATCH_PARENT, (int) (mHeight * 5 / 6)));
+					LayoutParams.MATCH_PARENT, (int) (MemoirApplication.mWidth * 5 / 6)));
 			mRelativeLayoutScroll
 					.setLayoutParams(new LinearLayout.LayoutParams(
-							LayoutParams.MATCH_PARENT, (int) (mHeight * 1 / 6)));
+							LayoutParams.MATCH_PARENT, (int) (MemoirApplication.mWidth * 1 / 6)));
 			mVideoView.setLayoutParams(new FrameLayout.LayoutParams(
-					(int) (mWidth * 5 / 6), LayoutParams.MATCH_PARENT,
+					(int) (MemoirApplication.mHeight * 5 / 6), LayoutParams.MATCH_PARENT,
 					Gravity.CENTER));
 		} else {
 			mPath = null;
 			finish();
 		}
+		Log.d("asd", "End of onActivityResult");
 	}
 
 	@Override
 	protected void onStart() {
 		super.onStart();
+		Log.d("asd", "Start of onStart");
 		if (mPath == null) {
 			Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
 			intent.setType("video/*");
@@ -266,11 +242,13 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 						}
 					});
 		}
+		Log.d("asd", "end of onStart");
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
+		Log.d("asd", "start of onResume");
 
 		if (mDataBroadcastReceiver == null)
 			mDataBroadcastReceiver = new TranscodingServiceBroadcastReceiver();
@@ -279,10 +257,12 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 				TranscodingService.ActionTrimVideo);
 		LocalBroadcastManager.getInstance(this).registerReceiver(
 				mDataBroadcastReceiver, intentFilter);
+		Log.d("asd", "end of onResume");
 	}
 
 	@Override
 	public void onPrepared(MediaPlayer arg0) {
+		Log.d("asd", "start of onPrepared");
 
 		int containerImageHeight = mLinearLayoutContainer.getHeight();
 		int containerImageWidth = containerImageHeight * mVideoWidth
@@ -340,6 +320,7 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 				(int) (noOfFrames * containerImageWidth),
 				LayoutParams.MATCH_PARENT));
 		mSeekBar.setMax((int) Math.floor(mDuration * 10));
+		Log.d("asd", "end of onPrepared");
 	}
 
 	@Override

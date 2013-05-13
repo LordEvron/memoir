@@ -39,17 +39,14 @@
         </activity>
         <activity
             android:name="com.devapp.memoir.SettingsActivity"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" 
             android:label="@string/title_activity_settings" >
         </activity>
         <activity
             android:name="com.devapp.memoir.HelpActivity"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" 
             android:label="@string/activity_help" >
         </activity>
         <activity
             android:name="com.devapp.memoir.ImportVideoActivity"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" 
             android:screenOrientation="landscape" >
         </activity>
 

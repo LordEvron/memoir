@@ -18,6 +18,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -45,20 +46,11 @@ public class MainActivity extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 
-		Log.d("asd", "Oncreate options Meny start");
 		getMenuInflater().inflate(R.menu.main, menu);
 		mShareActionProvider = (ShareActionProvider) menu.findItem(
 				R.id.action_share_video).getActionProvider();
 
-		Video v = MemoirApplication.getMyLifeFile(getApplicationContext());
-		if (v != null) {
-			Intent shareIntent = new Intent(Intent.ACTION_SEND);
-			shareIntent.setType("video/mp4");
-			shareIntent.putExtra(Intent.EXTRA_STREAM,
-					Uri.fromFile(new File(copy(v.path))));
-			mShareActionProvider.setShareIntent(shareIntent);
-		}
-		Log.d("asd", "Oncreate options Meny end");
+		new shareActionProviderTask().execute();
 		return true;
 //		return super.onCreateOptionsMenu(menu);
 	}
@@ -127,7 +119,6 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
@@ -144,16 +135,9 @@ public class MainActivity extends Activity {
 	@Override
 	public void onStart() {
 		super.onStart();
-		Log.d("asd", "In onStart of activity");
-		Video v = MemoirApplication.getMyLifeFile(getApplicationContext());
-		if (v != null && mShareActionProvider != null) {
-			Intent shareIntent = new Intent(Intent.ACTION_SEND);
-			shareIntent.setType("video/mp4");
-			shareIntent.putExtra(Intent.EXTRA_STREAM,
-					Uri.fromFile(new File(copy(v.path))));
-			mShareActionProvider.setShareIntent(shareIntent);
-		}
-		Log.d("asd", "at end of onStart of activity");
+//		if(mShareActionProvider != null) {
+//			new shareActionProviderTask().execute();
+//		}
 	}
 
 	public class TranscodingServiceBroadcastReceiver extends BroadcastReceiver {
@@ -164,13 +148,8 @@ public class MainActivity extends Activity {
 				String outputFile = intent.getStringExtra("OutputFileName");
 
 				if (!outputFile.isEmpty()) {
-					Video v = new Video(context, outputFile);
-					if (v != null && mShareActionProvider != null) {
-						Intent shareIntent = new Intent(Intent.ACTION_SEND);
-						shareIntent.setType("video/mp4");
-						shareIntent.putExtra(Intent.EXTRA_STREAM,
-								Uri.fromFile(new File(copy(v.path))));
-						mShareActionProvider.setShareIntent(shareIntent);
+					if(mShareActionProvider != null) {
+						new shareActionProviderTask().execute();
 					}
 				}
 			}
@@ -222,7 +201,8 @@ public class MainActivity extends Activity {
 				SimpleDateFormat ft = new SimpleDateFormat("yyyyMMdd");
 				long date = Long.parseLong(ft.format(new Date()));
 				mPrefs.edit().putBoolean("com.devapp.memoir.datachanged", true)
-						.putLong("com.devapp.memoir.endall", date).commit();
+						.putLong("com.devapp.memoir.endall", date)
+						.putLong("com.devapp.memoir.endselected", date).commit();
 
 			} else if (MemoirApplication.getFilePathFromContentUri(VideoUri,
 					getContentResolver()).equals(mVideo.path)) {
@@ -234,7 +214,8 @@ public class MainActivity extends Activity {
 				SimpleDateFormat ft = new SimpleDateFormat("yyyyMMdd");
 				long date = Long.parseLong(ft.format(new Date()));
 				mPrefs.edit().putBoolean("com.devapp.memoir.datachanged", true)
-						.putLong("com.devapp.memoir.endall", date).commit();
+						.putLong("com.devapp.memoir.endall", date)
+						.putLong("com.devapp.memoir.endselected", date).commit();
 			}
 		} else if (requestCode == VIDEO_IMPORT && resultCode == RESULT_OK) {
 			//Log.d("asd",
@@ -251,34 +232,58 @@ public class MainActivity extends Activity {
 		}
 	}
 
-	public String copy(String inputFile) {
+	public class shareActionProviderTask extends AsyncTask<Void, Void, String> {
 
-		String filePath = this
-				.getExternalFilesDir(Environment.DIRECTORY_MOVIES)
-				.getAbsolutePath()
-				+ "/Memoir-"
-				+ MemoirApplication.convertDate(mPrefs.getLong("com.devapp.memoir.startselected",0), "Day 1")
-						.replaceAll("/", "-")
-				+ "-"
-				+ MemoirApplication.convertDate(mPrefs.getLong("com.devapp.memoir.endselected",0), "Now")
-						.replaceAll("/", "-") + ".mp4";
+		public String copy(String inputFile) {
+			String filePath = getApplicationContext()
+					.getExternalFilesDir(Environment.DIRECTORY_MOVIES)
+					.getAbsolutePath()
+					+ "/Memoir-"
+					+ MemoirApplication.convertDate(mPrefs.getLong("com.devapp.memoir.startselected",0), "Day 1")
+							.replaceAll("/", "-")
+					+ "-"
+					+ MemoirApplication.convertDate(mPrefs.getLong("com.devapp.memoir.endselected",0), "Now")
+							.replaceAll("/", "-") + ".mp4";
 
-		try {
-			InputStream in = new FileInputStream(new File(inputFile));
-			OutputStream out = new FileOutputStream(new File(filePath));
+			try {
+				InputStream in = new FileInputStream(new File(inputFile));
+				OutputStream out = new FileOutputStream(new File(filePath));
 
-			byte[] buf = new byte[1024];
-			int len;
-			while ((len = in.read(buf)) > 0) {
-				out.write(buf, 0, len);
+				byte[] buf = new byte[1024];
+				int len;
+				while ((len = in.read(buf)) > 0) {
+					out.write(buf, 0, len);
+				}
+				in.close();
+				out.close();
+			} catch (IOException e) {
+				Log.e("asd", "Exception While Copying" );
+				e.printStackTrace();
 			}
-			in.close();
-			out.close();
-		} catch (IOException e) {
-			Log.e("asd", "Exception While Copying");
-			e.getStackTrace();
+			return filePath;
 		}
+		
+		@Override
+		protected String doInBackground(Void... arg0) {
 
-		return filePath;
+			Video v = ((MemoirApplication)getApplication()).getMyLifeFile(getApplicationContext());
+			
+			if (v != null) {
+				return copy(v.path);
+			}
+			return null;
+		}
+		
+		@Override
+		protected void onPostExecute(String result) {
+			if(mShareActionProvider != null) {
+				Intent shareIntent = new Intent(Intent.ACTION_SEND);
+				shareIntent.setType("video/mp4");
+				shareIntent.putExtra(Intent.EXTRA_STREAM,
+						Uri.fromFile(new File(result)));
+				mShareActionProvider.setShareIntent(shareIntent);
+			}
+			super.onPostExecute(result);
+		}
 	}
 }

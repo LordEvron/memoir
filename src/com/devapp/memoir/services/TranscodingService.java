@@ -82,13 +82,19 @@ public class TranscodingService extends IntentService {
 	
 	public void createMyLife(Intent intent) {
 
+		String myLifePath = null;
 		long startDate, endDate;
 		startDate = intent.getLongExtra("startDate", 0);
 		endDate = intent.getLongExtra("endDate", -1);
 		Intent broadcastIntent = new Intent(TranscodingService.ActionCreateMyLife);
 
-		File file = new File(getExternalFilesDir(Environment.DIRECTORY_MOVIES).getAbsolutePath(), "/Memoir/MyLife.mp4");
+		myLifePath = getExternalFilesDir(Environment.DIRECTORY_MOVIES).getAbsolutePath() + "/Memoir/MyLife.mp4";
+
+		File file = new File(MemoirApplication.convertPath(myLifePath));
 		boolean deleted = file.exists() ? file.delete() : false;
+		file = new File(myLifePath);
+		deleted = file.exists() ? file.delete() : false;
+
 		//Log.e("asd", "Memoir file deleted ? " + deleted);
 		
 		List<List<Video>> dateList = ((MemoirApplication) getApplication())
@@ -159,9 +165,10 @@ public class TranscodingService extends IntentService {
 			Log.d("asd", "In IO EXCEPTION " + e);
 			e.printStackTrace();
 		}
+		
+		MemoirApplication.mTL.convertThumbnail(myLifePath);
 
-		broadcastIntent.putExtra("OutputFileName", getExternalFilesDir(Environment.DIRECTORY_MOVIES).getAbsolutePath()
-				+ "/Memoir/MyLife.mp4");
+		broadcastIntent.putExtra("OutputFileName", myLifePath);
 		LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
 	}
 	

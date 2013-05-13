@@ -32,8 +32,7 @@ public class Video {
 		this.userTaken = userTaken;
 	}
 	
-	public Video(Context c, String p) {
+	public Video(String p) {
 		this.path = p;
-		this.thumbnailPath = MemoirApplication.storeThumbnail(c, p);
 	}
 }
