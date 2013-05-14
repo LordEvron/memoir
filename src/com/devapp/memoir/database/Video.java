@@ -1,8 +1,6 @@
 package com.devapp.memoir.database;
 
-import android.content.Context;
-
-import com.devapp.memoir.MemoirApplication;
+import android.util.Log;
 
 public class Video {
 	public int key;

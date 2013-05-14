@@ -286,9 +286,9 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 		int i = 0;
 		for (i = 0; i < noOfFrames; i++) {
 			ImageView iv = new ImageView(this);
+			mLinearLayoutContainer.addView(iv, params);
 			new getFrameTask().executeOnExecutor(
 					AsyncTask.THREAD_POOL_EXECUTOR,(new FrameIVStruct(Math.round(i * secondInterval * 1000000), iv)));
-			mLinearLayoutContainer.addView(iv, 0, params);
 		}
 
 		mLinearLayoutContainer.setLayoutParams(new FrameLayout.LayoutParams(

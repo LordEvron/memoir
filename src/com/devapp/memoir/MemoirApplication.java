@@ -1,12 +1,12 @@
 package com.devapp.memoir;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -16,15 +16,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.provider.MediaStore.MediaColumns;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Display;
 
 import com.devapp.memoir.database.MemoirDBA;
@@ -146,10 +142,12 @@ public class MemoirApplication extends Application {
 		if (difference >= DAY_IN_MILLIS) {
 			ago = (int) (difference / DAY_IN_MILLIS);
 			if(ago <= 10) {
-				daysAgo = String.format("%d days ago", ago);
+				daysAgo = String.format(Locale.ENGLISH, "%d days ago", ago);
 			} else {
-				daysAgo = String.format("%d %s %d", day , getMonth(month), year);
+				daysAgo = String.format(Locale.ENGLISH, "%d %s %d", day , getMonth(month), year);
 			}
+		} else if(difference < 0) {
+			daysAgo = String.format(Locale.ENGLISH, "In Future - %d %s %d", day , getMonth(month), year);
 		} else {
 			daysAgo = String.format("Today");
 		}

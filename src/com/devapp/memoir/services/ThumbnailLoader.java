@@ -56,7 +56,9 @@ public class ThumbnailLoader {
 			return;
 		}
 
+		//Log.d("asd", "For Image URL " + imageUrl + " and imageView >" + imageView.toString());
 		if (imageCache.containsKey(imageUrl) == true) {
+			//Log.d("asd", "Found it in cache");
 			imageObject iO = imageCache.get(imageUrl);
 			if (iO != null && iO.imageBitmap != null) {
 
@@ -94,16 +96,18 @@ public class ThumbnailLoader {
 
 		if (f.exists()) {
 
+			//Log.d("asd", "png exists .. reading manually");
 			imageObject iO1 = new imageObject();
 			iO1 = new imageObject();
 			iO1.imageUrl = imageUrl;
 
 			iO1.imageViews = new ConcurrentLinkedQueue<ImageView>();
 
-			if (imageView != null) {
-				iO1.imageViews.add(imageView);
-			}
 			iO1.imageBitmap = BitmapFactory.decodeFile(MemoirApplication.convertPath(imageUrl));
+
+			if (imageView != null) {
+				imageView.setImageBitmap(iO1.imageBitmap);
+			}
 
 			synchronized (getClass()) {
 				imageCache.put(imageUrl, iO1);
@@ -127,6 +131,7 @@ public class ThumbnailLoader {
 		}
 
 		fastQueue.add(iO1);
+		//Log.d("asd", "sending request to create png");
 
 		synchronized (mTaskLock) {
 			if (mTaskCounter < 5) {
@@ -138,8 +143,10 @@ public class ThumbnailLoader {
 	}
 
 	public Bitmap convertThumbnail(String path) {
+//		Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(path,
+//				MediaStore.Video.Thumbnails.MINI_KIND);
 		Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(path,
-				MediaStore.Video.Thumbnails.MINI_KIND);
+				MediaStore.Video.Thumbnails.MICRO_KIND);
 		if (bitmap != null) {
 			try {
 				FileOutputStream out = new FileOutputStream(

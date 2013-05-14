@@ -44,6 +44,7 @@ import android.widget.ListView;
 import android.widget.MediaController;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.devapp.memoir.database.Video;
@@ -51,11 +52,8 @@ import com.devapp.memoir.services.TranscodingService;
 
 public class MyLifeFragment extends Fragment {
 
-	ListView mDateList = null;
 	MyLifeDateListArrayAdapter mDateAdapter = null;
-	List<List<Video>> mVideos = null;
-	MediaController mMc = null;
-	VideoView mVv = null;
+
 	TranscodingServiceBroadcastReceiver mDataBroadcastReceiver = null;
 	private SharedPreferences mPrefs = null;
 	public ImageView mMyLifeIV = null;
@@ -83,21 +81,24 @@ public class MyLifeFragment extends Fragment {
 		super.onActivityCreated(savedInstanceState);
 
 		Activity activity = this.getActivity();
-		mDateList = (ListView) activity.findViewById(R.id.MyLifeDateLV);
+
 		mMyLifeIV = (ImageView) activity.findViewById(R.id.MyLifeIV);
 		mMyLifePB = (ProgressBar) activity.findViewById(R.id.MyLifePB);
 		mMyLifeTV = (TextView) activity.findViewById(R.id.MyLifeTV);
 		// mTransparent = getResources().getColor(android.R.color.transparent);
 		mTransparent = getResources().getColor(android.R.color.black);
 
+		if(MemoirApplication.mWidth == 0 || MemoirApplication.mHeight == 0) {
+			MemoirApplication.setDisplayMatrix(getActivity());
+		}
 		((FrameLayout) activity.findViewById(R.id.MyLifeFL))
 				.setLayoutParams(new LinearLayout.LayoutParams(
 						MemoirApplication.mWidth,
 						(int) (MemoirApplication.mWidth
 								* MemoirApplication.mWidth / MemoirApplication.mHeight)));
 
-		mVv = (VideoView) activity.findViewById(R.id.MyLifeVV);
-		mMc = new MediaController(getActivity());
+		final VideoView mVv = (VideoView) activity.findViewById(R.id.MyLifeVV);
+		final MediaController mMc = new MediaController(getActivity());
 		mVv.setMediaController(mMc);
 		mVv.requestFocus();
 
@@ -179,7 +180,7 @@ public class MyLifeFragment extends Fragment {
 		((MemoirApplication) getActivity().getApplication()).getDBA()
 				.setStartEndDates();
 
-		mVideos = ((MemoirApplication) getActivity().getApplication()).getDBA()
+		List<List<Video>> mVideos = ((MemoirApplication) getActivity().getApplication()).getDBA()
 				.getVideos(
 						0,
 						-1,
@@ -187,6 +188,7 @@ public class MyLifeFragment extends Fragment {
 						mPrefs.getBoolean("com.devapp.memoir.showonlymultiple",
 								false));
 		mDateAdapter = new MyLifeDateListArrayAdapter(getActivity(), mVideos);
+		ListView mDateList = (ListView) getActivity().findViewById(R.id.MyLifeDateLV);
 		mDateList.setAdapter(mDateAdapter);
 	}
 
@@ -224,7 +226,8 @@ public class MyLifeFragment extends Fragment {
 			mMyLifeVideo = ((MemoirApplication) getActivity().getApplication())
 					.getMyLifeFile(getActivity().getApplicationContext());
 			if (mMyLifeVideo != null) {
-				mVv.setVideoPath(mMyLifeVideo.path);
+				((VideoView) getActivity().findViewById(R.id.MyLifeVV)).setVideoPath(mMyLifeVideo.path);
+				//mVv.setVideoPath(mMyLifeVideo.path);
 			} else {
 				updateMyLifeViews(R.drawable.no_video, null, View.VISIBLE,
 						View.INVISIBLE, View.INVISIBLE);
@@ -283,8 +286,17 @@ public class MyLifeFragment extends Fragment {
 
 					// Log.d("asd", "Setting video path here >"
 					// + mMyLifeVideo.path);
-					mVv.setVideoPath(mMyLifeVideo.path);
+					if(mMyLifeVideo != null) {
+						((VideoView) getActivity().findViewById(R.id.MyLifeVV)).setVideoPath(mMyLifeVideo.path);
+//						mVv.setVideoPath(mMyLifeVideo.path);
+					}
 				} else {
+					if(intent.hasExtra("Error")) {
+						Toast.makeText(
+								getActivity(),
+								intent.getStringExtra("Error"), Toast.LENGTH_LONG).show();
+
+					}
 					updateMyLifeViews(R.drawable.no_video, null, View.VISIBLE,
 							View.INVISIBLE, View.INVISIBLE);
 				}
@@ -374,6 +386,7 @@ public class MyLifeFragment extends Fragment {
 						R.layout.fragment_my_life_video_item, null);
 				mLinearLayout.addView(iv, this.params);
 
+				//Log.d("asd", "Adding ImageView with URL >" + v.path + " IV>" + iv.toString());
 				MemoirApplication.mTL.loadImage(v.path, iv);
 
 				/*
@@ -478,39 +491,49 @@ public class MyLifeFragment extends Fragment {
 						((MemoirApplication) getActivity().getApplication())
 								.getDBA().deleteVideo(mSelectedVideo);
 
+						List<Video> videoListRef = null;
+						Video videoRef = null;
 						for (List<Video> videoList : mList) {
 							if (videoList.get(0).date == mSelectedVideo.date) {
+								videoListRef = videoList;
+								videoRef = null;
 								for (Video v : videoList) {
 									if (v.path.equals(mSelectedVideo.path)) {
-										videoList.remove(v);
-										if (mSelectedVideo.selected
-												&& !videoList.isEmpty()) {
-											Video tmpV = videoList.get(0);
-											tmpV.selected = true;
-											((MemoirApplication) getActivity()
-													.getApplication()).getDBA()
-													.selectVideo(tmpV);
-
-											/**
-											 * NOTE: Function call to refresh
-											 * the LifeTime Video
-											 */
-											refreshLifeTimeVideo();
-										} else if (videoList.isEmpty()) {
-											mList.remove(videoList);
-
-											/**
-											 * NOTE: Function call to refresh
-											 * the LifeTime Video
-											 */
-											refreshLifeTimeVideo();
-										}
+										videoRef = v;
 										break;
 									}
 								}
+								if(videoRef != null)
+									break;
 							}
 						}
+									
+						if(videoRef != null) {
+							videoListRef.remove(videoRef);
+							if (mSelectedVideo.selected
+									&& !videoListRef.isEmpty()) {
+								Video tmpV = videoListRef.get(0);
+								tmpV.selected = true;
+								((MemoirApplication) getActivity()
+										.getApplication()).getDBA()
+										.selectVideo(tmpV);
 
+								/**
+								 * NOTE: Function call to refresh
+								 * the LifeTime Video
+								 */
+								refreshLifeTimeVideo();
+							} else if (videoListRef.isEmpty()) {
+								mList.remove(videoListRef);
+
+								/**
+								 * NOTE: Function call to refresh
+								 * the LifeTime Video
+								 */
+								refreshLifeTimeVideo();
+							}
+						}
+						
 						LinearLayout container = (LinearLayout) mSelectedVideoIV
 								.getParent().getParent().getParent();
 						container.setTag("dirty");

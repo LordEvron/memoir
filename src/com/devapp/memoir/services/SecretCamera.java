@@ -10,12 +10,18 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaRecorder;
+import android.media.ThumbnailUtils;
+import android.os.Handler;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -26,6 +32,8 @@ import android.view.WindowManager;
 import com.devapp.memoir.MainActivity;
 import com.devapp.memoir.MemoirApplication;
 import com.devapp.memoir.R;
+import com.devapp.memoir.Splash;
+import com.devapp.memoir.WelcomeScreen;
 import com.devapp.memoir.database.MemoirDBA;
 import com.devapp.memoir.database.Video;
 
@@ -50,6 +58,7 @@ public class SecretCamera extends Service {
 
 		MemoirDBA dba = ((MemoirApplication) getApplication()).getDBA();
 
+		Log.d("asd", "Checking checkVideoInLimit and CheckIfAnyUserVideo");
 		if (dba.checkVideoInLimit() && !dba.checkIfAnyUserVideo()
 				&& mPrefs.getBoolean("com.devapp.memoir.shootoncall", true)) {
 
@@ -88,8 +97,15 @@ public class SecretCamera extends Service {
 		mMediaRecorder.setPreviewDisplay(mPreview.getHolder().getSurface());
 		mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
 		mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
-		mMediaRecorder.setProfile(CamcorderProfile
+
+/*	    mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+	    mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
+	    mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP);
+*/
+	    mMediaRecorder.setProfile(CamcorderProfile
 				.get(CamcorderProfile.QUALITY_HIGH));
+	    
+		//mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
 
 		SimpleDateFormat ft = new SimpleDateFormat("yyyyMMdd");
 		long d = Long.parseLong(ft.format(new Date()));
@@ -161,11 +177,18 @@ public class SecretCamera extends Service {
 
 	public void showNotification(Video v) {
 
+/*		MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+		mmr.setDataSource(v.path);
+		Bitmap b = mmr.getFrameAtTime(2000000);
+	*/	
+		Bitmap b = ThumbnailUtils.createVideoThumbnail(v.path,
+				MediaStore.Video.Thumbnails.MICRO_KIND);
+		
 		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(
 				this)
 				.setSmallIcon(R.drawable.memoiricon2)
 				.setAutoCancel(true)
-				.setLargeIcon(BitmapFactory.decodeFile(v.thumbnailPath))
+				.setLargeIcon(b)
 				.setContentTitle(
 						"Memoir has taken a video while you were on call")
 				.setContentText(
@@ -244,7 +267,14 @@ public class SecretCamera extends Service {
 				if ((mCamera != null) && (previewing == false)) {
 					mCamera.setPreviewDisplay(holder);
 					mCamera.startPreview();
-					startRecording();
+					Handler handler = new Handler();
+					handler.postDelayed(new Runnable() {
+
+						@Override
+						public void run() {
+							startRecording();
+						}
+					}, 500);
 					previewing = true;
 				}
 			} catch (Exception e) {

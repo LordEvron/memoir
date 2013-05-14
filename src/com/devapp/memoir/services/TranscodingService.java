@@ -17,6 +17,7 @@ import android.content.Intent;
 import android.os.Environment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.coremedia.iso.IsoFile;
 import com.coremedia.iso.boxes.TimeToSampleBox;
@@ -37,71 +38,57 @@ public class TranscodingService extends IntentService {
 
 	public TranscodingService() {
 		super("TranscodingService");
-//		extStorePath = Environment
-//				.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
-//		extStorePath = getExternalFilesDir(Environment.DIRECTORY_MOVIES).getAbsolutePath();
+		// extStorePath = Environment
+		// .getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
+		// extStorePath =
+		// getExternalFilesDir(Environment.DIRECTORY_MOVIES).getAbsolutePath();
 	}
-	
-	private Movie appendMovie(Movie m1, Movie m2) throws IOException {
 
-		if (m1 == null) {
-			return m2;
-		}
-		List<Track> videoTracks = new LinkedList<Track>();
-		List<Track> audioTracks = new LinkedList<Track>();
+	/*
+	 * private Movie appendMovie(Movie m1, Movie m2) throws IOException {
+	 * 
+	 * if (m1 == null) { return m2; } List<Track> videoTracks = new
+	 * LinkedList<Track>(); List<Track> audioTracks = new LinkedList<Track>();
+	 * 
+	 * for (Track t : m1.getTracks()) { if (t.getHandler().equals("soun")) {
+	 * audioTracks.add(t); } if (t.getHandler().equals("vide")) {
+	 * videoTracks.add(t); } } for (Track t : m2.getTracks()) { if
+	 * (t.getHandler().equals("soun")) { audioTracks.add(t); } if
+	 * (t.getHandler().equals("vide")) { videoTracks.add(t); } } Movie result =
+	 * new Movie();
+	 * 
+	 * if (audioTracks.size() > 0) { result.addTrack(new AppendTrack(audioTracks
+	 * .toArray(new Track[audioTracks.size()]))); } if (videoTracks.size() > 0)
+	 * { result.addTrack(new AppendTrack(videoTracks .toArray(new
+	 * Track[videoTracks.size()]))); }
+	 * 
+	 * return result; }
+	 */
 
-		for (Track t : m1.getTracks()) {
-			if (t.getHandler().equals("soun")) {
-				audioTracks.add(t);
-			}
-			if (t.getHandler().equals("vide")) {
-				videoTracks.add(t);
-			}
-		}
-		for (Track t : m2.getTracks()) {
-			if (t.getHandler().equals("soun")) {
-				audioTracks.add(t);
-			}
-			if (t.getHandler().equals("vide")) {
-				videoTracks.add(t);
-			}
-		}
-		Movie result = new Movie();
-
-		if (audioTracks.size() > 0) {
-			result.addTrack(new AppendTrack(audioTracks
-					.toArray(new Track[audioTracks.size()])));
-		}
-		if (videoTracks.size() > 0) {
-			result.addTrack(new AppendTrack(videoTracks
-					.toArray(new Track[videoTracks.size()])));
-		}
-
-		return result;
-	}
-	
 	public void createMyLife(Intent intent) {
 
 		String myLifePath = null;
 		long startDate, endDate;
 		startDate = intent.getLongExtra("startDate", 0);
 		endDate = intent.getLongExtra("endDate", -1);
-		Intent broadcastIntent = new Intent(TranscodingService.ActionCreateMyLife);
+		Intent broadcastIntent = new Intent(
+				TranscodingService.ActionCreateMyLife);
 
-		myLifePath = getExternalFilesDir(Environment.DIRECTORY_MOVIES).getAbsolutePath() + "/Memoir/MyLife.mp4";
+		myLifePath = getExternalFilesDir(Environment.DIRECTORY_MOVIES)
+				.getAbsolutePath() + "/Memoir/MyLife.mp4";
 
 		File file = new File(MemoirApplication.convertPath(myLifePath));
 		boolean deleted = file.exists() ? file.delete() : false;
 		file = new File(myLifePath);
 		deleted = file.exists() ? file.delete() : false;
 
-		//Log.e("asd", "Memoir file deleted ? " + deleted);
-		
+		// Log.e("asd", "Memoir file deleted ? " + deleted);
+
 		List<List<Video>> dateList = ((MemoirApplication) getApplication())
 				.getDBA().getVideos(startDate, endDate, true, false);
 
 		if (dateList == null) {
-			//Log.e("asd", "File not being generated");
+			// Log.e("asd", "File not being generated");
 			broadcastIntent.putExtra("OutputFileName", "");
 			LocalBroadcastManager.getInstance(this).sendBroadcast(
 					broadcastIntent);
@@ -135,181 +122,228 @@ public class TranscodingService extends IntentService {
 			}
 		}
 
-		try {
-			Movie result = null;
+		List<Track> videoTracks = new LinkedList<Track>();
+		List<Track> audioTracks = new LinkedList<Track>();
 
-			for (Movie m : inMovies) {
-				result = appendMovie(result, m);
+		for (Movie m : inMovies) {
+			for (Track t : m.getTracks()) {
+				if (t.getHandler().equals("soun")) {
+					audioTracks.add(t);
+				}
+				if (t.getHandler().equals("vide")) {
+					videoTracks.add(t);
+				}
+			}
+		}
+
+		try {
+			Movie result = new Movie();
+
+			if (audioTracks.size() > 0) {
+				result.addTrack(new AppendTrack(audioTracks
+						.toArray(new Track[audioTracks.size()])));
+			}
+			if (videoTracks.size() > 0) {
+				result.addTrack(new AppendTrack(videoTracks
+						.toArray(new Track[videoTracks.size()])));
 			}
 
 			IsoFile out = new DefaultMp4Builder().build(result);
-
-			//boolean mExternalStorageAvailable = false;
-			//boolean mExternalStorageWriteable = false;
-			String state = Environment.getExternalStorageState();
-
-			if (Environment.MEDIA_MOUNTED.equals(state)) {
-				//mExternalStorageAvailable = mExternalStorageWriteable = true;
-
-				FileOutputStream fos = new FileOutputStream(file);
-				out.getBox(fos.getChannel());
-				fos.close();
-
-			} else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-				//mExternalStorageAvailable = true;
-				//mExternalStorageWriteable = false;
-			} else {
-				//mExternalStorageAvailable = mExternalStorageWriteable = false;
-			}
+			FileOutputStream fos = new FileOutputStream(file);
+			FileChannel fc = fos.getChannel();
+			fc.position(0);
+			out.getBox(fc);
+			fc.close();
 		} catch (IOException e) {
-			Log.d("asd", "In IO EXCEPTION " + e);
+			broadcastIntent.putExtra("OutputFileName", "");
+			broadcastIntent.putExtra("Error", "Video that was recently imported is of different quality. Only videos with same quality can be imported. Please delete the same.");
+			LocalBroadcastManager.getInstance(this).sendBroadcast(
+					broadcastIntent);
+
 			e.printStackTrace();
+			return;
 		}
-		
+
 		MemoirApplication.mTL.convertThumbnail(myLifePath);
 
 		broadcastIntent.putExtra("OutputFileName", myLifePath);
 		LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
 	}
-	
-    protected static long getDuration(Track track) {
-        long duration = 0;
-        for (TimeToSampleBox.Entry entry : track.getDecodingTimeEntries()) {
-            duration += entry.getCount() * entry.getDelta();
-        }
-        return duration;
-    }
 
-    private static double correctTimeToSyncSample(Track track, double cutHere, boolean next) {
-        double[] timeOfSyncSamples = new double[track.getSyncSamples().length];
-        long currentSample = 0;
-        double currentTime = 0;
-        for (int i = 0; i < track.getDecodingTimeEntries().size(); i++) {
-            TimeToSampleBox.Entry entry = track.getDecodingTimeEntries().get(i);
-            for (int j = 0; j < entry.getCount(); j++) {
-                if (Arrays.binarySearch(track.getSyncSamples(), currentSample + 1) >= 0) {
-                    // samples always start with 1 but we start with zero therefore +1
-                    timeOfSyncSamples[Arrays.binarySearch(track.getSyncSamples(), currentSample + 1)] = currentTime;
-                }
-                currentTime += (double) entry.getDelta() / (double) track.getTrackMetaData().getTimescale();
-                currentSample++;
-            }
-        }
-        double previous = 0;
-        for (double timeOfSyncSample : timeOfSyncSamples) {
-            if (timeOfSyncSample > cutHere) {
-                if (next) {
-                    return timeOfSyncSample;
-                } else {
-                    return previous;
-                }
-            }
-            previous = timeOfSyncSample;
-        }
-        return timeOfSyncSamples[timeOfSyncSamples.length - 1];
-    }
+	protected static long getDuration(Track track) {
+		long duration = 0;
+		for (TimeToSampleBox.Entry entry : track.getDecodingTimeEntries()) {
+			duration += entry.getCount() * entry.getDelta();
+		}
+		return duration;
+	}
 
-	
+	private static double correctTimeToSyncSample(Track track, double cutHere,
+			boolean next) {
+		double[] timeOfSyncSamples = new double[track.getSyncSamples().length];
+		long currentSample = 0;
+		double currentTime = 0;
+		for (int i = 0; i < track.getDecodingTimeEntries().size(); i++) {
+			TimeToSampleBox.Entry entry = track.getDecodingTimeEntries().get(i);
+			for (int j = 0; j < entry.getCount(); j++) {
+				if (Arrays.binarySearch(track.getSyncSamples(),
+						currentSample + 1) >= 0) {
+					// samples always start with 1 but we start with zero
+					// therefore +1
+					timeOfSyncSamples[Arrays.binarySearch(
+							track.getSyncSamples(), currentSample + 1)] = currentTime;
+				}
+				currentTime += (double) entry.getDelta()
+						/ (double) track.getTrackMetaData().getTimescale();
+				currentSample++;
+			}
+		}
+		double previous = 0;
+		for (double timeOfSyncSample : timeOfSyncSamples) {
+			if (timeOfSyncSample > cutHere) {
+				if (next) {
+					return timeOfSyncSample;
+				} else {
+					return previous;
+				}
+			}
+			previous = timeOfSyncSample;
+		}
+		return timeOfSyncSamples[timeOfSyncSamples.length - 1];
+	}
+
 	public void trimVideo(Intent intent) {
 		Intent broadcastIntent = new Intent(TranscodingService.ActionTrimVideo);
 		Movie movie = null;
 		try {
-			movie = MovieCreator.build(new FileInputStream(intent.getStringExtra("filePath")).getChannel());
+			movie = MovieCreator.build(new FileInputStream(intent
+					.getStringExtra("filePath")).getChannel());
 		} catch (FileNotFoundException e1) {
 			e1.printStackTrace();
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
 
-        List<Track> tracks = movie.getTracks();
-        movie.setTracks(new LinkedList<Track>());
+		List<Track> tracks = movie.getTracks();
+		movie.setTracks(new LinkedList<Track>());
 
-        double startTime1 = intent.getFloatExtra("startTime", 0);
-        double endTime1 = intent.getFloatExtra("endTime", 0);
+		double startTime1 = intent.getFloatExtra("startTime", 0);
+		double endTime1 = intent.getFloatExtra("endTime", 0);
 
-        boolean timeCorrected = false;
+		boolean timeCorrected = false;
 
-        // Here we try to find a track that has sync samples. Since we can only start decoding
-        // at such a sample we SHOULD make sure that the start of the new fragment is exactly
-        // such a frame
-        for (Track track : tracks) {
-            if (track.getSyncSamples() != null && track.getSyncSamples().length > 0) {
-                if (timeCorrected) {
-                    // This exception here could be a false positive in case we have multiple tracks
-                    // with sync samples at exactly the same positions. E.g. a single movie containing
-                    // multiple qualities of the same video (Microsoft Smooth Streaming file)
+		// Here we try to find a track that has sync samples. Since we can only
+		// start decoding
+		// at such a sample we SHOULD make sure that the start of the new
+		// fragment is exactly
+		// such a frame
+		for (Track track : tracks) {
+			if (track.getSyncSamples() != null
+					&& track.getSyncSamples().length > 0) {
+				if (timeCorrected) {
+					// This exception here could be a false positive in case we
+					// have multiple tracks
+					// with sync samples at exactly the same positions. E.g. a
+					// single movie containing
+					// multiple qualities of the same video (Microsoft Smooth
+					// Streaming file)
 
-                    throw new RuntimeException("The startTime has already been corrected by another track with SyncSample. Not Supported.");
-                }
-                startTime1 = correctTimeToSyncSample(track, startTime1, false);
-                endTime1 = correctTimeToSyncSample(track, endTime1, true);
-                timeCorrected = true;
-            }
-        }
+					throw new RuntimeException(
+							"The startTime has already been corrected by another track with SyncSample. Not Supported.");
+				}
+				startTime1 = correctTimeToSyncSample(track, startTime1, false);
+				endTime1 = correctTimeToSyncSample(track, endTime1, true);
+				timeCorrected = true;
+			}
+		}
 
-        //Log.d("asd", "Time correctedstartTime1 >" + startTime1 + "   endTime1" + endTime1);
-        
-        for (Track track : tracks) {
-            long currentSample = 0;
-            double currentTime = 0;
-            double lastTime = 0;
-            long startSample1 = -1;
-            long endSample1 = -1;
+		/*
+		 * for (Track track : tracks) { long currentSample = 0; double
+		 * currentTime = 0; long startSample = -1; long endSample = -1;
+		 * 
+		 * for (int i = 0; i < track.getDecodingTimeEntries().size(); i++) {
+		 * TimeToSampleBox.Entry entry = track.getDecodingTimeEntries().get(i);
+		 * for (int j = 0; j < entry.getCount(); j++) { // entry.getDelta() is
+		 * the amount of time the current sample covers.
+		 * 
+		 * if (currentTime <= startTime) { // current sample is still before the
+		 * new starttime startSample = currentSample; } else if (currentTime <=
+		 * endTime) { // current sample is after the new start time and still
+		 * before the new endtime endSample = currentSample; } else { // current
+		 * sample is after the end of the cropped video break; } currentTime +=
+		 * (double) entry.getDelta() / (double)
+		 * track.getTrackMetaData().getTimescale(); currentSample++; } }
+		 * movie.addTrack(new CroppedTrack(track, startSample, endSample)); }
+		 */
 
-            for (int i = 0; i < track.getDecodingTimeEntries().size(); i++) {
-                TimeToSampleBox.Entry entry = track.getDecodingTimeEntries().get(i);
-                for (int j = 0; j < entry.getCount(); j++) {
+		for (Track track : tracks) {
+			long currentSample = 0;
+			double currentTime = 0;
+			double lastTime = -1;
+			long startSample1 = -1;
+			long endSample1 = -1;
 
+			for (int i = 0; i < track.getDecodingTimeEntries().size(); i++) {
+				TimeToSampleBox.Entry entry = track.getDecodingTimeEntries()
+						.get(i);
+				for (int j = 0; j < entry.getCount(); j++) {
 
-                    if (currentTime > lastTime && currentTime <= startTime1) {
-                        // current sample is still before the new starttime
-                        startSample1 = currentSample;
-                    }
-                    if (currentTime > lastTime && currentTime <= endTime1) {
-                        // current sample is after the new start time and still before the new endtime
-                        endSample1= currentSample;
-                    }
-                    lastTime = currentTime;
-                    currentTime += (double) entry.getDelta() / (double) track.getTrackMetaData().getTimescale();
-                    currentSample++;
-                }
-            }
-            try {
-				movie.addTrack(new AppendTrack(new CroppedTrack(track, startSample1, endSample1)));
+					if (currentTime > lastTime && currentTime <= startTime1) {
+						// current sample is still before the new starttime
+						startSample1 = currentSample;
+					}
+					if (currentTime > lastTime && currentTime <= endTime1) {
+						// current sample is after the new start time and still
+						// before the new endtime
+						endSample1 = currentSample;
+					}
+					lastTime = currentTime;
+					currentTime += (double) entry.getDelta()
+							/ (double) track.getTrackMetaData().getTimescale();
+					currentSample++;
+				}
+			}
+			try {
+				movie.addTrack(new AppendTrack(new CroppedTrack(track,
+						startSample1, endSample1)));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-        }
-        //long start1 = System.currentTimeMillis();
-        IsoFile out = new DefaultMp4Builder().build(movie);
-        //long start2 = System.currentTimeMillis();
-        FileOutputStream fos;
+		}
+		// long start1 = System.currentTimeMillis();
+		IsoFile out = new DefaultMp4Builder().build(movie);
+		// long start2 = System.currentTimeMillis();
+		FileOutputStream fos;
 		try {
 			fos = new FileOutputStream(intent.getStringExtra("outputFilePath"));
-	        FileChannel fc = fos.getChannel();
-	        out.getBox(fc);
-	        fc.close();
-	        fos.close();
+			FileChannel fc = fos.getChannel();
+			out.getBox(fc);
+			fc.close();
+			fos.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-        //long start3 = System.currentTimeMillis();
-        //Log.d("asd", "Building IsoFile took : " + (start2 - start1) + "ms");
-        //Log.d("asd", "Writing IsoFile took  : " + (start3 - start2) + "ms");
-        //Log.d("asd", "Writing IsoFile speed : " + (new File(String.format("output-%f-%f.mp4", startTime1, endTime1)).length() / (start3 - start2) / 1000) + "MB/s");
+		// long start3 = System.currentTimeMillis();
+		// Log.d("asd", "Building IsoFile took : " + (start2 - start1) + "ms");
+		// Log.d("asd", "Writing IsoFile took  : " + (start3 - start2) + "ms");
+		// Log.d("asd", "Writing IsoFile speed : " + (new
+		// File(String.format("output-%f-%f.mp4", startTime1,
+		// endTime1)).length() / (start3 - start2) / 1000) + "MB/s");
 
-		broadcastIntent.putExtra("OutputFileName", intent.getStringExtra("outputFilePath"));
+		broadcastIntent.putExtra("OutputFileName",
+				intent.getStringExtra("outputFilePath"));
 		LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
 	}
 
 	@Override
 	protected void onHandleIntent(Intent intent) {
 
-		if(intent.getAction().equals(TranscodingService.ActionCreateMyLife)) {
+		if (intent.getAction().equals(TranscodingService.ActionCreateMyLife)) {
 			createMyLife(intent);
-		} else if(intent.getAction().equals(TranscodingService.ActionTrimVideo)) {
+		} else if (intent.getAction()
+				.equals(TranscodingService.ActionTrimVideo)) {
 			trimVideo(intent);
 		}
 	}

@@ -12,6 +12,7 @@ import java.util.Date;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -27,8 +28,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
 import android.widget.ShareActionProvider;
+import android.widget.ShareActionProvider.OnShareTargetSelectedListener;
 import android.widget.Toast;
 
 import com.devapp.memoir.database.Video;
@@ -40,7 +41,6 @@ public class MainActivity extends Activity {
 	public static int VIDEO_IMPORT = 1;
 	public Video mVideo = null;
 	public SharedPreferences mPrefs = null;
-	public static FrameLayout mPreview = null;
 	TranscodingServiceBroadcastReceiver mDataBroadcastReceiver = null;
 
 	@Override
@@ -50,7 +50,8 @@ public class MainActivity extends Activity {
 		mShareActionProvider = (ShareActionProvider) menu.findItem(
 				R.id.action_share_video).getActionProvider();
 
-		new shareActionProviderTask().execute();
+		//new shareActionProviderTask().execute();
+		shareActionProviderTask();
 		return true;
 //		return super.onCreateOptionsMenu(menu);
 	}
@@ -82,8 +83,9 @@ public class MainActivity extends Activity {
 				takeVideoIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, mPrefs.getInt(
 						"com.devapp.memoir.noofseconds", 2));
 				takeVideoIntent.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION,
-						ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+						ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 				File videoFile = new File(mVideo.path);
+				Log.d("asd", "Vido PAth is " + mVideo.path);
 				takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT,
 						Uri.fromFile(videoFile));
 
@@ -149,7 +151,8 @@ public class MainActivity extends Activity {
 
 				if (!outputFile.isEmpty()) {
 					if(mShareActionProvider != null) {
-						new shareActionProviderTask().execute();
+						shareActionProviderTask();
+						//new shareActionProviderTask().execute();
 					}
 				}
 			}
@@ -228,17 +231,36 @@ public class MainActivity extends Activity {
 					false, 2, true);
 			((MemoirApplication) getApplication()).getDBA().addVideo(mVideo);
 			((MemoirApplication) getApplication()).getDBA().selectVideo(mVideo);
+			
 			mPrefs.edit().putBoolean("com.devapp.memoir.datachanged", true).commit();
+			if(mPrefs.getLong("com.devapp.memoir.startall", 0) > d) {
+				mPrefs.edit().putLong("com.devapp.memoir.startall", d).commit();
+			}
+			if(mPrefs.getLong("com.devapp.memoir.startselected", 0) > d) {
+				mPrefs.edit().putLong("com.devapp.memoir.startselected", d).commit();
+			}
 		}
 	}
 
-	public class shareActionProviderTask extends AsyncTask<Void, Void, String> {
+	public void shareActionProviderTask() {
+		Video v = ((MemoirApplication)getApplication()).getMyLifeFile(getApplicationContext());
+		
+		if (v != null && mShareActionProvider != null) {
+			Intent shareIntent = new Intent(Intent.ACTION_SEND);
+			shareIntent.setType("video/mp4");
+			shareIntent.putExtra(Intent.EXTRA_STREAM,
+					Uri.fromFile(new File(v.path)));
+			mShareActionProvider.setShareIntent(shareIntent);
+		}
+	}
+	
+/*	public class shareActionProviderTask extends AsyncTask<Void, Void, String> {
 
 		public String copy(String inputFile) {
 			String filePath = getApplicationContext()
 					.getExternalFilesDir(Environment.DIRECTORY_MOVIES)
 					.getAbsolutePath()
-					+ "/Memoir-"
+					+ "/Memoir/Memoir-"
 					+ MemoirApplication.convertDate(mPrefs.getLong("com.devapp.memoir.startselected",0), "Day 1")
 							.replaceAll("/", "-")
 					+ "-"
@@ -276,7 +298,7 @@ public class MainActivity extends Activity {
 		
 		@Override
 		protected void onPostExecute(String result) {
-			if(mShareActionProvider != null) {
+			if(result!= null && mShareActionProvider != null) {
 				Intent shareIntent = new Intent(Intent.ACTION_SEND);
 				shareIntent.setType("video/mp4");
 				shareIntent.putExtra(Intent.EXTRA_STREAM,
@@ -285,5 +307,5 @@ public class MainActivity extends Activity {
 			}
 			super.onPostExecute(result);
 		}
-	}
+	}*/
 }

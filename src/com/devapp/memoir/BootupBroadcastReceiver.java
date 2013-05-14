@@ -23,7 +23,7 @@ public class BootupBroadcastReceiver extends BroadcastReceiver {
 				case TelephonyManager.CALL_STATE_RINGING:
 					break;
 				case TelephonyManager.CALL_STATE_OFFHOOK:
-					
+					Log.d("asd", "Received off hook atleast");
 					Handler handler = new Handler();
 					handler.postDelayed(new Runnable() {
 
