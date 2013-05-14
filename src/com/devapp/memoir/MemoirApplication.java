@@ -34,6 +34,7 @@ public class MemoirApplication extends Application {
 	private SharedPreferences mPrefs = null;
 	public static int mWidth = 0, mHeight = 0;
 	public static ThumbnailLoader mTL = null;
+	private static String[] getMonth = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
 	@Override
 	public void onCreate() {
@@ -83,42 +84,12 @@ public class MemoirApplication extends Application {
 		mDBA.updateDatabase();
 	}
 
-	public static String getMonth(int month) {
-		switch(month) {
-		case 0:
-			return "Jan";
-		case 1:
-			return "Feb";
-		case 2:
-			return "Mar";
-		case 3:
-			return "Apr";
-		case 4:
-			return "May";
-		case 5:
-			return "Jun";
-		case 6:
-			return "Jul";
-		case 7:
-			return "Aug";
-		case 8:
-			return "Sep";
-		case 9:
-			return "Oct";
-		case 10:
-			return "Nov";
-		case 11:
-			return "Dec";
-		}
-		return null;
-	}
-
 	public static String convertDate(long date, String defaultS) {
 		if (date == 0) {
 			return defaultS;
 		}
 		String dateS = String.valueOf(date);
-		dateS = dateS.substring(6, 8) + " " + getMonth((int) ((date % 10000) / 100) - 1) + " "
+		dateS = dateS.substring(6, 8) + " " + getMonth[(int) ((date % 10000) / 100) - 1] + " "
 				+ dateS.substring(0, 4);
 		return dateS;
 	}	
@@ -144,10 +115,10 @@ public class MemoirApplication extends Application {
 			if(ago <= 10) {
 				daysAgo = String.format(Locale.ENGLISH, "%d days ago", ago);
 			} else {
-				daysAgo = String.format(Locale.ENGLISH, "%d %s %d", day , getMonth(month), year);
+				daysAgo = String.format(Locale.ENGLISH, "%d %s %d", day , getMonth[month], year);
 			}
 		} else if(difference < 0) {
-			daysAgo = String.format(Locale.ENGLISH, "In Future - %d %s %d", day , getMonth(month), year);
+			daysAgo = String.format(Locale.ENGLISH, "In Future - %d %s %d", day , getMonth[month], year);
 		} else {
 			daysAgo = String.format("Today");
 		}

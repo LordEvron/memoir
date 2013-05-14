@@ -3,7 +3,8 @@
     android:id="@+id/splashLL"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@drawable/background"
     tools:context=".Splash"
     android:orientation="vertical" >
 </LinearLayout>
+
+    <!-- This comes from theme now > android:background="@drawable/background" -->

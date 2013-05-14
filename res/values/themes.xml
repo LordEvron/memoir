@@ -14,4 +14,9 @@
         <item name="android:windowNoTitle">true</item>
     </style>
 
+    <style name="Theme.Main" parent="android:Theme">
+        <item name="android:windowBackground">@drawable/plain</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+    
 </resources>

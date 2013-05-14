@@ -3,13 +3,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:baselineAligned="false"
-    android:orientation="horizontal" >
+    android:orientation="vertical" >
 
     <fragment
         android:id="@+id/mylifefragment"
         android:name="com.devapp.memoir.MyLifeFragment"
-        android:layout_width="0dp"
-        android:layout_height="fill_parent"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
         android:layout_weight="1" />
 
 </LinearLayout>

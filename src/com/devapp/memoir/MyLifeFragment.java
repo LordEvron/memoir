@@ -3,6 +3,7 @@ package com.devapp.memoir;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
 
 import android.annotation.SuppressLint;
@@ -315,6 +316,8 @@ public class MyLifeFragment extends Fragment {
 		private Video mSelectedVideo = null;
 		private ImageView mSelectedVideoIV = null;
 		private ViewGroup.MarginLayoutParams params = null;
+		
+		private HashMap<String, ImageView> IVCache = null;
 
 		public MyLifeDateListArrayAdapter(Context context,
 				List<List<Video>> List) {
@@ -329,21 +332,26 @@ public class MyLifeFragment extends Fragment {
 									.getDisplayMetrics()), (int) TypedValue.applyDimension(
 											TypedValue.COMPLEX_UNIT_DIP, 68, getResources()
 											.getDisplayMetrics()));
+			
+			IVCache = new HashMap<String, ImageView>();
 		}
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			List<Video> VideoList = this.mList.get(position);
-			String date = MemoirApplication.getDateStringWRTToday(VideoList
-					.get(0).date);
+			long date = VideoList.get(0).date;
+//			String date = MemoirApplication.getDateStringWRTToday(VideoList
+//					.get(0).date);
 
 			if (convertView == null) {
 				convertView = mInflater.inflate(
 						R.layout.fragment_my_life_list_item, null);
 			} else {
-				if (!((TextView) convertView
-						.findViewById(R.id.MyLifeListItemTV)).getText().equals(
-						date)) {
+//				if (!((TextView) convertView
+//						.findViewById(R.id.MyLifeListItemTV)).getText().equals(
+//						date)) {
+				if(Long.valueOf((Long)((TextView) convertView.findViewById(R.id.MyLifeListItemTV)).getTag()) !=
+						date) {
 					/**
 					 * NOTE: Comparing dates of this list item and the item from
 					 * position if they are same then continue otherwise needs
@@ -375,18 +383,35 @@ public class MyLifeFragment extends Fragment {
 			}
 
 			((TextView) convertView.findViewById(R.id.MyLifeListItemTV))
-					.setText(date);
+					.setText(MemoirApplication.getDateStringWRTToday(date));
+			((TextView) convertView.findViewById(R.id.MyLifeListItemTV)).setTag(new Long(date));
 
 			mLinearLayout = (LinearLayout) convertView
 					.findViewById(R.id.MyLifeListItemInnerLL);
 
 			for (Video v : VideoList) {
 
+/*				ImageView iv = null;
+				if(IVCache.containsKey(v.path)) {
+					Log.d("asd", "Reading IV from cache");
+					iv = (ImageView) IVCache.get(v.path);
+					if(((LinearLayout) iv.getParent()) != null)
+						((LinearLayout) iv.getParent()).removeView(iv);
+				} else {
+					Log.d("asd", "Creating new IV");
+					iv = (ImageView) mInflater.inflate(
+							R.layout.fragment_my_life_video_item, null);
+					MemoirApplication.mTL.loadImage(v.path, iv);
+					IVCache.put(v.path, iv);
+				}
+				mLinearLayout.addView(iv, this.params);
+*/
+
+				
 				ImageView iv = (ImageView) mInflater.inflate(
 						R.layout.fragment_my_life_video_item, null);
 				mLinearLayout.addView(iv, this.params);
 
-				//Log.d("asd", "Adding ImageView with URL >" + v.path + " IV>" + iv.toString());
 				MemoirApplication.mTL.loadImage(v.path, iv);
 
 				/*
