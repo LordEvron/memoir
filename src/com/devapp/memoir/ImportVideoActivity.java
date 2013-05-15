@@ -182,7 +182,7 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 							mVideoView.seekTo(mPosition * 100);
 							mImageViewPlay.setVisibility(View.VISIBLE);
 						}
-					}, 2000);
+					}, mPrefs.getInt("com.devapp.memoir.noofseconds",1) * 1000);
 				}
 			});
 

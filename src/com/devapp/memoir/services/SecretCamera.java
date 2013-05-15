@@ -96,7 +96,7 @@ public class SecretCamera extends Service {
 
 		mMediaRecorder.setPreviewDisplay(mPreview.getHolder().getSurface());
 		mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
-		mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
+		mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
 
 /*	    mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
 	    mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
