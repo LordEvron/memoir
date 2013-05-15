@@ -192,8 +192,8 @@ public class MainActivity extends Activity {
 		if (requestCode == VIDEO_CAPTURE && resultCode == RESULT_OK) {
 			Uri VideoUri = data.getData();
 
-			//Log.d("zxc", "VideoUri.getPath() >" + VideoUri.getPath()
-			//		+ " mVideo.path>" + mVideo.path + " Video URI >" + VideoUri);
+			Log.d("zxc", "VideoUri.getPath() >" + VideoUri.getPath()
+					+ " mVideo.path>" + mVideo.path + " Video URI >" + VideoUri);
 
 			if (VideoUri.getPath().equals(mVideo.path)) {
 				((MemoirApplication) getApplication()).getDBA()

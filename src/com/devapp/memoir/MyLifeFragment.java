@@ -44,6 +44,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.MediaController;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
@@ -93,7 +94,7 @@ public class MyLifeFragment extends Fragment {
 			MemoirApplication.setDisplayMatrix(getActivity());
 		}
 		((FrameLayout) activity.findViewById(R.id.MyLifeFL))
-				.setLayoutParams(new LinearLayout.LayoutParams(
+				.setLayoutParams(new RelativeLayout.LayoutParams(
 						MemoirApplication.mWidth,
 						(int) (MemoirApplication.mWidth
 								* MemoirApplication.mWidth / MemoirApplication.mHeight)));

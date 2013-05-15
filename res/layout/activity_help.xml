@@ -1,105 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ExpandableListView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/ActivityHelpELV"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-     >
-
-</ExpandableListView>
-<!--
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ads="http://schemas.android.com/apk/lib/com.google.ads"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical"
-    android:padding="15dp" >
+    android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/HelpActivityMTV1"
+    <com.google.ads.AdView
+        android:id="@+id/adView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:lineSpacingExtra="5dp"
-        android:text="@string/help_mt1"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:layout_alignParentBottom="true"
+        ads:adSize="BANNER"
+        ads:adUnitId="a15193e40da70d7"
+        ads:loadAdOnCreate="true"
+        ads:testDevices="0149CC8419017017" />
+    
+    <ExpandableListView
+        android:id="@+id/ActivityHelpELV"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" 
+        android:layout_above="@id/adView">
+    </ExpandableListView>
 
-    <TextView
-        android:id="@+id/HelpActivityTV1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:lineSpacingMultiplier="1.1"
-        android:text="@string/help_t1" />
-
-    <TextView
-        android:id="@+id/HelpActivityMTV2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="@string/help_mt2"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TextView
-        android:id="@+id/HelpActivityTV2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/help_t2" />
-
-    <TextView
-        android:id="@+id/HelpActivityMTV3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="@string/help_mt3"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TextView
-        android:id="@+id/HelpActivityTV3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="@string/help_t3" />
-
-    <TextView
-        android:id="@+id/HelpActivityMTV4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="@string/help_mt4"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TextView
-        android:id="@+id/HelpActivityTV4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/help_t4" />
-
-    <TextView
-        android:id="@+id/HelpActivityMTV5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="@string/help_mt5"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TextView
-        android:id="@+id/HelpActivityTV5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/help_t5" />
-
-    <TextView
-        android:id="@+id/HelpActivityMTV6"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="@string/help_mt6"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TextView
-        android:id="@+id/HelpActivityTV6"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/help_t6" />
-
-</LinearLayout>
--->
+</RelativeLayout>

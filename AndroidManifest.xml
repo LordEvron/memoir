@@ -8,6 +8,8 @@
         android:minSdkVersion="14"
         android:targetSdkVersion="14" />
 
+	<uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
@@ -50,6 +52,9 @@
             android:screenOrientation="landscape" >
         </activity>
 
+        <activity android:name="com.google.ads.AdActivity"
+          android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"/>
+        
         <service android:name="com.devapp.memoir.services.TranscodingService" >
         </service>
         <service android:name="com.devapp.memoir.services.SecretCamera" >

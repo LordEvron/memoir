@@ -2,6 +2,7 @@ package com.devapp.memoir.services;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -24,6 +25,7 @@ public class ThumbnailLoader {
 		String imageUrl;
 		Bitmap imageBitmap;
 		ConcurrentLinkedQueue<ImageView> imageViews;
+//		ConcurrentLinkedQueue<WeakReference<ImageView>> imageViews;
 	}
 
 	static ThumbnailLoader TLRef;
@@ -67,14 +69,18 @@ public class ThumbnailLoader {
 				}
 				ImageView iv;
 				while ((iv = (ImageView) iO.imageViews.poll()) != null) {
-					iv.setImageBitmap(iO.imageBitmap);
+//				while (iO.imageViews.poll() != null && (iv = (ImageView) iO.imageViews.poll().get()) != null) {
+//					if(iv != null)
+						iv.setImageBitmap(iO.imageBitmap);
 				}
 				return;
 			} else if (iO != null) {
 				boolean existsFlag = false;
 				for (Iterator<ImageView> it = iO.imageViews.iterator(); it
+//				for (Iterator<WeakReference<ImageView>> it = iO.imageViews.iterator(); it
 						.hasNext();) {
 					ImageView iv = (ImageView) it.next();
+//					ImageView iv = (ImageView) it.next().get();
 					if (iv == imageView) {
 						existsFlag = true;
 						break;
@@ -82,13 +88,10 @@ public class ThumbnailLoader {
 				}
 				if (existsFlag == false && imageView != null) {
 					iO.imageViews.add(imageView);
+//					iO.imageViews.add(new WeakReference<ImageView>(imageView));
 				}
-				// imageCache.remove(imageUrl);
 				return;
 			} else {
-				// Log.d(TAG,
-				// "Did the softrefernce clear my data ?>?????? for image url "
-				// + imageUrl);
 			}
 		}
 
@@ -102,6 +105,7 @@ public class ThumbnailLoader {
 			iO1.imageUrl = imageUrl;
 
 			iO1.imageViews = new ConcurrentLinkedQueue<ImageView>();
+//			iO1.imageViews = new ConcurrentLinkedQueue<WeakReference<ImageView>>();
 
 			iO1.imageBitmap = BitmapFactory.decodeFile(MemoirApplication.convertPath(imageUrl));
 
@@ -121,9 +125,11 @@ public class ThumbnailLoader {
 		iO1 = new imageObject();
 		iO1.imageUrl = imageUrl;
 		iO1.imageViews = new ConcurrentLinkedQueue<ImageView>();
+//		iO1.imageViews = new ConcurrentLinkedQueue<WeakReference<ImageView>>();
 
 		if (imageView != null) {
 			iO1.imageViews.add(imageView);
+//			iO1.imageViews.add(new WeakReference<ImageView>(imageView));
 		}
 
 		synchronized (getClass()) {
@@ -192,9 +198,11 @@ public class ThumbnailLoader {
 			ImageView iv = null;
 			if (values[0].imageBitmap != null) {
 				while ((iv = (ImageView) values[0].imageViews.poll()) != null) {
+//				while (values[0].imageViews.poll() != null && (iv = (ImageView) values[0].imageViews.poll().get()) != null) {
 					// Log.d(TAG, "setting imageUrl > " + values[0].imageUrl +
 					// "   imageView > " + iOP.iv);
-					iv.setImageBitmap(values[0].imageBitmap);
+					if(iv != null)
+						iv.setImageBitmap(values[0].imageBitmap);
 				}
 			}
 		}
