@@ -142,11 +142,14 @@ public class ThumbnailLoader {
 		}
 	}
 
-	public Bitmap convertThumbnail(String path) {
+	public Bitmap convertThumbnail(String path, int kind) {
+		/** Note: kind can be MediaStore.Video.Thumbnails.MICRO_KIND, 
+		 * MediaStore.Video.Thumbnails.MINI_KIND
+		 */
 //		Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(path,
 //				MediaStore.Video.Thumbnails.MINI_KIND);
-		Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(path,
-				MediaStore.Video.Thumbnails.MICRO_KIND);
+		Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(path,kind);
+				
 		if (bitmap != null) {
 			try {
 				FileOutputStream out = new FileOutputStream(
@@ -168,7 +171,7 @@ public class ThumbnailLoader {
 
 			while (true) {
 				if ((iO = (imageObject) fastQueue.poll()) != null) {
-					iO.imageBitmap = convertThumbnail(iO.imageUrl);
+					iO.imageBitmap = convertThumbnail(iO.imageUrl, MediaStore.Video.Thumbnails.MICRO_KIND);
 					publishProgress(iO);
 					iO = null;
 					continue;

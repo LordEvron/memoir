@@ -70,6 +70,7 @@ public class Splash extends Activity {
 			MemoirApplication.setDisplayMatrix(Splash.this);
 
 			MemoirDBA dba = arg0[0];
+			dba.updateDatabase();
 			dba.getVideos(0, -1, false, PreferenceManager
 					.getDefaultSharedPreferences(Splash.this).getBoolean("com.devapp.memoir.showonlymultiple", false));
 			return null;

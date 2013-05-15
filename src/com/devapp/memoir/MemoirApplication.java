@@ -19,8 +19,10 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.provider.MediaStore.MediaColumns;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Display;
 
 import com.devapp.memoir.database.MemoirDBA;
@@ -81,7 +83,6 @@ public class MemoirApplication extends Application {
 		this.sendBroadcast(new Intent(
 				"com.devapp.memoir.BootupBroadcastReceiver"));
 
-		mDBA.updateDatabase();
 	}
 
 	public static String convertDate(long date, String defaultS) {
@@ -152,7 +153,7 @@ public class MemoirApplication extends Application {
 		if (f.exists()) {
 			Video v = new Video(outputFilename);
 			if(!(new File(convertPath(outputFilename)).exists())) {
-				MemoirApplication.mTL.convertThumbnail(outputFilename);
+				MemoirApplication.mTL.convertThumbnail(outputFilename, MediaStore.Video.Thumbnails.MINI_KIND);
 			}
 			v.thumbnailPath = convertPath(outputFilename);
 			return v;
@@ -228,8 +229,6 @@ public class MemoirApplication extends Application {
 			return null;
 		}
 	}
-	
-
 
 	public static String getFilePathFromContentUri(Uri selectedVideoUri,
 			ContentResolver contentResolver) {
@@ -245,6 +244,22 @@ public class MemoirApplication extends Application {
 		cursor.close();
 		return filePath;
 	}
+
+	public static String getDateFromContentUri(Uri selectedVideoUri,
+			ContentResolver contentResolver) {
+		long date;
+		String[] dateColumn = { MediaColumns.DATE_ADDED };
+
+		Cursor cursor = contentResolver.query(selectedVideoUri, dateColumn,
+				null, null, null);
+		cursor.moveToFirst();
+
+		date = cursor.getLong(cursor.getColumnIndex(dateColumn[0]));
+		cursor.close();
+		String timeStamp = new SimpleDateFormat("yyyyMMdd").format(new Date(date * 1000L));
+		return timeStamp;
+	}
+
 	
 	@SuppressLint("NewApi")
 	public static void setDisplayMatrix(Activity a) {

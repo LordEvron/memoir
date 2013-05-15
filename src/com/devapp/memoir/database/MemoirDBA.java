@@ -74,6 +74,7 @@ public class MemoirDBA {
 	}
 
 	public void updateDatabase() {
+		localVideos = null;
 		mMDBHelper.updateDatabase();
 	}
 
@@ -305,7 +306,7 @@ public class MemoirDBA {
 				}
 			}
 			c.close();
-
+			Log.d("asd", "Deleting video with id > " + sb.toString());
 			db = this.getWritableDatabase();
 			db.delete(VIDEOS_TABLE_NAME, sb.toString(), null);
 		}

@@ -15,6 +15,7 @@ import java.util.List;
 import android.app.IntentService;
 import android.content.Intent;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
@@ -164,7 +165,7 @@ public class TranscodingService extends IntentService {
 			return;
 		}
 
-		MemoirApplication.mTL.convertThumbnail(myLifePath);
+		MemoirApplication.mTL.convertThumbnail(myLifePath, MediaStore.Video.Thumbnails.MINI_KIND);
 
 		broadcastIntent.putExtra("OutputFileName", myLifePath);
 		LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);

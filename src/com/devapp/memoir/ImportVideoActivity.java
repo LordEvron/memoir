@@ -30,6 +30,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
+import android.widget.Toast;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.VideoView;
 
@@ -74,6 +75,14 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 			Uri selectedVideoLocation = data.getData();
 			mPath = MemoirApplication.getFilePathFromContentUri(
 					selectedVideoLocation, getContentResolver());
+			
+			if(mPath == null) {
+				Toast.makeText(
+						this,
+						"This video can not be imported as it is not local on the phone, Please select another video",
+						Toast.LENGTH_LONG).show();
+				return;
+			}
 
 			mMediaRetriever = new MediaMetadataRetriever();
 			mMediaRetriever.setDataSource(this, selectedVideoLocation);
@@ -83,10 +92,14 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 			mVideoHeight = Integer
 					.parseInt(mMediaRetriever
 							.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
-			mVideoDate = mMediaRetriever.extractMetadata(
-					MediaMetadataRetriever.METADATA_KEY_DATE).substring(0, 8);
+			
+			/** Note: Retrieving video date from Content URI is more acurate than from MetadataRetriever*/
+			mVideoDate = MemoirApplication.getDateFromContentUri(selectedVideoLocation, getContentResolver());
+			if(mVideoDate == null) {
+				mVideoDate = mMediaRetriever.extractMetadata(
+						MediaMetadataRetriever.METADATA_KEY_DATE).substring(0, 8);
+			}
 
-			//Log.d("asd", "Video date is > " + mVideoDate);
 			mDuration = Float
 					.parseFloat(mMediaRetriever
 							.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)) / 1000;

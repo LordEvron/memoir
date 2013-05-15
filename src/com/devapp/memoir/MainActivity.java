@@ -209,6 +209,7 @@ public class MainActivity extends Activity {
 
 			} else if (MemoirApplication.getFilePathFromContentUri(VideoUri,
 					getContentResolver()).equals(mVideo.path)) {
+				
 				((MemoirApplication) getApplication()).getDBA()
 						.addVideo(mVideo);
 				((MemoirApplication) getApplication()).getDBA().selectVideo(
