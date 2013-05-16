@@ -21,15 +21,16 @@ public class AViewFlipper extends ViewFlipper {
 		super.dispatchDraw(canvas);
 		int width = getWidth();
 
-		float margin = 2;
-		float radius = 10;
+		float margin = 6;
+		float radius = 7;
 		float cx = width / 2 - ((radius + margin) * 2 * getChildCount() / 2);
-		float cy = getHeight() - 15;
+		float cy = getHeight() - 25;
 
 		canvas.save();
 		for (int i = 0; i < getChildCount(); i++) {
 			if (i == getDisplayedChild()) {
 				paint.setColor(Color.CYAN);
+//				paint.setColor(getResources().getColor(R.color.selectBlue));
 				canvas.drawCircle(cx, cy, radius, paint);
 
 			} else {

@@ -58,7 +58,7 @@ public class MyLifeFragment extends Fragment {
 
 	TranscodingServiceBroadcastReceiver mDataBroadcastReceiver = null;
 	private SharedPreferences mPrefs = null;
-	public ImageView mMyLifeIV = null;
+	public ImageView mMyLifeIV = null, mMyLifeFullscreenIV = null;
 	public ProgressBar mMyLifePB = null;
 	public TextView mMyLifeTV = null;
 
@@ -85,6 +85,7 @@ public class MyLifeFragment extends Fragment {
 		Activity activity = this.getActivity();
 
 		mMyLifeIV = (ImageView) activity.findViewById(R.id.MyLifeIV);
+		mMyLifeFullscreenIV = (ImageView) activity.findViewById(R.id.MyLifeFullscreenIV);
 		mMyLifePB = (ProgressBar) activity.findViewById(R.id.MyLifePB);
 		mMyLifeTV = (TextView) activity.findViewById(R.id.MyLifeTV);
 		// mTransparent = getResources().getColor(android.R.color.transparent);
@@ -173,6 +174,22 @@ public class MyLifeFragment extends Fragment {
 				}
 			}
 		});
+		
+		mMyLifeFullscreenIV.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View view) {
+				if(mMyLifeVideo != null) {
+					Intent playIntent = new Intent();
+					playIntent.setAction(Intent.ACTION_VIEW);
+					playIntent.setDataAndType(
+							Uri.fromFile(new File(mMyLifeVideo.path)), "video/*");
+
+					getActivity().startActivity(playIntent);
+				}
+			}
+		});
+
 	}
 
 	@Override
@@ -253,9 +270,12 @@ public class MyLifeFragment extends Fragment {
 			mMyLifeIV.setBackgroundDrawable(new BitmapDrawable(getResources(),
 					BitmapFactory.decodeFile(IVPath)));
 			mMyLifeIV.setTag(IVPath);
+			
+			mMyLifeFullscreenIV.setVisibility(View.VISIBLE);
 		} else {
 			mMyLifeIV.setBackgroundColor(mTransparent);
 			mMyLifeIV.setTag(null);
+			mMyLifeFullscreenIV.setVisibility(View.INVISIBLE);
 		}
 		mMyLifeIV.requestLayout();
 		mMyLifeIV.setVisibility(IVVis);

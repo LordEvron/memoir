@@ -1,20 +1,56 @@
-<com.devapp.memoir.AViewFlipper
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/welcomeVF"
+<com.devapp.memoir.AViewFlipper xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/welcomeVF"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <ImageView
+        android:id="@+id/WelcomeScreenIV1"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:scaleType="fitXY"
+        android:src="@drawable/a1" />
+
+    <ImageView
+        android:id="@+id/WelcomeScreenIV2"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:scaleType="fitXY"
+        android:src="@drawable/a2" />
+
+    <ImageView
+        android:id="@+id/WelcomeScreenIV3"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:scaleType="fitXY"
+        android:src="@drawable/a3" />
+
+    <ImageView
+        android:id="@+id/WelcomeScreenIV4"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:scaleType="fitXY"
+        android:src="@drawable/a4" />
+
+    <FrameLayout
+        android:id="@+id/WelcomeScreenFL"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" >
 
         <ImageView
-            android:id="@+id/imageView1"
+            android:id="@+id/WelcomeScreenIV6"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:scaleType="fitXY"
-            android:src="@drawable/welcome1" />
+            android:src="@drawable/a5" />
 
         <ImageView
-            android:id="@+id/imageView2"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:scaleType="fitXY"
-            android:src="@drawable/welcome2" />
-    </com.devapp.memoir.AViewFlipper>
+            android:id="@+id/WelcomeScreenB"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_gravity="bottom|right"
+            android:layout_marginBottom="10dp"
+            android:layout_marginRight="25dp"
+            android:src="@drawable/start" />
+    </FrameLayout>
+
+</com.devapp.memoir.AViewFlipper>

@@ -5,7 +5,7 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
-    <com.google.ads.AdView
+<!--     <com.google.ads.AdView
         android:id="@+id/adView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -14,12 +14,12 @@
         ads:adUnitId="a15193e40da70d7"
         ads:loadAdOnCreate="true"
         ads:testDevices="0149CC8419017017" />
-    
+     -->
     <ExpandableListView
         android:id="@+id/ActivityHelpELV"
+        android:layout_alignParentTop="true"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" 
-        android:layout_above="@id/adView">
+        android:layout_height="wrap_content" >
     </ExpandableListView>
 
 </RelativeLayout>

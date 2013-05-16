@@ -113,7 +113,9 @@ public class MemoirApplication extends Application {
 
 		if (difference >= DAY_IN_MILLIS) {
 			ago = (int) (difference / DAY_IN_MILLIS);
-			if(ago <= 10) {
+			if(ago == 1) {
+				daysAgo = String.format(Locale.ENGLISH, "%d day ago", ago);
+			} else if(ago <= 10) {
 				daysAgo = String.format(Locale.ENGLISH, "%d days ago", ago);
 			} else {
 				daysAgo = String.format(Locale.ENGLISH, "%d %s %d", day , getMonth[month], year);

@@ -44,8 +44,16 @@
             android:lines="2"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textStyle="bold|italic" />
-    </FrameLayout>
 
+        <ImageView
+            android:id="@+id/MyLifeFullscreenIV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|right"
+            android:src="@android:drawable/ic_menu_slideshow" />
+
+    </FrameLayout>
+<!-- 
     <com.google.ads.AdView
         android:id="@+id/adView"
         android:layout_alignParentBottom="true"
@@ -55,14 +63,14 @@
         ads:adUnitId="a15193e40da70d7"
         ads:loadAdOnCreate="true"
         ads:testDevices="0149CC8419017017" />
-    
+-->
     <ListView
         android:id="@+id/MyLifeDateLV"
         android:layout_below="@id/MyLifeFL"
-        android:layout_above="@id/adView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#202020" />
-
+       <!-- android:layout_above="@id/adView" -->
+    
 
 </RelativeLayout>
