@@ -34,7 +34,7 @@ public class MemoirApplication extends Application {
 	private MemoirDBA mDBA;
 	public static boolean useExternal = true;
 	private SharedPreferences mPrefs = null;
-	public static int mWidth = 0, mHeight = 0;
+	private static int mWidth = 0, mHeight = 0;
 	public static ThumbnailLoader mTL = null;
 	private static String[] getMonth = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
@@ -262,7 +262,6 @@ public class MemoirApplication extends Application {
 		return timeStamp;
 	}
 
-	
 	@SuppressLint("NewApi")
 	public static void setDisplayMatrix(Activity a) {
 		/** Note : For getting the height and width of the screen */

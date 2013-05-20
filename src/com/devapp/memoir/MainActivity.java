@@ -1,27 +1,23 @@
 package com.devapp.memoir;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
-import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -29,7 +25,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.ShareActionProvider;
-import android.widget.ShareActionProvider.OnShareTargetSelectedListener;
 import android.widget.Toast;
 
 import com.devapp.memoir.database.Video;
@@ -39,7 +34,7 @@ public class MainActivity extends Activity {
 	private ShareActionProvider mShareActionProvider;
 	public static int VIDEO_CAPTURE = 0;
 	public static int VIDEO_IMPORT = 1;
-	public Video mVideo = null;
+	public static Video mVideo = null;
 	public SharedPreferences mPrefs = null;
 	TranscodingServiceBroadcastReceiver mDataBroadcastReceiver = null;
 
@@ -80,8 +75,9 @@ public class MainActivity extends Activity {
 
 				Intent takeVideoIntent = new Intent(
 						MediaStore.ACTION_VIDEO_CAPTURE);
-				takeVideoIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, mPrefs.getInt(
-						"com.devapp.memoir.noofseconds", 2));
+//				takeVideoIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, mPrefs.getInt(
+//						"com.devapp.memoir.noofseconds", 2));
+				takeVideoIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 20);
 				takeVideoIntent.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION,
 						ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 				File videoFile = new File(mVideo.path);
@@ -121,11 +117,26 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		Log.d("asd", "OnCreate of Main Activity");
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-		setContentView(R.layout.activity_main);
-
+		Log.d("asd", "orintation > " + getResources().getConfiguration().orientation + "  >" + Configuration.ORIENTATION_PORTRAIT);
+		Log.d("asd", "Activity Layout main 's reference " + R.layout.activity_main_portrait);
+		setContentView(R.layout.activity_main_portrait);
+/*		FragmentManager fragmentManager = getFragmentManager();
+		FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+		Fragment fragment = null;
+		
+		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+			fragment = new MyLifeFragment();
+		} else if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+			fragment = new MyLifeFragmentLandscape();
+		}
+		fragmentTransaction.add(R.id.FragmentContainer, fragment);
+		fragmentTransaction.commit();
+*/
 		ActionBar actionBar = getActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
 		actionBar.setDisplayShowTitleEnabled(false);

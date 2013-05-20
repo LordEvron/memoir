@@ -15,12 +15,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <LinearLayout
-            android:id="@+id/MyLifeLL"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/video_ll_height"
-            android:orientation="vertical" />
-
         <ProgressBar
             android:id="@+id/MyLifePB"
             android:layout_width="wrap_content"

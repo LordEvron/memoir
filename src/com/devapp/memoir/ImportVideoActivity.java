@@ -1,5 +1,9 @@
 package com.devapp.memoir;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -18,7 +22,9 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -47,6 +53,7 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 	private SeekBar mSeekBar = null;
 	private float mdistanceToTimeRatio = 0, mDuration = 0;
 	private int mVideoWidth = 0, mVideoHeight = 0;
+	private int mWidth = 0, mHeight = 0;
 	private int mPosition = 0;
 	private String mPath = null, mVideoDate = null;
 	private static int VIDEO_IMPORT_FROM_GALLERY = 0;
@@ -66,6 +73,37 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 		Log.d("asd", "End of onCreate");
 	}
 
+	@SuppressLint("NewApi")
+	public void setDisplayMatrix() {
+		/** Note : For getting the height and width of the screen */
+		Display display = getWindowManager()
+				.getDefaultDisplay();
+
+		if (android.os.Build.VERSION.SDK_INT >= 14
+				&& android.os.Build.VERSION.SDK_INT <= 16) {
+			try {
+				Method mGetRawH = Display.class.getMethod("getRawHeight");
+				Method mGetRawW = Display.class.getMethod("getRawWidth");
+				mWidth = (Integer) mGetRawW.invoke(display);
+				mHeight = (Integer) mGetRawH.invoke(display);
+			} catch (NoSuchMethodException e) {
+				e.printStackTrace();
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+			}
+		} else {
+			DisplayMetrics outMetrics = new DisplayMetrics();
+			display.getRealMetrics(outMetrics);
+			mHeight = outMetrics.heightPixels;
+			mWidth = outMetrics.widthPixels;
+		}
+	}
+
+	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
@@ -116,13 +154,15 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 			//Log.d("asd", "(mHeight*5/6) >" + (mHeight * 5 / 6)
 			//		+ "  (mHeight*1/6)> " + (mHeight * 1 / 6)
 			//		+ "  (mWidth*5/6)" + (mWidth * 5 / 6));
+			
+			setDisplayMatrix();
 			mFrameLayoutVV.setLayoutParams(new LinearLayout.LayoutParams(
-					LayoutParams.MATCH_PARENT, (int) (MemoirApplication.mWidth * 5 / 6)));
+					LayoutParams.MATCH_PARENT, (int) (mWidth * 5 / 6)));
 			mRelativeLayoutScroll
 					.setLayoutParams(new LinearLayout.LayoutParams(
-							LayoutParams.MATCH_PARENT, (int) (MemoirApplication.mWidth * 1 / 6)));
+							LayoutParams.MATCH_PARENT, (int) (mWidth * 1 / 6)));
 			mVideoView.setLayoutParams(new FrameLayout.LayoutParams(
-					(int) (MemoirApplication.mHeight * 5 / 6), LayoutParams.MATCH_PARENT,
+					(int) (mHeight * 5 / 6), LayoutParams.MATCH_PARENT,
 					Gravity.CENTER));
 		} else {
 			mPath = null;

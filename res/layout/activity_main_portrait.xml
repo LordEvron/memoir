@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/mylifefragment"
-        android:name="com.devapp.memoir.MyLifeFragment"
+        android:name="com.devapp.memoir.MyLifeFragmentPortrait"
         android:layout_width="fill_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />

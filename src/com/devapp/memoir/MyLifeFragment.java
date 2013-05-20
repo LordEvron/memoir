@@ -20,7 +20,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
-import android.media.MediaPlayer.OnVideoSizeChangedListener;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
@@ -29,22 +28,21 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.ActionMode;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup.LayoutParams;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.MediaController;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
@@ -61,64 +59,91 @@ public class MyLifeFragment extends Fragment {
 	public ImageView mMyLifeIV = null, mMyLifeFullscreenIV = null;
 	public ProgressBar mMyLifePB = null;
 	public TextView mMyLifeTV = null;
+	public FrameLayout mMyLifeFL = null;
 
-	public int mTransparent = 0;
+	public int mTransparent = 0, mWidth = 0, mHeight = 0, mCWidth = 0, mCHeight = 0;
 	public Video mMyLifeVideo = null;
 
-	@Override
+/*	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-
+		Log.d("asd", "On Create View of parent");
 		View rootView = inflater.inflate(R.layout.fragment_my_life, container,
 				false);
-
 		mPrefs = this.getActivity().getSharedPreferences("com.devapp.memoir",
 				Context.MODE_PRIVATE);
 
 		return rootView;
+	}*/
+
+	@SuppressLint("NewApi")
+	public void setDisplayMatrix() {
+		/** Note : For getting the height and width of the screen */
+		Display display = getActivity().getWindowManager().getDefaultDisplay();
+
+		if (android.os.Build.VERSION.SDK_INT >= 14
+				&& android.os.Build.VERSION.SDK_INT <= 16) {
+			try {
+				Method mGetRawH = Display.class.getMethod("getRawHeight");
+				Method mGetRawW = Display.class.getMethod("getRawWidth");
+				mWidth = (Integer) mGetRawW.invoke(display);
+				mHeight = (Integer) mGetRawH.invoke(display);
+			} catch (NoSuchMethodException e) {
+				e.printStackTrace();
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+			}
+		} else {
+			DisplayMetrics outMetrics = new DisplayMetrics();
+			display.getRealMetrics(outMetrics);
+			mHeight = outMetrics.heightPixels;
+			mWidth = outMetrics.widthPixels;
+		}
+
+		DisplayMetrics outMetrics = new DisplayMetrics();
+		display.getMetrics(outMetrics);
+		mCWidth = outMetrics.widthPixels;
+		mCHeight = outMetrics.heightPixels;
+		
+		Log.d("asd", "Setting mWdith " + mWidth + "  mHeight >" + mHeight);
 	}
 
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
+//	@Override
+	public void onActivityCreated2(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		Activity activity = this.getActivity();
+		Log.d("asd", "On Activity Created of Parent");
 
+		Activity activity = this.getActivity();
+		mMyLifeFL = (FrameLayout) activity.findViewById(R.id.MyLifeFL);
 		mMyLifeIV = (ImageView) activity.findViewById(R.id.MyLifeIV);
-		mMyLifeFullscreenIV = (ImageView) activity.findViewById(R.id.MyLifeFullscreenIV);
+		mMyLifeFullscreenIV = (ImageView) activity
+				.findViewById(R.id.MyLifeFullscreenIV);
 		mMyLifePB = (ProgressBar) activity.findViewById(R.id.MyLifePB);
 		mMyLifeTV = (TextView) activity.findViewById(R.id.MyLifeTV);
-		// mTransparent = getResources().getColor(android.R.color.transparent);
 		mTransparent = getResources().getColor(android.R.color.black);
-
-		if(MemoirApplication.mWidth == 0 || MemoirApplication.mHeight == 0) {
-			MemoirApplication.setDisplayMatrix(getActivity());
-		}
-		((FrameLayout) activity.findViewById(R.id.MyLifeFL))
-				.setLayoutParams(new RelativeLayout.LayoutParams(
-						MemoirApplication.mWidth,
-						(int) (MemoirApplication.mWidth
-								* MemoirApplication.mWidth / MemoirApplication.mHeight)));
-
+		// mTransparent = getResources().getColor(android.R.color.transparent);
+		
 		final VideoView mVv = (VideoView) activity.findViewById(R.id.MyLifeVV);
-		final MediaController mMc = new MediaController(getActivity());
-		mVv.setMediaController(mMc);
-		mVv.requestFocus();
+//		MemoirMediaController mmc = new MemoirMediaController(getActivity(), mMyLifeFL, mVv);
+//		mVv.requestFocus();
 
-		mVv.setOnPreparedListener(new OnPreparedListener() {
+/*		mVv.setOnPreparedListener(new OnPreparedListener() {
 			@Override
 			public void onPrepared(MediaPlayer mp) {
+				Log.d("asd", "OnPrepared in parent got called");
 				if (mMyLifeVideo != null) {
-					LinearLayout ll = (LinearLayout) getActivity()
-							.findViewById(R.id.MyLifeLL);
-					ll.setLayoutParams(new FrameLayout.LayoutParams(mVv
-							.getWidth(), mVv.getHeight() - 155));
-					mMc.setAnchorView(ll);
+					
 					updateMyLifeViews(R.drawable.play,
 							mMyLifeVideo.thumbnailPath, View.VISIBLE,
 							View.INVISIBLE, View.VISIBLE);
+					
 				}
-
+*/
 				/*
 				 * mp.setOnVideoSizeChangedListener(new
 				 * OnVideoSizeChangedListener() {
@@ -131,8 +156,8 @@ public class MyLifeFragment extends Fragment {
 				 * .getWidth(), mVv.getHeight() - 155)); mMc.setAnchorView(ll);
 				 * } });
 				 */
-			}
-		});
+/*			}
+		});*/
 
 		mVv.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 
@@ -174,16 +199,17 @@ public class MyLifeFragment extends Fragment {
 				}
 			}
 		});
-		
+
 		mMyLifeFullscreenIV.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View view) {
-				if(mMyLifeVideo != null) {
+				if (mMyLifeVideo != null) {
 					Intent playIntent = new Intent();
 					playIntent.setAction(Intent.ACTION_VIEW);
 					playIntent.setDataAndType(
-							Uri.fromFile(new File(mMyLifeVideo.path)), "video/*");
+							Uri.fromFile(new File(mMyLifeVideo.path)),
+							"video/*");
 
 					getActivity().startActivity(playIntent);
 				}
@@ -191,23 +217,33 @@ public class MyLifeFragment extends Fragment {
 		});
 
 	}
-
+	
+	public void onVideoViewPrepared() {
+		Log.d("asd", "OnPrepared in parent got called");
+		if (mMyLifeVideo != null) {
+			
+			updateMyLifeViews(R.drawable.play,
+					mMyLifeVideo.thumbnailPath, View.VISIBLE,
+					View.INVISIBLE, View.VISIBLE);
+			
+		}
+	}
+	
 	@Override
 	public void onStart() {
 		super.onStart();
+		mPrefs = this.getActivity().getSharedPreferences("com.devapp.memoir",
+				Context.MODE_PRIVATE);
 
 		((MemoirApplication) getActivity().getApplication()).getDBA()
 				.setStartEndDates();
 
-		List<List<Video>> mVideos = ((MemoirApplication) getActivity().getApplication()).getDBA()
-				.getVideos(
-						0,
-						-1,
-						false,
-						mPrefs.getBoolean("com.devapp.memoir.showonlymultiple",
-								false));
+		List<List<Video>> mVideos = ((MemoirApplication) getActivity()
+				.getApplication()).getDBA().getVideos(0, -1, false,
+				mPrefs.getBoolean("com.devapp.memoir.showonlymultiple", false));
 		mDateAdapter = new MyLifeDateListArrayAdapter(getActivity(), mVideos);
-		ListView mDateList = (ListView) getActivity().findViewById(R.id.MyLifeDateLV);
+		ListView mDateList = (ListView) getActivity().findViewById(
+				R.id.MyLifeDateLV);
 		mDateList.setAdapter(mDateAdapter);
 	}
 
@@ -245,8 +281,9 @@ public class MyLifeFragment extends Fragment {
 			mMyLifeVideo = ((MemoirApplication) getActivity().getApplication())
 					.getMyLifeFile(getActivity().getApplicationContext());
 			if (mMyLifeVideo != null) {
-				((VideoView) getActivity().findViewById(R.id.MyLifeVV)).setVideoPath(mMyLifeVideo.path);
-				//mVv.setVideoPath(mMyLifeVideo.path);
+				((VideoView) getActivity().findViewById(R.id.MyLifeVV))
+						.setVideoPath(mMyLifeVideo.path);
+				// mVv.setVideoPath(mMyLifeVideo.path);
 			} else {
 				updateMyLifeViews(R.drawable.no_video, null, View.VISIBLE,
 						View.INVISIBLE, View.INVISIBLE);
@@ -270,7 +307,7 @@ public class MyLifeFragment extends Fragment {
 			mMyLifeIV.setBackgroundDrawable(new BitmapDrawable(getResources(),
 					BitmapFactory.decodeFile(IVPath)));
 			mMyLifeIV.setTag(IVPath);
-			
+
 			mMyLifeFullscreenIV.setVisibility(View.VISIBLE);
 		} else {
 			mMyLifeIV.setBackgroundColor(mTransparent);
@@ -308,15 +345,16 @@ public class MyLifeFragment extends Fragment {
 
 					// Log.d("asd", "Setting video path here >"
 					// + mMyLifeVideo.path);
-					if(mMyLifeVideo != null) {
-						((VideoView) getActivity().findViewById(R.id.MyLifeVV)).setVideoPath(mMyLifeVideo.path);
-//						mVv.setVideoPath(mMyLifeVideo.path);
+					if (mMyLifeVideo != null) {
+						((VideoView) getActivity().findViewById(R.id.MyLifeVV))
+								.setVideoPath(mMyLifeVideo.path);
+						// mVv.setVideoPath(mMyLifeVideo.path);
 					}
 				} else {
-					if(intent.hasExtra("Error")) {
-						Toast.makeText(
-								getActivity(),
-								intent.getStringExtra("Error"), Toast.LENGTH_LONG).show();
+					if (intent.hasExtra("Error")) {
+						Toast.makeText(getActivity(),
+								intent.getStringExtra("Error"),
+								Toast.LENGTH_LONG).show();
 
 					}
 					updateMyLifeViews(R.drawable.no_video, null, View.VISIBLE,
@@ -337,7 +375,7 @@ public class MyLifeFragment extends Fragment {
 		private Video mSelectedVideo = null;
 		private ImageView mSelectedVideoIV = null;
 		private ViewGroup.MarginLayoutParams params = null;
-		
+
 		private HashMap<String, ImageView> IVCache = null;
 
 		public MyLifeDateListArrayAdapter(Context context,
@@ -350,10 +388,11 @@ public class MyLifeFragment extends Fragment {
 			this.params = new ViewGroup.MarginLayoutParams(
 					(int) TypedValue.applyDimension(
 							TypedValue.COMPLEX_UNIT_DIP, 90, getResources()
-									.getDisplayMetrics()), (int) TypedValue.applyDimension(
-											TypedValue.COMPLEX_UNIT_DIP, 68, getResources()
-											.getDisplayMetrics()));
-			
+									.getDisplayMetrics()),
+					(int) TypedValue.applyDimension(
+							TypedValue.COMPLEX_UNIT_DIP, 68, getResources()
+									.getDisplayMetrics()));
+
 			IVCache = new HashMap<String, ImageView>();
 		}
 
@@ -361,18 +400,18 @@ public class MyLifeFragment extends Fragment {
 		public View getView(int position, View convertView, ViewGroup parent) {
 			List<Video> VideoList = this.mList.get(position);
 			long date = VideoList.get(0).date;
-//			String date = MemoirApplication.getDateStringWRTToday(VideoList
-//					.get(0).date);
+			// String date = MemoirApplication.getDateStringWRTToday(VideoList
+			// .get(0).date);
 
 			if (convertView == null) {
 				convertView = mInflater.inflate(
 						R.layout.fragment_my_life_list_item, null);
 			} else {
-//				if (!((TextView) convertView
-//						.findViewById(R.id.MyLifeListItemTV)).getText().equals(
-//						date)) {
-				if(Long.valueOf((Long)((TextView) convertView.findViewById(R.id.MyLifeListItemTV)).getTag()) !=
-						date) {
+				// if (!((TextView) convertView
+				// .findViewById(R.id.MyLifeListItemTV)).getText().equals(
+				// date)) {
+				if (Long.valueOf((Long) ((TextView) convertView
+						.findViewById(R.id.MyLifeListItemTV)).getTag()) != date) {
 					/**
 					 * NOTE: Comparing dates of this list item and the item from
 					 * position if they are same then continue otherwise needs
@@ -405,30 +444,26 @@ public class MyLifeFragment extends Fragment {
 
 			((TextView) convertView.findViewById(R.id.MyLifeListItemTV))
 					.setText(MemoirApplication.getDateStringWRTToday(date));
-			((TextView) convertView.findViewById(R.id.MyLifeListItemTV)).setTag(new Long(date));
+			((TextView) convertView.findViewById(R.id.MyLifeListItemTV))
+					.setTag(new Long(date));
 
 			mLinearLayout = (LinearLayout) convertView
 					.findViewById(R.id.MyLifeListItemInnerLL);
 
 			for (Video v : VideoList) {
 
-/*				ImageView iv = null;
-				if(IVCache.containsKey(v.path)) {
-					Log.d("asd", "Reading IV from cache");
-					iv = (ImageView) IVCache.get(v.path);
-					if(((LinearLayout) iv.getParent()) != null)
-						((LinearLayout) iv.getParent()).removeView(iv);
-				} else {
-					Log.d("asd", "Creating new IV");
-					iv = (ImageView) mInflater.inflate(
-							R.layout.fragment_my_life_video_item, null);
-					MemoirApplication.mTL.loadImage(v.path, iv);
-					IVCache.put(v.path, iv);
-				}
-				mLinearLayout.addView(iv, this.params);
-*/
+				/*
+				 * ImageView iv = null; if(IVCache.containsKey(v.path)) {
+				 * Log.d("asd", "Reading IV from cache"); iv = (ImageView)
+				 * IVCache.get(v.path); if(((LinearLayout) iv.getParent()) !=
+				 * null) ((LinearLayout) iv.getParent()).removeView(iv); } else
+				 * { Log.d("asd", "Creating new IV"); iv = (ImageView)
+				 * mInflater.inflate( R.layout.fragment_my_life_video_item,
+				 * null); MemoirApplication.mTL.loadImage(v.path, iv);
+				 * IVCache.put(v.path, iv); } mLinearLayout.addView(iv,
+				 * this.params);
+				 */
 
-				
 				ImageView iv = (ImageView) mInflater.inflate(
 						R.layout.fragment_my_life_video_item, null);
 				mLinearLayout.addView(iv, this.params);
@@ -465,12 +500,10 @@ public class MyLifeFragment extends Fragment {
 			if (mActionMode != null) {
 				return false;
 			}
-			((ImageView) view)
-					.setColorFilter(new LightingColorFilter(
-							0xFFFFFF, 0x005050));
+			((ImageView) view).setColorFilter(new LightingColorFilter(0xFFFFFF,
+					0x005050));
 
-			mActionMode = getActivity().startActionMode(
-					mActionModeCallback);
+			mActionMode = getActivity().startActionMode(mActionModeCallback);
 			mSelectedVideoIV = (ImageView) view;
 			mSelectedVideo = (Video) mSelectedVideoIV.getTag();
 			return true;
@@ -481,13 +514,12 @@ public class MyLifeFragment extends Fragment {
 			Video v = (Video) view.getTag();
 			Intent playIntent = new Intent();
 			playIntent.setAction(Intent.ACTION_VIEW);
-			playIntent.setDataAndType(
-					Uri.fromFile(new File(v.path)), "video/*");
+			playIntent
+					.setDataAndType(Uri.fromFile(new File(v.path)), "video/*");
 
 			getActivity().startActivity(playIntent);
 		}
 
-		
 		private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
 
 			public boolean onCreateActionMode(ActionMode mode, Menu menu) {
@@ -549,12 +581,12 @@ public class MyLifeFragment extends Fragment {
 										break;
 									}
 								}
-								if(videoRef != null)
+								if (videoRef != null)
 									break;
 							}
 						}
-									
-						if(videoRef != null) {
+
+						if (videoRef != null) {
 							videoListRef.remove(videoRef);
 							if (mSelectedVideo.selected
 									&& !videoListRef.isEmpty()) {
@@ -565,21 +597,21 @@ public class MyLifeFragment extends Fragment {
 										.selectVideo(tmpV);
 
 								/**
-								 * NOTE: Function call to refresh
-								 * the LifeTime Video
+								 * NOTE: Function call to refresh the LifeTime
+								 * Video
 								 */
 								refreshLifeTimeVideo();
 							} else if (videoListRef.isEmpty()) {
 								mList.remove(videoListRef);
 
 								/**
-								 * NOTE: Function call to refresh
-								 * the LifeTime Video
+								 * NOTE: Function call to refresh the LifeTime
+								 * Video
 								 */
 								refreshLifeTimeVideo();
 							}
 						}
-						
+
 						LinearLayout container = (LinearLayout) mSelectedVideoIV
 								.getParent().getParent().getParent();
 						container.setTag("dirty");
