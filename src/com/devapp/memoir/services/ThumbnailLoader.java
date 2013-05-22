@@ -2,7 +2,6 @@ package com.devapp.memoir.services;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;

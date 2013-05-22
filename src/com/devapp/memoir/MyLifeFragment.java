@@ -19,7 +19,6 @@ import android.graphics.LightingColorFilter;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnErrorListener;
-import android.media.MediaPlayer.OnPreparedListener;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
@@ -28,7 +27,6 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.ActionMode;
 import android.view.Display;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,7 +34,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -56,15 +53,16 @@ public class MyLifeFragment extends Fragment {
 
 	TranscodingServiceBroadcastReceiver mDataBroadcastReceiver = null;
 	private SharedPreferences mPrefs = null;
-	public ImageView mMyLifeIV = null, mMyLifeFullscreenIV = null;
-	public ProgressBar mMyLifePB = null;
-	public TextView mMyLifeTV = null;
-	public FrameLayout mMyLifeFL = null;
+	private ImageView mMyLifeIV = null, mMyLifeFullscreenIV = null;
+	private ProgressBar mMyLifePB = null;
+	private TextView mMyLifeTV = null;
+	private FrameLayout mMyLifeFL = null;
+	protected VideoView mVideoView = null;
 
 	public int mTransparent = 0, mWidth = 0, mHeight = 0, mCWidth = 0, mCHeight = 0;
 	public Video mMyLifeVideo = null;
 
-/*	@Override
+	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		Log.d("asd", "On Create View of parent");
@@ -74,7 +72,7 @@ public class MyLifeFragment extends Fragment {
 				Context.MODE_PRIVATE);
 
 		return rootView;
-	}*/
+	}
 
 	@SuppressLint("NewApi")
 	public void setDisplayMatrix() {
@@ -112,8 +110,8 @@ public class MyLifeFragment extends Fragment {
 		Log.d("asd", "Setting mWdith " + mWidth + "  mHeight >" + mHeight);
 	}
 
-//	@Override
-	public void onActivityCreated2(Bundle savedInstanceState) {
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
 		Log.d("asd", "On Activity Created of Parent");
@@ -121,6 +119,10 @@ public class MyLifeFragment extends Fragment {
 		Activity activity = this.getActivity();
 		mMyLifeFL = (FrameLayout) activity.findViewById(R.id.MyLifeFL);
 		mMyLifeIV = (ImageView) activity.findViewById(R.id.MyLifeIV);
+		
+		if(mMyLifeIV == null)
+			Log.d("asd", "mMyLife IV is null since start");
+		
 		mMyLifeFullscreenIV = (ImageView) activity
 				.findViewById(R.id.MyLifeFullscreenIV);
 		mMyLifePB = (ProgressBar) activity.findViewById(R.id.MyLifePB);
@@ -128,7 +130,10 @@ public class MyLifeFragment extends Fragment {
 		mTransparent = getResources().getColor(android.R.color.black);
 		// mTransparent = getResources().getColor(android.R.color.transparent);
 		
-		final VideoView mVv = (VideoView) activity.findViewById(R.id.MyLifeVV);
+		mVideoView = (VideoView) activity.findViewById(R.id.MyLifeVV);
+		MemoirMediaController mmc = new MemoirMediaController(getActivity(), mMyLifeFL, mVideoView);
+		mVideoView.requestFocus();
+
 //		MemoirMediaController mmc = new MemoirMediaController(getActivity(), mMyLifeFL, mVv);
 //		mVv.requestFocus();
 
@@ -159,7 +164,7 @@ public class MyLifeFragment extends Fragment {
 /*			}
 		});*/
 
-		mVv.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+		mVideoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 
 			@Override
 			public void onCompletion(MediaPlayer vmp) {
@@ -179,7 +184,7 @@ public class MyLifeFragment extends Fragment {
 			}
 		});
 
-		mVv.setOnErrorListener(new OnErrorListener() {
+		mVideoView.setOnErrorListener(new OnErrorListener() {
 			@Override
 			public boolean onError(MediaPlayer arg0, int arg1, int arg2) {
 				Log.e("asd", "Cant Play This Video :(");
@@ -195,7 +200,7 @@ public class MyLifeFragment extends Fragment {
 				if (view.getTag() != null) {
 					updateMyLifeViews(R.drawable.play, null, View.INVISIBLE,
 							View.INVISIBLE, View.INVISIBLE);
-					mVv.start();
+					mVideoView.start();
 				}
 			}
 		});
@@ -232,8 +237,6 @@ public class MyLifeFragment extends Fragment {
 	@Override
 	public void onStart() {
 		super.onStart();
-		mPrefs = this.getActivity().getSharedPreferences("com.devapp.memoir",
-				Context.MODE_PRIVATE);
 
 		((MemoirApplication) getActivity().getApplication()).getDBA()
 				.setStartEndDates();
@@ -245,6 +248,9 @@ public class MyLifeFragment extends Fragment {
 		ListView mDateList = (ListView) getActivity().findViewById(
 				R.id.MyLifeDateLV);
 		mDateList.setAdapter(mDateAdapter);
+		
+		if(mMyLifeIV == null)
+			Log.d("asd", "ImageView turned out to be null by start");
 	}
 
 	public void refreshLifeTimeVideo() {
@@ -265,6 +271,9 @@ public class MyLifeFragment extends Fragment {
 	@Override
 	public void onResume() {
 		super.onResume();
+		if(mMyLifeIV == null)
+			Log.d("asd", "ImageView turned out to be null by resume");
+
 		if (mDataBroadcastReceiver == null)
 			mDataBroadcastReceiver = new TranscodingServiceBroadcastReceiver();
 

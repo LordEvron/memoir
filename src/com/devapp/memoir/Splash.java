@@ -1,7 +1,5 @@
 package com.devapp.memoir;
 
-import com.devapp.memoir.database.MemoirDBA;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,10 +7,11 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
+
+import com.devapp.memoir.database.MemoirDBA;
 
 public class Splash extends Activity {
 

@@ -36,8 +36,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
-import android.widget.Toast;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.devapp.memoir.services.TranscodingService;

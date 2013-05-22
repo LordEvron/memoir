@@ -6,9 +6,6 @@ import java.util.Date;
 
 import android.app.ActionBar;
 import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -75,9 +72,8 @@ public class MainActivity extends Activity {
 
 				Intent takeVideoIntent = new Intent(
 						MediaStore.ACTION_VIDEO_CAPTURE);
-//				takeVideoIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, mPrefs.getInt(
-//						"com.devapp.memoir.noofseconds", 2));
-				takeVideoIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 20);
+				takeVideoIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, mPrefs.getInt(
+						"com.devapp.memoir.noofseconds", 2));
 				takeVideoIntent.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION,
 						ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 				File videoFile = new File(mVideo.path);
@@ -124,19 +120,15 @@ public class MainActivity extends Activity {
 
 		Log.d("asd", "orintation > " + getResources().getConfiguration().orientation + "  >" + Configuration.ORIENTATION_PORTRAIT);
 		Log.d("asd", "Activity Layout main 's reference " + R.layout.activity_main_portrait);
-		setContentView(R.layout.activity_main_portrait);
-/*		FragmentManager fragmentManager = getFragmentManager();
-		FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-		Fragment fragment = null;
-		
-		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-			fragment = new MyLifeFragment();
-		} else if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-			fragment = new MyLifeFragmentLandscape();
+
+		/** NOTE: for some reason my activity was not alke to pick up correct xml file based on orientation hence I have done this*/
+		if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+			Log.d("asd", "Launching landscape activity");
+			setContentView(R.layout.activity_main_landscape);
+		} else if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+			Log.d("asd", "Launching portrait activity");
+			setContentView(R.layout.activity_main_portrait);
 		}
-		fragmentTransaction.add(R.id.FragmentContainer, fragment);
-		fragmentTransaction.commit();
-*/
 		ActionBar actionBar = getActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
 		actionBar.setDisplayShowTitleEnabled(false);

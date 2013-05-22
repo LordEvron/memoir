@@ -1,7 +1,5 @@
 package com.devapp.memoir;
 
-import com.devapp.memoir.services.SecretCamera;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +7,8 @@ import android.os.Handler;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+
+import com.devapp.memoir.services.SecretCamera;
 
 
 public class BootupBroadcastReceiver extends BroadcastReceiver {

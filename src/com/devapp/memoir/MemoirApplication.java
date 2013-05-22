@@ -22,7 +22,6 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.MediaStore.MediaColumns;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Display;
 
 import com.devapp.memoir.database.MemoirDBA;

@@ -6,7 +6,7 @@
     android:orientation="vertical" >
 
     <fragment
-        android:id="@+id/mylifefragment"
+        android:id="@+id/mylifefragmentlandscape"
         android:name="com.devapp.memoir.MyLifeFragmentLandscape"
         android:layout_width="fill_parent"
         android:layout_height="0dp"
