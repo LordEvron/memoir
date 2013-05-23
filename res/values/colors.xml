@@ -6,7 +6,7 @@
     <drawable name="altercolor2">#151515</drawable>
 
     <color name="selectBlue">#33b5e5</color>
-	<color name="selectTransparentBlue">#CC498A9E</color>
+	<color name="selectTransparentBlue">#AA33b5e5</color>
     <color name="black_overlay">#66000000</color>
 
 </resources>

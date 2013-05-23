@@ -218,33 +218,32 @@ public class MemoirApplication extends Application {
 		return null;
 	}
 
-	public class storeThumbnailTask extends AsyncTask<Void, Void, Void> {
-
-
-		
-		public void updateDatebaseForThumbnail() {
-			
-		}
-
-		@Override
-		protected Void doInBackground(Void... arg0) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-	}
-
 	public static String getFilePathFromContentUri(Uri selectedVideoUri,
 			ContentResolver contentResolver) {
 		String filePath;
-		String[] filePathColumn = { MediaColumns.DATA };
+		Cursor cursor = null;
+		if (android.os.Build.VERSION.SDK_INT >= 16) {
+			String[] filePathColumn = { MediaColumns.DATA, MediaColumns.HEIGHT, MediaColumns.WIDTH };
+			cursor = contentResolver.query(selectedVideoUri, filePathColumn,
+					null, null, null);
+		} else {
+			String[] filePathColumn = { MediaColumns.DATA };
+			cursor = contentResolver.query(selectedVideoUri, filePathColumn,
+					null, null, null);
+		}
 
-		Cursor cursor = contentResolver.query(selectedVideoUri, filePathColumn,
-				null, null, null);
 		cursor.moveToFirst();
 
-		int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-		filePath = cursor.getString(columnIndex);
-		cursor.close();
+		filePath = cursor.getString(0);
+		
+		if (android.os.Build.VERSION.SDK_INT == 16) {
+			int height = cursor.getInt(1);
+			int width = cursor.getInt(2);
+			cursor.close();
+			Log.d("asd", "width in content provider width >" + width + "  height " + height);
+			if(width < height)
+				return null;
+		}
 		return filePath;
 	}
 

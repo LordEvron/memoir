@@ -12,6 +12,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.MediaMetadataRetriever;
@@ -42,7 +43,6 @@ import android.widget.VideoView;
 
 import com.devapp.memoir.services.TranscodingService;
 
-
 public class ImportVideoActivity extends Activity implements OnPreparedListener {
 
 	private FrameLayout mFrameLayoutVV = null;
@@ -55,7 +55,8 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 	private int mVideoWidth = 0, mVideoHeight = 0;
 	private int mWidth = 0, mHeight = 0;
 	private int mPosition = 0;
-	private String mPath = null, mVideoDate = null;
+	private static String mPath = null;
+	private String mVideoDate = null;
 	private static int VIDEO_IMPORT_FROM_GALLERY = 0;
 	private TranscodingServiceBroadcastReceiver mDataBroadcastReceiver = null;
 	private MediaMetadataRetriever mMediaRetriever = null;
@@ -76,8 +77,7 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 	@SuppressLint("NewApi")
 	public void setDisplayMatrix() {
 		/** Note : For getting the height and width of the screen */
-		Display display = getWindowManager()
-				.getDefaultDisplay();
+		Display display = getWindowManager().getDefaultDisplay();
 
 		if (android.os.Build.VERSION.SDK_INT >= 14
 				&& android.os.Build.VERSION.SDK_INT <= 16) {
@@ -103,7 +103,6 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 		}
 	}
 
-	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
@@ -113,11 +112,11 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 			Uri selectedVideoLocation = data.getData();
 			mPath = MemoirApplication.getFilePathFromContentUri(
 					selectedVideoLocation, getContentResolver());
-			
-			if(mPath == null) {
+
+			if (mPath == null) {
 				Toast.makeText(
 						this,
-						"This video can not be imported as it is not local on the phone, Please select another video",
+						"This video can not be imported as it is either not local on the phone or of portrait mode or unsupported format, Please select another video",
 						Toast.LENGTH_LONG).show();
 				return;
 			}
@@ -130,12 +129,52 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 			mVideoHeight = Integer
 					.parseInt(mMediaRetriever
 							.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
+
+//			Log.d("asd", "mVideo Height > " + mVideoHeight + "  video Width >"
+//					+ mVideoWidth);
+//			Bitmap b = mMediaRetriever.getFrameAtTime(0);
+//			Log.d("asd", "From Bitmap mVideo Height > " + b.getHeight()
+//					+ "  video Width >" + b.getWidth());
 			
-			/** Note: Retrieving video date from Content URI is more acurate than from MetadataRetriever*/
-			mVideoDate = MemoirApplication.getDateFromContentUri(selectedVideoLocation, getContentResolver());
-			if(mVideoDate == null) {
+			
+			if (android.os.Build.VERSION.SDK_INT >= 14
+					&& android.os.Build.VERSION.SDK_INT <= 16) {
+				
+				Bitmap bmp = mMediaRetriever.getFrameAtTime(0);
+				if(bmp.getHeight() > bmp.getWidth()) {
+					Toast.makeText(
+							this,
+							"This video is in portrait mode and can not be imported",
+							Toast.LENGTH_LONG).show();
+					mPath = null;
+					return;
+				}
+				
+			} else if (android.os.Build.VERSION.SDK_INT >= 17) {
+				int rotationAngle = Integer
+						.parseInt(mMediaRetriever
+								.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION));
+
+				if (rotationAngle == 90 || rotationAngle == 270) {
+					Toast.makeText(
+							this,
+							"This video is in portrait mode and can not be imported",
+							Toast.LENGTH_LONG).show();
+					mPath = null;
+					return;
+				}
+			}
+
+			/**
+			 * Note: Retrieving video date from Content URI is more acurate than
+			 * from MetadataRetriever
+			 */
+			mVideoDate = MemoirApplication.getDateFromContentUri(
+					selectedVideoLocation, getContentResolver());
+			if (mVideoDate == null) {
 				mVideoDate = mMediaRetriever.extractMetadata(
-						MediaMetadataRetriever.METADATA_KEY_DATE).substring(0, 8);
+						MediaMetadataRetriever.METADATA_KEY_DATE).substring(0,
+						8);
 			}
 
 			mDuration = Float
@@ -151,18 +190,18 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 			mImageViewPlay = (ImageView) findViewById(R.id.ImportVideoIVPlay);
 			mSeekBar = (SeekBar) findViewById(R.id.ImportVideoSB);
 
-			//Log.d("asd", "(mHeight*5/6) >" + (mHeight * 5 / 6)
-			//		+ "  (mHeight*1/6)> " + (mHeight * 1 / 6)
-			//		+ "  (mWidth*5/6)" + (mWidth * 5 / 6));
-			
+			// Log.d("asd", "(mHeight*5/6) >" + (mHeight * 5 / 6)
+			// + "  (mHeight*1/6)> " + (mHeight * 1 / 6)
+			// + "  (mWidth*5/6)" + (mWidth * 5 / 6));
+
 			setDisplayMatrix();
 			mFrameLayoutVV.setLayoutParams(new LinearLayout.LayoutParams(
-					LayoutParams.MATCH_PARENT, (int) (mWidth * 5 / 6)));
+					LayoutParams.MATCH_PARENT, (int) (mHeight * 5 / 6)));
 			mRelativeLayoutScroll
 					.setLayoutParams(new LinearLayout.LayoutParams(
-							LayoutParams.MATCH_PARENT, (int) (mWidth * 1 / 6)));
+							LayoutParams.MATCH_PARENT, (int) (mHeight * 1 / 6)));
 			mVideoView.setLayoutParams(new FrameLayout.LayoutParams(
-					(int) (mHeight * 5 / 6), LayoutParams.MATCH_PARENT,
+					(int) (mWidth * 5 / 6), LayoutParams.MATCH_PARENT,
 					Gravity.CENTER));
 		} else {
 			mPath = null;
@@ -185,14 +224,13 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 
 			mVideoView.setOnPreparedListener(this);
 
-			/*mVideoView
-					.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-
-						@Override
-						public void onCompletion(MediaPlayer vmp) {
-							Log.d("qwe", "On Completion listener");
-						}
-					});*/
+			/*
+			 * mVideoView .setOnCompletionListener(new
+			 * MediaPlayer.OnCompletionListener() {
+			 * 
+			 * @Override public void onCompletion(MediaPlayer vmp) {
+			 * Log.d("qwe", "On Completion listener"); } });
+			 */
 
 			mVideoView.setOnErrorListener(new OnErrorListener() {
 				@Override
@@ -235,7 +273,7 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 							mVideoView.seekTo(mPosition * 100);
 							mImageViewPlay.setVisibility(View.VISIBLE);
 						}
-					}, mPrefs.getInt("com.devapp.memoir.noofseconds",1) * 1000);
+					}, mPrefs.getInt("com.devapp.memoir.noofseconds", 1) * 1000);
 				}
 			});
 
@@ -261,6 +299,8 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 
 						@Override
 						public void onClick(View view) {
+							view.setBackgroundColor(getResources().getColor(R.color.selectTransparentBlue));
+
 							Intent intent = new Intent(
 									ImportVideoActivity.this,
 									TranscodingService.class);
@@ -285,6 +325,7 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 
 						@Override
 						public void onClick(View view) {
+							view.setBackgroundColor(getResources().getColor(R.color.selectTransparentBlue));
 							mPath = null;
 							finish();
 						}
@@ -320,17 +361,16 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 		double noOfFrames = Math.floor(containerWidth / containerImageWidth);
 		float secondInterval = containerImageWidth * mDuration / containerWidth;
 
-/*		Log.d("asd", "videoWidth>" + mVideoWidth + "  videoHeight>"
-				+ mVideoHeight + "  containerImageHeight"
-				+ containerImageHeight);
-		Log.d("asd", "containerImageWidth>" + containerImageWidth
-				+ "   mLinearLayoutContainer.getWidth()"
-				+ mLinearLayoutContainer.getWidth());
-		Log.d("asd", "noOfFrames >" + noOfFrames);
-		Log.d("asd", "New FrameLayout width should be" + noOfFrames
-				* containerImageWidth);
-		Log.d("asd", "Duration of Video in milliseconds is >" + mDuration);
-*/
+		/*
+		 * Log.d("asd", "videoWidth>" + mVideoWidth + "  videoHeight>" +
+		 * mVideoHeight + "  containerImageHeight" + containerImageHeight);
+		 * Log.d("asd", "containerImageWidth>" + containerImageWidth +
+		 * "   mLinearLayoutContainer.getWidth()" +
+		 * mLinearLayoutContainer.getWidth()); Log.d("asd", "noOfFrames >" +
+		 * noOfFrames); Log.d("asd", "New FrameLayout width should be" +
+		 * noOfFrames containerImageWidth); Log.d("asd",
+		 * "Duration of Video in milliseconds is >" + mDuration);
+		 */
 		mdistanceToTimeRatio = mLinearLayoutContainer.getWidth() / mDuration;
 
 		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
@@ -341,21 +381,31 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 			ImageView iv = new ImageView(this);
 			mLinearLayoutContainer.addView(iv, params);
 			new getFrameTask().executeOnExecutor(
-					AsyncTask.THREAD_POOL_EXECUTOR,(new FrameIVStruct(Math.round(i * secondInterval * 1000000), iv)));
+					AsyncTask.THREAD_POOL_EXECUTOR,
+					(new FrameIVStruct(
+							Math.round(i * secondInterval * 1000000), iv)));
 		}
 
 		mLinearLayoutContainer.setLayoutParams(new FrameLayout.LayoutParams(
 				LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
-		//Log.d("asd", "mLinearLayoutContainer.getWidth()"
-		//		+ mLinearLayoutContainer.getWidth());
+		// Log.d("asd", "mLinearLayoutContainer.getWidth()"
+		// + mLinearLayoutContainer.getWidth());
 
-		//Log.d("asd", "mdistanceToTimeRatio" + mdistanceToTimeRatio);
-		Bitmap bm = Bitmap.createBitmap(
-				Math.round(mdistanceToTimeRatio
-						* mPrefs.getInt("com.devapp.memoir.noofseconds", 1)),
+		// Log.d("asd", "mdistanceToTimeRatio" + mdistanceToTimeRatio);
+		int imageWidth = Math.round(mdistanceToTimeRatio
+				* mPrefs.getInt("com.devapp.memoir.noofseconds", 1));
+		Bitmap bm = Bitmap.createBitmap(imageWidth,
 				containerHeight, Bitmap.Config.ARGB_8888);
-		new Canvas(bm).drawColor(getResources().getColor(
+		Canvas c = new Canvas(bm);
+		c.drawColor(getResources().getColor(
 				R.color.selectTransparentBlue));
+		if(imageWidth > 3) {
+			Paint p = new Paint();
+			p.setColor(0xFF53D5FF);
+			c.drawRect(0, 0, 3, containerHeight, p);
+			c.drawRect(imageWidth-3,0,imageWidth, containerHeight,p);
+		}
+		
 		Drawable drawable = new BitmapDrawable(getResources(), bm);
 		mSeekBar.setThumb(drawable);
 		mSeekBar.setThumbOffset((int) mdistanceToTimeRatio);
@@ -402,20 +452,21 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 			finish();
 		}
 	}
-	
+
 	public class FrameIVStruct {
 		int frameAt = 0;
 		ImageView iv = null;
 		Bitmap b = null;
-		
+
 		FrameIVStruct(int fa, ImageView iv) {
 			this.frameAt = fa;
 			this.iv = iv;
 		}
 	}
-	
-	public class getFrameTask extends AsyncTask<FrameIVStruct, Void, FrameIVStruct> {
-		
+
+	public class getFrameTask extends
+			AsyncTask<FrameIVStruct, Void, FrameIVStruct> {
+
 		@Override
 		protected FrameIVStruct doInBackground(FrameIVStruct... arg0) {
 			FrameIVStruct struct = arg0[0];
@@ -430,7 +481,7 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 			}
 			super.onPostExecute(result);
 		}
-		
+
 	}
 
 	@Override
@@ -441,5 +492,6 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+		mPath = null;
 	}
 }
