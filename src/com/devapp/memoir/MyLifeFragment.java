@@ -312,9 +312,12 @@ public class MyLifeFragment extends Fragment {
 			int PBVis, int TVVis) {
 
 		mMyLifeIV.setImageResource(IVRes);
+		mMyLifeIV.setImageAlpha(200);
 		if (IVPath != null) {
-			mMyLifeIV.setBackgroundDrawable(new BitmapDrawable(getResources(),
-					BitmapFactory.decodeFile(IVPath)));
+//			mMyLifeIV.setBackgroundDrawable(new BitmapDrawable(getResources(),
+//					BitmapFactory.decodeFile(IVPath)));
+			
+			mMyLifeIV.setBackgroundResource(R.drawable.videothumbnail);
 			mMyLifeIV.setTag(IVPath);
 
 			mMyLifeFullscreenIV.setVisibility(View.VISIBLE);

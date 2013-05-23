@@ -8,25 +8,28 @@ import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewTreeObserver;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
-import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.widget.VideoView;
 
 public class MyLifeFragmentLandscape extends MyLifeFragment {
 
 	private SeekBar mDrawer = null;
 	private FrameLayout mMyLifeContainerFL = null, mMyLifeFL = null;
+	private RelativeLayout mMyLifeDrawerContainerRL = null;
 	private int gAdsHeight = 0;
 	private ListView mMyLifeLV = null;
-	private int listViewWidth = 0, mDrawerWidth = 0, mGlobalDrawerWidth = 0;
+	private int mDrawerContainerOrigWidth = 0, mDrawerContainerWidth = 0, mGlobalDrawerContainerWidth = 0;
 	private float mWidthInc = 0;
 	private int originalProgress = 0, startProgress = 0;
+	private boolean isExpanded = false;
 		
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
@@ -37,8 +40,29 @@ public class MyLifeFragmentLandscape extends MyLifeFragment {
 		mMyLifeFL = (FrameLayout) activity.findViewById(R.id.MyLifeFL);
 		mMyLifeContainerFL = (FrameLayout) activity.findViewById(R.id.MyLifeContainerFL);
 		mMyLifeLV = (ListView) activity.findViewById(R.id.MyLifeDateLV);
+		mMyLifeDrawerContainerRL = (RelativeLayout)activity.findViewById(R.id.MyLifeDrawerContainer);
 		
-		mDrawer = (SeekBar) activity.findViewById(R.id.MyLifeSB);
+		ImageView myLifeDrawerIV = (ImageView)activity.findViewById(R.id.MyLifeDrawerIV);
+		myLifeDrawerIV.setImageResource(R.drawable.drawer);
+		myLifeDrawerIV.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View view) {
+				if(isExpanded) {
+					isExpanded = false;
+					mMyLifeDrawerContainerRL.setLayoutParams(new FrameLayout.LayoutParams(
+							mDrawerContainerOrigWidth, LayoutParams.MATCH_PARENT, Gravity.RIGHT));
+					((ImageView)view).setImageResource(R.drawable.drawer);
+				} else {
+					isExpanded = true;
+					mMyLifeDrawerContainerRL.setLayoutParams(new FrameLayout.LayoutParams(
+							mDrawerContainerWidth, LayoutParams.MATCH_PARENT, Gravity.RIGHT));
+					((ImageView)view).setImageResource(R.drawable.drawerreverse);
+				}
+			}
+		});
+		
+/*		mDrawer = (SeekBar) activity.findViewById(R.id.MyLifeSB);
 		mDrawer.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
 			@Override
@@ -83,16 +107,16 @@ public class MyLifeFragmentLandscape extends MyLifeFragment {
 				startProgress = -1;
 			}
 			
-		});
+		});*/
 		
 		gAdsHeight = (int) TypedValue.applyDimension(
-						TypedValue.COMPLEX_UNIT_DIP, 50,
+						TypedValue.COMPLEX_UNIT_DIP, 32,
 						getResources().getDisplayMetrics());
 
-		mGlobalDrawerWidth = (int) TypedValue.applyDimension(
-				TypedValue.COMPLEX_UNIT_DIP, 450,
+		mDrawerContainerWidth = (int) TypedValue.applyDimension(
+				TypedValue.COMPLEX_UNIT_DIP, 480,
 				getResources().getDisplayMetrics());
-		Log.d("asd", "Drawer width is supposed to be in terms of 450dp > " + mGlobalDrawerWidth);
+		Log.d("asd", "Drawer width is supposed to be in terms of 450dp > " + mDrawerContainerWidth);
 		
 		ViewTreeObserver vto = mMyLifeFL.getViewTreeObserver();
 		vto.addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
@@ -125,6 +149,10 @@ public class MyLifeFragmentLandscape extends MyLifeFragment {
 	public void draw() {
 		setDisplayMatrix();
 		
+		int dp20px = (int) TypedValue.applyDimension(
+				TypedValue.COMPLEX_UNIT_DIP, 20,
+				getResources().getDisplayMetrics());
+		
 		int newHeight = mMyLifeContainerFL.getHeight();
 //		int newHeight = mMyLifeContainerFL.getHeight() - gAdsHeight;
 		mMyLifeContainerFL.setLayoutParams(new RelativeLayout.LayoutParams(
@@ -134,21 +162,24 @@ public class MyLifeFragmentLandscape extends MyLifeFragment {
 		mMyLifeFL.setLayoutParams(new FrameLayout.LayoutParams(
 				newHeight * mWidth / mHeight, LayoutParams.MATCH_PARENT, Gravity.LEFT));
 
-		listViewWidth = mCWidth - (newHeight * mWidth / mHeight);
+		mDrawerContainerOrigWidth = mCWidth - (newHeight * mWidth / mHeight);
 //		mMyLifeLV.setLayoutParams(new FrameLayout.LayoutParams(
 //				1, LayoutParams.MATCH_PARENT, Gravity.RIGHT));
-		mMyLifeLV.setLayoutParams(new FrameLayout.LayoutParams(
-				listViewWidth, LayoutParams.MATCH_PARENT, Gravity.RIGHT));
+		mMyLifeDrawerContainerRL.setLayoutParams(new FrameLayout.LayoutParams(
+				mDrawerContainerOrigWidth, LayoutParams.MATCH_PARENT, Gravity.RIGHT));
+		
+//		mMyLifeLV.setLayoutParams(new FrameLayout.LayoutParams(
+//				listViewWidth, LayoutParams.MATCH_PARENT, Gravity.RIGHT));
 
-		Log.d("asd", "ListView width >" + listViewWidth);
+//		Log.d("asd", "ListView width >" + listViewWidth);
 
-		mDrawerWidth = mGlobalDrawerWidth - listViewWidth;
+//		mDrawerWidth = mGlobalDrawerWidth - listViewWidth;
 
-		Log.d("asd", "mDrawerWidth" + mDrawerWidth);
-		mWidthInc = (float)((float)mDrawerWidth/(float)100);
-		Log.d("asd", "What is the width inc" + mWidthInc);
+//		Log.d("asd", "mDrawerWidth" + mDrawerWidth);
+//		mWidthInc = (float)((float)mDrawerWidth/(float)100);
+//		Log.d("asd", "What is the width inc" + mWidthInc);
 
-		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+/*		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
 				mDrawerWidth + (int) TypedValue.applyDimension(
 						TypedValue.COMPLEX_UNIT_DIP, 20,
 						getResources().getDisplayMetrics()), LayoutParams.WRAP_CONTENT, Gravity.RIGHT|Gravity.CENTER_VERTICAL);
@@ -156,7 +187,7 @@ public class MyLifeFragmentLandscape extends MyLifeFragment {
 				TypedValue.COMPLEX_UNIT_DIP, 2,
 				getResources().getDisplayMetrics()), 0);
 		mDrawer.setLayoutParams(params);
-		mDrawer.setProgress(1000);
+		mDrawer.setProgress(1000);*/
 	}
 	
 }

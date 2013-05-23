@@ -3,6 +3,7 @@ package com.devapp.memoir;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,10 +18,18 @@ public class Splash extends Activity {
 
 	private boolean mIsBackButtonPressed;
 	private static final int SPLASH_DURATION = 2000;
-
+	private SharedPreferences mPrefs = null;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		mPrefs = PreferenceManager
+				.getDefaultSharedPreferences(Splash.this);
+		
+		if (!mPrefs.getBoolean("com.devapp.memoir.firsttime", false)) {
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+		}
+		
 		setContentView(R.layout.activity_splash);
 
 		Handler handler = new Handler();
@@ -28,12 +37,10 @@ public class Splash extends Activity {
 
 			@Override
 			public void run() {
-				SharedPreferences prefs = PreferenceManager
-						.getDefaultSharedPreferences(Splash.this);
 				if (!mIsBackButtonPressed) {
 					Intent i;
-					if (!prefs.getBoolean("com.devapp.memoir.firsttime", false)) {
-						prefs.edit().putBoolean("com.devapp.memoir.firsttime", true).commit();
+					if (!mPrefs.getBoolean("com.devapp.memoir.firsttime", false)) {
+						mPrefs.edit().putBoolean("com.devapp.memoir.firsttime", true).commit();
 						i = new Intent(Splash.this, WelcomeScreen.class);
 						i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 					} else {

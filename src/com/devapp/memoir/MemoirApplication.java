@@ -22,6 +22,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.MediaStore.MediaColumns;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Display;
 
 import com.devapp.memoir.database.MemoirDBA;
@@ -110,7 +111,8 @@ public class MemoirApplication extends Application {
 		long difference = now - then;
 		int ago = 0;
 
-		if (difference >= DAY_IN_MILLIS) {
+		Log.d("asd", "What is the difference >" + difference);
+		if (difference >= DAY_IN_MILLIS - 10000/*Tolerance*/) {
 			ago = (int) (difference / DAY_IN_MILLIS);
 			if(ago == 1) {
 				daysAgo = String.format(Locale.ENGLISH, "%d day ago", ago);
@@ -120,7 +122,7 @@ public class MemoirApplication extends Application {
 				daysAgo = String.format(Locale.ENGLISH, "%d %s %d", day , getMonth[month], year);
 			}
 		} else if(difference < 0) {
-			daysAgo = String.format(Locale.ENGLISH, "In Future - %d %s %d", day , getMonth[month], year);
+			daysAgo = String.format(Locale.ENGLISH, "%d %s %d", day , getMonth[month], year);
 		} else {
 			daysAgo = String.format("Today");
 		}
