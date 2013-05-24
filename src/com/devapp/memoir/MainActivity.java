@@ -7,6 +7,7 @@ import java.util.List;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -37,6 +38,7 @@ public class MainActivity extends Activity {
 	public static Video mVideo = null;
 	public SharedPreferences mPrefs = null;
 	TranscodingServiceBroadcastReceiver mDataBroadcastReceiver = null;
+	public Fragment mFragment = null;
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -64,6 +66,15 @@ public class MainActivity extends Activity {
 			 */
 			return true;
 		case R.id.action_shoot_video:
+			if (!mPrefs.getBoolean("com.devapp.memoir.firsttimeshootvideo", false)) {
+				mPrefs.edit().putBoolean("com.devapp.memoir.firsttimeshootvideo", true).commit();
+				Toast.makeText(
+						MainActivity.this,
+						"Shoot videos only in landscape mode. Portrait videos are not selected",
+						Toast.LENGTH_LONG).show();
+			}
+
+			
 			if (((MemoirApplication) getApplication()).getDBA()
 					.checkVideoInLimit()) {
 
@@ -248,24 +259,28 @@ public class MainActivity extends Activity {
 				mPrefs.edit().putBoolean("com.devapp.memoir.datachanged", true)
 						.putLong("com.devapp.memoir.endall", date)
 						.putLong("com.devapp.memoir.endselected", date).commit();
-/*				
-				List<List<Video>> videos1 = ((MemoirApplication) this.getApplication()).getDBA().getVideos(0, -1, false,
-						mPrefs.getBoolean("com.devapp.memoir.showonlymultiple", false));
 				
-				List<List<Video>> videos2 = ((MyLifeFragment)this.getFragmentManager().findFragmentByTag("Fragment")).mVideos;
-
-				if(videos1.size() != videos2.size()) {
-					Log.d("asd", "Calling on Start again");
-					//((MyLifeFragment)this.getFragmentManager().findFragmentByTag("Fragment")).onStart();
-				} else {
-					int len = videos1.size();
-					for(int i = 0; i < len ; i++) {
-						if(videos1.get(i).size() != videos2.get(i).size()) {
+				if(mFragment != null) {
+					List<List<Video>> videos1 = ((MemoirApplication) this.getApplication()).getDBA().getVideos(0, -1, false,
+							mPrefs.getBoolean("com.devapp.memoir.showonlymultiple", false));
+					
+					List<List<Video>> videos2 = ((MyLifeFragment)mFragment).mVideos;
+	
+					if(videos1 != null) {
+						if(videos2 == null || videos1.size() != videos2.size()) {
 							Log.d("asd", "Calling on Start again");
-							//((MyLifeFragment)this.getFragmentManager().findFragmentByTag("Fragment")).onStart();
+							((MyLifeFragment)mFragment).onStart();
+						} else {
+							int len = videos1.size();
+							for(int i = 0; i < len ; i++) {
+								if(videos1.get(i).size() != videos2.get(i).size()) {
+									Log.d("asd", "Calling on Start again");
+									((MyLifeFragment)mFragment).onStart();
+								}
+							}
 						}
 					}
-				}*/
+				}
 			}
 		} else if (requestCode == VIDEO_IMPORT && resultCode == RESULT_OK) {
 			//Log.d("asd",
@@ -287,6 +302,13 @@ public class MainActivity extends Activity {
 				mPrefs.edit().putLong("com.devapp.memoir.startselected", d).commit();
 			}
 		}
+	}
+
+	@Override
+	public void onAttachFragment(Fragment fragment) {
+		Log.d("asd", "Fragment Attached called");
+		mFragment = fragment;
+		super.onAttachFragment(fragment);
 	}
 
 	public void shareActionProviderTask() {

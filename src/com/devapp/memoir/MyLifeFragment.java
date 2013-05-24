@@ -255,9 +255,6 @@ public class MyLifeFragment extends Fragment {
 		ListView mDateList = (ListView) getActivity().findViewById(
 				R.id.MyLifeDateLV);
 		mDateList.setAdapter(mDateAdapter);
-		
-		if(mMyLifeIV == null)
-			Log.d("asd", "ImageView turned out to be null by start");
 	}
 
 	public void refreshLifeTimeVideo() {
