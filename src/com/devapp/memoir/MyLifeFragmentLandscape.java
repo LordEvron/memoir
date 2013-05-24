@@ -123,7 +123,7 @@ public class MyLifeFragmentLandscape extends MyLifeFragment {
 
 			@SuppressLint("NewApi") @Override
 			public void onGlobalLayout() {
-				
+				Log.e("asd", "Inside onGlobalLayout");
 				draw();
 				ViewTreeObserver vto = mMyLifeFL.getViewTreeObserver();
 
@@ -165,9 +165,17 @@ public class MyLifeFragmentLandscape extends MyLifeFragment {
 		mDrawerContainerOrigWidth = mCWidth - (newHeight * mWidth / mHeight);
 //		mMyLifeLV.setLayoutParams(new FrameLayout.LayoutParams(
 //				1, LayoutParams.MATCH_PARENT, Gravity.RIGHT));
-		mMyLifeDrawerContainerRL.setLayoutParams(new FrameLayout.LayoutParams(
-				mDrawerContainerOrigWidth, LayoutParams.MATCH_PARENT, Gravity.RIGHT));
-		
+		if(isExpanded) {
+			mMyLifeDrawerContainerRL.setLayoutParams(new FrameLayout.LayoutParams(
+					mDrawerContainerWidth, LayoutParams.MATCH_PARENT, Gravity.RIGHT));
+			((ImageView)getActivity().findViewById(R.id.MyLifeDrawerIV)).setImageResource(R.drawable.drawerreverse);
+		} else {
+			mMyLifeDrawerContainerRL.setLayoutParams(new FrameLayout.LayoutParams(
+					mDrawerContainerOrigWidth, LayoutParams.MATCH_PARENT, Gravity.RIGHT));
+			((ImageView)getActivity().findViewById(R.id.MyLifeDrawerIV)).setImageResource(R.drawable.drawer);
+		}
+
+
 //		mMyLifeLV.setLayoutParams(new FrameLayout.LayoutParams(
 //				listViewWidth, LayoutParams.MATCH_PARENT, Gravity.RIGHT));
 

@@ -1,7 +1,11 @@
 package com.devapp.memoir;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.channels.FileChannel;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -41,6 +45,11 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import com.coremedia.iso.IsoFile;
+import com.coremedia.iso.boxes.MovieBox;
+import com.coremedia.iso.boxes.TrackBox;
+import com.coremedia.iso.boxes.TrackHeaderBox;
+import com.coremedia.iso.boxes.UserDataBox;
 import com.devapp.memoir.services.TranscodingService;
 
 public class ImportVideoActivity extends Activity implements OnPreparedListener {
@@ -113,6 +122,38 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 			mPath = MemoirApplication.getFilePathFromContentUri(
 					selectedVideoLocation, getContentResolver());
 
+			try {
+				FileInputStream f = new FileInputStream(mPath);
+				FileChannel fc = f.getChannel();
+				IsoFile isoFile = new IsoFile(fc);
+				MovieBox moov = isoFile.getBoxes(MovieBox.class).get(0);
+
+				if (moov.getBoxes(TrackBox.class).size() > 0) {
+					TrackBox track = moov.getBoxes(TrackBox.class).get(0);
+					TrackHeaderBox thb = track.getTrackHeaderBox();
+
+					if (thb.getWidth() != mPrefs.getInt(
+							"com.devapp.memoir.standardwidth", 0)
+							|| thb.getHeight() != mPrefs.getInt(
+									"com.devapp.memoir.standardheight", 0)) {
+						mPath = null;
+					}
+					Log.d("asd", "movie box details are " + thb.getHeight()
+							+ "   getWidth" + thb.getWidth());
+				} else {
+					Log.d("asd", "Size is too less");
+				}
+				isoFile.close();
+				f.close();
+				
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
 			if (mPath == null) {
 				Toast.makeText(
 						this,
@@ -130,18 +171,18 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 					.parseInt(mMediaRetriever
 							.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
 
-//			Log.d("asd", "mVideo Height > " + mVideoHeight + "  video Width >"
-//					+ mVideoWidth);
-//			Bitmap b = mMediaRetriever.getFrameAtTime(0);
-//			Log.d("asd", "From Bitmap mVideo Height > " + b.getHeight()
-//					+ "  video Width >" + b.getWidth());
-			
-			
-			if (android.os.Build.VERSION.SDK_INT >= 14
+			// Log.d("asd", "mVideo Height > " + mVideoHeight +
+			// "  video Width >"
+			// + mVideoWidth);
+			// Bitmap b = mMediaRetriever.getFrameAtTime(0);
+			// Log.d("asd", "From Bitmap mVideo Height > " + b.getHeight()
+			// + "  video Width >" + b.getWidth());
+
+/*			if (android.os.Build.VERSION.SDK_INT >= 14
 					&& android.os.Build.VERSION.SDK_INT <= 16) {
-				
+
 				Bitmap bmp = mMediaRetriever.getFrameAtTime(0);
-				if(bmp.getHeight() > bmp.getWidth()) {
+				if (bmp.getHeight() > bmp.getWidth()) {
 					Toast.makeText(
 							this,
 							"This video is in portrait mode and can not be imported",
@@ -149,7 +190,7 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 					mPath = null;
 					return;
 				}
-				
+
 			} else if (android.os.Build.VERSION.SDK_INT >= 17) {
 				int rotationAngle = Integer
 						.parseInt(mMediaRetriever
@@ -163,7 +204,7 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 					mPath = null;
 					return;
 				}
-			}
+			}*/
 
 			/**
 			 * Note: Retrieving video date from Content URI is more acurate than
@@ -299,7 +340,8 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 
 						@Override
 						public void onClick(View view) {
-							view.setBackgroundColor(getResources().getColor(R.color.selectTransparentBlue));
+							view.setBackgroundColor(getResources().getColor(
+									R.color.selectTransparentBlue));
 
 							Intent intent = new Intent(
 									ImportVideoActivity.this,
@@ -325,7 +367,8 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 
 						@Override
 						public void onClick(View view) {
-							view.setBackgroundColor(getResources().getColor(R.color.selectTransparentBlue));
+							view.setBackgroundColor(getResources().getColor(
+									R.color.selectTransparentBlue));
 							mPath = null;
 							finish();
 						}
@@ -394,18 +437,17 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 		// Log.d("asd", "mdistanceToTimeRatio" + mdistanceToTimeRatio);
 		int imageWidth = Math.round(mdistanceToTimeRatio
 				* mPrefs.getInt("com.devapp.memoir.noofseconds", 1));
-		Bitmap bm = Bitmap.createBitmap(imageWidth,
-				containerHeight, Bitmap.Config.ARGB_8888);
+		Bitmap bm = Bitmap.createBitmap(imageWidth, containerHeight,
+				Bitmap.Config.ARGB_8888);
 		Canvas c = new Canvas(bm);
-		c.drawColor(getResources().getColor(
-				R.color.selectTransparentBlue));
-		if(imageWidth > 3) {
+		c.drawColor(getResources().getColor(R.color.selectTransparentBlue));
+		if (imageWidth > 3) {
 			Paint p = new Paint();
 			p.setColor(0xFF53D5FF);
 			c.drawRect(0, 0, 3, containerHeight, p);
-			c.drawRect(imageWidth-3,0,imageWidth, containerHeight,p);
+			c.drawRect(imageWidth - 3, 0, imageWidth, containerHeight, p);
 		}
-		
+
 		Drawable drawable = new BitmapDrawable(getResources(), bm);
 		mSeekBar.setThumb(drawable);
 		mSeekBar.setThumbOffset((int) mdistanceToTimeRatio);

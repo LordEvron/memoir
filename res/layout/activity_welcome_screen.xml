@@ -67,8 +67,9 @@
         android:id="@+id/WelcomeScreenSwipeRight"
         android:layout_gravity="left|center_vertical"
         android:layout_marginLeft="10dp"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:padding="15dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:visibility="invisible"
         android:src="@drawable/swipeleft" />
 
@@ -76,8 +77,9 @@
         android:id="@+id/WelcomeScreenSwipeLeft"
         android:layout_gravity="right|center_vertical"
         android:layout_marginRight="10dp"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:padding="15dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:visibility="invisible"
         android:src="@drawable/swiperight" />
 

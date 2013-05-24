@@ -29,6 +29,7 @@ import com.googlecode.mp4parser.authoring.builder.DefaultMp4Builder;
 import com.googlecode.mp4parser.authoring.container.mp4.MovieCreator;
 import com.googlecode.mp4parser.authoring.tracks.AppendTrack;
 import com.googlecode.mp4parser.authoring.tracks.CroppedTrack;
+import com.googlecode.mp4parser.authoring.tracks.TextTrackImpl;
 
 public class TranscodingService extends IntentService {
 
@@ -65,6 +66,32 @@ public class TranscodingService extends IntentService {
 	 * return result; }
 	 */
 
+	/*
+	public void temp () {
+		Movie countVideo = new MovieCreator().build(Channels.newChannel(SubTitleExample.class.getResourceAsStream("/count-video.mp4")));
+
+		TextTrackImpl subTitleEng = new TextTrackImpl();
+		subTitleEng.getTrackMetaData().setLanguage("eng");
+
+
+		subTitleEng.getSubs().add(new TextTrackImpl.Line(5000, 6000, "Five"));
+		subTitleEng.getSubs().add(new TextTrackImpl.Line(8000, 9000, "Four"));
+		subTitleEng.getSubs().add(new TextTrackImpl.Line(12000, 13000, "Three"));
+		subTitleEng.getSubs().add(new TextTrackImpl.Line(16000, 17000, "Two"));
+		subTitleEng.getSubs().add(new TextTrackImpl.Line(20000, 21000, "one"));
+
+		countVideo.addTrack(subTitleEng);
+
+//		TextTrackImpl subTitleDeu = SrtParser.parse(SubTitleExample.class.getResourceAsStream("/count-subs-deutsch.srt"));
+//		subTitleDeu.getTrackMetaData().setLanguage("deu");
+//		countVideo.addTrack(subTitleDeu);
+
+		IsoFile out = new DefaultMp4Builder().build(countVideo);
+		FileOutputStream fos = new FileOutputStream(new File("output.mp4"));
+		out.getBox(new IsoOutputStream(fos));
+		fos.close();
+	}*/
+	
 	public void createMyLife(Intent intent) {
 
 		String myLifePath = null;
@@ -148,6 +175,24 @@ public class TranscodingService extends IntentService {
 						.toArray(new Track[videoTracks.size()])));
 			}
 
+			/** NOTE : TEMP */
+			
+			TextTrackImpl subTitleEng = new TextTrackImpl() {
+	            // Hack to replace "text" with "sbtl"
+	            public String getHandler() { return "sbtl"; }
+	        };
+	        
+			subTitleEng.getTrackMetaData().setLanguage("eng");
+
+			subTitleEng.getSubs().add(new TextTrackImpl.Line(0, 2000, "Hellllllllooooooooooooooooooooo"));
+			/*subTitleEng.getSubs().add(new TextTrackImpl.Line(8000, 9000, "Four"));
+			subTitleEng.getSubs().add(new TextTrackImpl.Line(12000, 13000, "Three"));
+			subTitleEng.getSubs().add(new TextTrackImpl.Line(16000, 17000, "Two"));
+			subTitleEng.getSubs().add(new TextTrackImpl.Line(20000, 21000, "one"));*/
+
+			result.addTrack(subTitleEng);
+			/** END OF TEMP */
+			
 			IsoFile out = new DefaultMp4Builder().build(result);
 			FileOutputStream fos = new FileOutputStream(file);
 			FileChannel fc = fos.getChannel();

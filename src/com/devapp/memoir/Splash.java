@@ -17,7 +17,7 @@ import com.devapp.memoir.database.MemoirDBA;
 public class Splash extends Activity {
 
 	private boolean mIsBackButtonPressed;
-	private static final int SPLASH_DURATION = 2000;
+	private static final int SPLASH_DURATION = 8000;
 	private SharedPreferences mPrefs = null;
 	
 	@Override

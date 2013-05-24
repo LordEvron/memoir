@@ -3,6 +3,7 @@ package com.devapp.memoir;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -13,6 +14,8 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -72,6 +75,8 @@ public class MainActivity extends Activity {
 
 				Intent takeVideoIntent = new Intent(
 						MediaStore.ACTION_VIDEO_CAPTURE);
+//				Intent takeVideoIntent = new Intent(this, CameraLandscapeDummyActivity.class);
+
 				takeVideoIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, mPrefs.getInt(
 						"com.devapp.memoir.noofseconds", 2));
 				takeVideoIntent.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION,
@@ -192,26 +197,46 @@ public class MainActivity extends Activity {
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 
+		Log.d("asd", " On Activity result for activity " + this);
 		if (requestCode == VIDEO_CAPTURE && resultCode == RESULT_OK) {
 			Uri VideoUri = data.getData();
 
 			Log.d("zxc", "VideoUri.getPath() >" + VideoUri.getPath()
 					+ " mVideo.path>" + mVideo.path + " Video URI >" + VideoUri);
 
-			if (VideoUri.getPath().equals(mVideo.path)) {
-				((MemoirApplication) getApplication()).getDBA()
-						.addVideo(mVideo);
-				((MemoirApplication) getApplication()).getDBA().selectVideo(
-						mVideo);
-
-				SimpleDateFormat ft = new SimpleDateFormat("yyyyMMdd");
-				long date = Long.parseLong(ft.format(new Date()));
-				mPrefs.edit().putBoolean("com.devapp.memoir.datachanged", true)
-						.putLong("com.devapp.memoir.endall", date)
-						.putLong("com.devapp.memoir.endselected", date).commit();
-
-			} else if (MemoirApplication.getFilePathFromContentUri(VideoUri,
+			if (VideoUri.getPath().equals(mVideo.path) || MemoirApplication.getFilePathFromContentUri(VideoUri,
 					getContentResolver()).equals(mVideo.path)) {
+				
+				MediaMetadataRetriever mMediaRetriever = new MediaMetadataRetriever();
+				mMediaRetriever.setDataSource(mVideo.path);
+
+				if (android.os.Build.VERSION.SDK_INT >= 14
+						&& android.os.Build.VERSION.SDK_INT <= 16) {
+
+					Bitmap bmp = mMediaRetriever.getFrameAtTime(0);
+					if (bmp.getHeight() > bmp.getWidth()) {
+						Toast.makeText(
+								this,
+								"This video is in portrait mode and can not be imported",
+								Toast.LENGTH_LONG).show();
+						findViewById(R.id.action_shoot_video).callOnClick();
+						return;
+					}
+
+				} else if (android.os.Build.VERSION.SDK_INT >= 17) {
+					int rotationAngle = Integer
+							.parseInt(mMediaRetriever
+									.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION));
+
+					if (rotationAngle == 90 || rotationAngle == 270) {
+						Toast.makeText(
+								this,
+								"This video is in portrait mode and can not be imported",
+								Toast.LENGTH_LONG).show();
+						findViewById(R.id.action_shoot_video).callOnClick();
+						return;
+					}
+				}
 				
 				((MemoirApplication) getApplication()).getDBA()
 						.addVideo(mVideo);
@@ -223,6 +248,24 @@ public class MainActivity extends Activity {
 				mPrefs.edit().putBoolean("com.devapp.memoir.datachanged", true)
 						.putLong("com.devapp.memoir.endall", date)
 						.putLong("com.devapp.memoir.endselected", date).commit();
+/*				
+				List<List<Video>> videos1 = ((MemoirApplication) this.getApplication()).getDBA().getVideos(0, -1, false,
+						mPrefs.getBoolean("com.devapp.memoir.showonlymultiple", false));
+				
+				List<List<Video>> videos2 = ((MyLifeFragment)this.getFragmentManager().findFragmentByTag("Fragment")).mVideos;
+
+				if(videos1.size() != videos2.size()) {
+					Log.d("asd", "Calling on Start again");
+					//((MyLifeFragment)this.getFragmentManager().findFragmentByTag("Fragment")).onStart();
+				} else {
+					int len = videos1.size();
+					for(int i = 0; i < len ; i++) {
+						if(videos1.get(i).size() != videos2.get(i).size()) {
+							Log.d("asd", "Calling on Start again");
+							//((MyLifeFragment)this.getFragmentManager().findFragmentByTag("Fragment")).onStart();
+						}
+					}
+				}*/
 			}
 		} else if (requestCode == VIDEO_IMPORT && resultCode == RESULT_OK) {
 			//Log.d("asd",

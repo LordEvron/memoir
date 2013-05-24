@@ -53,7 +53,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|left"
                 android:layout_margin="5dp"
-                android:lines="2"
+                android:lines="1"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textStyle="bold|italic" />
 

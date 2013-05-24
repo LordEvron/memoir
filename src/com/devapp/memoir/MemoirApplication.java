@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import android.annotation.SuppressLint;
@@ -16,8 +17,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.hardware.Camera;
+import android.hardware.Camera.Parameters;
+import android.hardware.Camera.Size;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.MediaStore.MediaColumns;
@@ -37,6 +40,7 @@ public class MemoirApplication extends Application {
 	private static int mWidth = 0, mHeight = 0;
 	public static ThumbnailLoader mTL = null;
 	private static String[] getMonth = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+	private static String mExtFileDirectory = null;
 
 	@Override
 	public void onCreate() {
@@ -45,6 +49,8 @@ public class MemoirApplication extends Application {
 		mPrefs = this.getSharedPreferences("com.devapp.memoir",
 				Context.MODE_PRIVATE);
 
+		mExtFileDirectory = getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_MOVIES).getAbsolutePath();
+		
 		if (!mPrefs.contains("com.devapp.memoir.startall")) {
 			SharedPreferences.Editor editor = mPrefs.edit();
 			SimpleDateFormat ft = new SimpleDateFormat("yyyyMMdd");
@@ -64,6 +70,8 @@ public class MemoirApplication extends Application {
 				File f = new File(v.path);
 				f.delete();
 			}
+
+			setDefaultCameraResolution();
 		}/* else {
 			Log.d("asd",
 					"com.devapp.memoir.startall > "
@@ -121,7 +129,7 @@ public class MemoirApplication extends Application {
 			} else {
 				daysAgo = String.format(Locale.ENGLISH, "%d %s %d", day , getMonth[month], year);
 			}
-		} else if(difference < 0) {
+		} else if(difference < -10000 /*Tolerance*/) {
 			daysAgo = String.format(Locale.ENGLISH, "%d %s %d", day , getMonth[month], year);
 		} else {
 			daysAgo = String.format("Today");
@@ -151,6 +159,21 @@ public class MemoirApplication extends Application {
 			outputFilename = c.getFilesDir().getAbsolutePath();
 
 		outputFilename = outputFilename.concat("/Memoir/MyLife.mp4");
+		File f = new File(outputFilename);
+
+		if (f.exists()) {
+			Video v = new Video(outputFilename);
+			if(!(new File(convertPath(outputFilename)).exists())) {
+				MemoirApplication.mTL.convertThumbnail(outputFilename, MediaStore.Video.Thumbnails.MINI_KIND);
+			}
+			v.thumbnailPath = convertPath(outputFilename);
+			return v;
+		}
+		return null;
+	}
+	
+	public static Video getMyLifeFileStatic() {
+		String outputFilename = mExtFileDirectory.concat("/Memoir/MyLife.mp4");
 		File f = new File(outputFilename);
 
 		if (f.exists()) {
@@ -291,5 +314,48 @@ public class MemoirApplication extends Application {
 			mHeight = outMetrics.heightPixels;
 			mWidth = outMetrics.widthPixels;
 		}
+	}
+	
+	public void setDefaultCameraResolution() {
+
+		Camera c = null;
+		try {
+			c = Camera.open();
+		} catch (Exception e) {
+			Log.e("asd", "Camera is not available");
+		}
+
+		Parameters param = c.getParameters();
+		Size size = null;
+		List<Camera.Size> list = null;
+		int maxWidth;
+		
+		size = param.getPreferredPreviewSizeForVideo();
+		if(size == null) {
+			list = param.getSupportedVideoSizes();
+			if(list != null && list.size() > 0) {
+				maxWidth = 0;
+				for(Size s : list) {
+					if(s.width > maxWidth) {
+						maxWidth = s.width;
+						size = s;
+					}
+				}
+			} else {
+				list = param.getSupportedPreviewSizes();
+				if(list != null && list.size() > 0) {
+					maxWidth = 0;
+					for(Size s : list) {
+						if(s.width > maxWidth) {
+							maxWidth = s.width;
+							size = s;
+						}
+					}
+				}
+			}
+		}
+		Log.d("asd", "Height being written as " + size.height + "   width " + size.width);
+		
+		mPrefs.edit().putInt("com.devapp.memoir.standardheight", size.height).putInt("com.devapp.memoir.standardwidth", size.width).commit();
 	}
 }

@@ -58,6 +58,7 @@ public class MyLifeFragment extends Fragment {
 	private TextView mMyLifeTV = null;
 	private FrameLayout mMyLifeFL = null;
 	protected VideoView mVideoView = null;
+	public List<List<Video>> mVideos = null;
 
 	public int mTransparent = 0, mWidth = 0, mHeight = 0, mCWidth = 0, mCHeight = 0;
 	public Video mMyLifeVideo = null;
@@ -237,13 +238,19 @@ public class MyLifeFragment extends Fragment {
 	@Override
 	public void onStart() {
 		super.onStart();
-
+		Log.d("asd", "On Start of Parent for activity " + getActivity() );
+		
 		((MemoirApplication) getActivity().getApplication()).getDBA()
 				.setStartEndDates();
 
-		List<List<Video>> mVideos = ((MemoirApplication) getActivity()
+		mVideos = ((MemoirApplication) getActivity()
 				.getApplication()).getDBA().getVideos(0, -1, false,
 				mPrefs.getBoolean("com.devapp.memoir.showonlymultiple", false));
+
+		if(mVideos != null)
+			Log.e("asd", "mVideo size > " + mVideos.get(0).size());
+		
+		
 		mDateAdapter = new MyLifeDateListArrayAdapter(getActivity(), mVideos);
 		ListView mDateList = (ListView) getActivity().findViewById(
 				R.id.MyLifeDateLV);
@@ -331,7 +338,7 @@ public class MyLifeFragment extends Fragment {
 
 		mMyLifePB.setVisibility(PBVis);
 
-		String text = "   Memoir - My Life\n"
+		String text = /*"   Memoir - My Life\n"*/ ""
 				+ MemoirApplication.convertDate(
 						mPrefs.getLong("com.devapp.memoir.startselected", 0),
 						"Long Time Ago")
@@ -347,10 +354,11 @@ public class MyLifeFragment extends Fragment {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			if (intent.hasExtra("OutputFileName")) {
+			if (intent.hasExtra("OutputFileName") && getActivity() != null) {
 				String outputFile = intent.getStringExtra("OutputFileName");
 
 				if (!outputFile.isEmpty()) {
+					
 					mMyLifeVideo = ((MemoirApplication) getActivity()
 							.getApplication()).getMyLifeFile(getActivity()
 							.getApplicationContext());
