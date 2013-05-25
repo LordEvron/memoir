@@ -301,6 +301,28 @@ public class MainActivity extends Activity {
 			if(mPrefs.getLong("com.devapp.memoir.startselected", 0) > d) {
 				mPrefs.edit().putLong("com.devapp.memoir.startselected", d).commit();
 			}
+			
+			if(mFragment != null) {
+				List<List<Video>> videos1 = ((MemoirApplication) this.getApplication()).getDBA().getVideos(0, -1, false,
+						mPrefs.getBoolean("com.devapp.memoir.showonlymultiple", false));
+				
+				List<List<Video>> videos2 = ((MyLifeFragment)mFragment).mVideos;
+
+				if(videos1 != null) {
+					if(videos2 == null || videos1.size() != videos2.size()) {
+						Log.d("asd", "Calling on Start again");
+						((MyLifeFragment)mFragment).onStart();
+					} else {
+						int len = videos1.size();
+						for(int i = 0; i < len ; i++) {
+							if(videos1.get(i).size() != videos2.get(i).size()) {
+								Log.d("asd", "Calling on Start again");
+								((MyLifeFragment)mFragment).onStart();
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 
