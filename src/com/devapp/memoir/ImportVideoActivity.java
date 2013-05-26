@@ -38,6 +38,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
@@ -428,6 +429,7 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 		int i = 0;
 		for (i = 0; i < noOfFrames; i++) {
 			ImageView iv = new ImageView(this);
+			iv.setScaleType(ScaleType.FIT_XY);
 			mLinearLayoutContainer.addView(iv, params);
 			new getFrameTask().executeOnExecutor(
 					AsyncTask.THREAD_POOL_EXECUTOR,
@@ -518,7 +520,11 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 		@Override
 		protected FrameIVStruct doInBackground(FrameIVStruct... arg0) {
 			FrameIVStruct struct = arg0[0];
-			struct.b = mMediaRetriever.getFrameAtTime(struct.frameAt);
+			Bitmap b = mMediaRetriever.getFrameAtTime(struct.frameAt);
+			/** NOTE: reducing the size as original images are of 4MB each :( */
+			struct.b = Bitmap.createScaledBitmap (b, 160, 120, false);
+			Log.d("asd", "Bitmap size is > " + struct.b.getByteCount());
+			Log.d("asd", "Bitmap size is > " + b.getByteCount());
 			return struct;
 		}
 
