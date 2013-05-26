@@ -7,5 +7,5 @@
     android:gravity="center|center_vertical|center_horizontal"
     android:textAppearance="?android:attr/textAppearanceMedium"
     android:textStyle="bold|italic"
-    android:background="@drawable/button" >
+    android:background="@drawable/helpheaderbg" >
 </TextView>

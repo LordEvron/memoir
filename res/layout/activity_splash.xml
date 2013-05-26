@@ -1,11 +1,8 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/splashLL"
+    android:id="@+id/splashIV"
+    android:scaleType="fitXY"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    tools:context=".Splash"
-    android:background="@drawable/backgroundportrait"
-    android:orientation="vertical" >
-</LinearLayout>
-
-    <!-- This comes from theme now > android:background="@drawable/background" -->
+    tools:context=".Splash" >
+</ImageView>

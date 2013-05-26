@@ -4,12 +4,14 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.devapp.memoir.database.MemoirDBA;
@@ -31,6 +33,15 @@ public class Splash extends Activity {
 		}
 		
 		setContentView(R.layout.activity_splash);
+		ImageView iv = (ImageView)findViewById(R.id.splashIV);
+		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+			iv.setImageResource(R.drawable.backgroundlandscape);
+		} else if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+			iv.setImageResource(R.drawable.backgroundportrait);
+		}
+		Animation animation = AnimationUtils.loadAnimation(this,
+				R.anim.splashanimations);
+		iv.startAnimation(animation);
 
 		Handler handler = new Handler();
 		handler.postDelayed(new Runnable() {
@@ -54,11 +65,6 @@ public class Splash extends Activity {
 		}, SPLASH_DURATION);
 
 		new BackgroundTasks().execute(((MemoirApplication) getApplication()).getDBA());
-		
-		Animation animation = AnimationUtils.loadAnimation(this,
-				R.anim.splashanimations);
-		LinearLayout ll = (LinearLayout) findViewById(R.id.splashLL);
-		ll.startAnimation(animation);
 	}
 
 	@Override
