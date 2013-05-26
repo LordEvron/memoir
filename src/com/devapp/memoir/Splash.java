@@ -73,8 +73,6 @@ public class Splash extends Activity {
 
 		@Override
 		protected Void doInBackground(MemoirDBA... arg0) {
-			MemoirApplication.setDisplayMatrix(Splash.this);
-
 			MemoirDBA dba = arg0[0];
 			dba.updateDatabase();
 			dba.getVideos(0, -1, false, PreferenceManager

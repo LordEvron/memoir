@@ -316,7 +316,12 @@ public class MyLifeFragment extends Fragment {
 			int PBVis, int TVVis) {
 
 		mMyLifeIV.setImageResource(IVRes);
-		mMyLifeIV.setImageAlpha(200);
+		if (android.os.Build.VERSION.SDK_INT == 14
+				|| android.os.Build.VERSION.SDK_INT == 15) {
+			mMyLifeIV.setAlpha(200);
+		} else if(android.os.Build.VERSION.SDK_INT >= 16) {
+			mMyLifeIV.setImageAlpha(200);
+		}
 		if (IVPath != null) {
 //			mMyLifeIV.setBackgroundDrawable(new BitmapDrawable(getResources(),
 //					BitmapFactory.decodeFile(IVPath)));

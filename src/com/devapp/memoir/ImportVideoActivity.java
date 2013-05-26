@@ -121,14 +121,18 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 			Uri selectedVideoLocation = data.getData();
 			mPath = MemoirApplication.getFilePathFromContentUri(
 					selectedVideoLocation, getContentResolver());
+			
+			Log.e("asd", "m Path is " + mPath);
 
 			try {
 				FileInputStream f = new FileInputStream(mPath);
 				FileChannel fc = f.getChannel();
 				IsoFile isoFile = new IsoFile(fc);
-				MovieBox moov = isoFile.getBoxes(MovieBox.class).get(0);
+				MovieBox moov = null;
+				if(isoFile != null && isoFile.getBoxes(MovieBox.class).size() > 0)
+					moov = isoFile.getBoxes(MovieBox.class).get(0);
 
-				if (moov.getBoxes(TrackBox.class).size() > 0) {
+				if (moov != null && moov.getBoxes(TrackBox.class).size() > 0) {
 					TrackBox track = moov.getBoxes(TrackBox.class).get(0);
 					TrackHeaderBox thb = track.getTrackHeaderBox();
 
@@ -142,6 +146,7 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 							+ "   getWidth" + thb.getWidth());
 				} else {
 					Log.d("asd", "Size is too less");
+					mPath = null;
 				}
 				isoFile.close();
 				f.close();
@@ -155,6 +160,7 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 			}
 
 			if (mPath == null) {
+				Log.e("asd", "Didnt match here");
 				Toast.makeText(
 						this,
 						"This video can not be imported as it is either not local on the phone or of portrait mode or unsupported format, Please select another video",

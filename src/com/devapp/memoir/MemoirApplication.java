@@ -12,10 +12,13 @@ import java.util.Locale;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.Intent.ShortcutIconResource;
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
 import android.database.Cursor;
 import android.hardware.Camera;
 import android.hardware.Camera.Parameters;
@@ -37,7 +40,6 @@ public class MemoirApplication extends Application {
 	private MemoirDBA mDBA;
 	public static boolean useExternal = true;
 	private SharedPreferences mPrefs = null;
-	private static int mWidth = 0, mHeight = 0;
 	public static ThumbnailLoader mTL = null;
 	private static String[] getMonth = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 	private static String mExtFileDirectory = null;
@@ -72,6 +74,8 @@ public class MemoirApplication extends Application {
 			}
 
 			setDefaultCameraResolution();
+
+			addShortcut(this);
 		}/* else {
 			Log.d("asd",
 					"com.devapp.memoir.startall > "
@@ -284,37 +288,6 @@ public class MemoirApplication extends Application {
 		String timeStamp = new SimpleDateFormat("yyyyMMdd").format(new Date(date * 1000L));
 		return timeStamp;
 	}
-
-	@SuppressLint("NewApi")
-	public static void setDisplayMatrix(Activity a) {
-		/** Note : For getting the height and width of the screen */
-		if (android.os.Build.VERSION.SDK_INT >= 14
-				&& android.os.Build.VERSION.SDK_INT <= 16) {
-			Display display = a.getWindowManager()
-					.getDefaultDisplay();
-			try {
-				Method mGetRawH = Display.class.getMethod("getRawHeight");
-				Method mGetRawW = Display.class.getMethod("getRawWidth");
-				mWidth = (Integer) mGetRawW.invoke(display);
-				mHeight = (Integer) mGetRawH.invoke(display);
-			} catch (NoSuchMethodException e) {
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				e.printStackTrace();
-			}
-		} else {
-			Display display = a.getWindowManager()
-					.getDefaultDisplay();
-			DisplayMetrics outMetrics = new DisplayMetrics();
-			display.getRealMetrics(outMetrics);
-			mHeight = outMetrics.heightPixels;
-			mWidth = outMetrics.widthPixels;
-		}
-	}
 	
 	public void setDefaultCameraResolution() {
 
@@ -326,11 +299,11 @@ public class MemoirApplication extends Application {
 		}
 
 		Parameters param = c.getParameters();
-		Size size = null;
 		List<Camera.Size> list = null;
-		int maxWidth;
+		int maxHeight = 0, maxWidth = 0;
 		
-		size = param.getPreferredPreviewSizeForVideo();
+/*		NOTE: This didnt work for ashish :(
+ * 		size = param.getPreferredPreviewSizeForVideo();
 		if(size == null) {
 			list = param.getSupportedVideoSizes();
 			if(list != null && list.size() > 0) {
@@ -353,9 +326,93 @@ public class MemoirApplication extends Application {
 					}
 				}
 			}
-		}
-		Log.d("asd", "Height being written as " + size.height + "   width " + size.width);
+		}*/
 		
-		mPrefs.edit().putInt("com.devapp.memoir.standardheight", size.height).putInt("com.devapp.memoir.standardwidth", size.width).commit();
+		list = param.getSupportedPreviewSizes();
+		if(list != null && list.size() > 0) {
+			maxWidth = 0;
+			for(Size s : list) {
+				Log.e("asd", "Height " + s.height + " Width" + s.width);
+				if(s.width > maxWidth) {
+					maxWidth = s.width;
+				}
+			}
+		}
+		
+		Log.d("asd", "maxWidth " + maxWidth);
+		if(maxWidth == 1920) {
+			maxHeight = 1080;
+		} else if(maxWidth == 1280) {
+			maxHeight = 720;
+		} else if(maxWidth == 960) {
+			maxHeight = 720;
+		} else if(maxWidth == 800) {
+			maxHeight = 480;
+		} else if(maxWidth == 768) {
+			maxHeight = 576;
+		} else if(maxWidth == 720) {
+			maxHeight = 480;
+		} else if(maxWidth == 640) {
+			maxHeight = 480;
+		} else if(maxWidth == 352) {
+			maxHeight = 288;
+		} else if(maxWidth == 320) {
+			maxHeight = 240;
+		} else if(maxWidth == 240) {
+			maxHeight = 160;
+		} else if(maxWidth == 176) {
+			maxHeight = 144;
+		} else if(maxWidth == 128) {
+			maxHeight = 96;
+		}
+		Log.e("asd", "Height being written as " + maxHeight + "   width " + maxWidth);
+		
+		mPrefs.edit().putInt("com.devapp.memoir.standardheight", maxHeight).putInt("com.devapp.memoir.standardwidth", maxWidth).commit();
 	}
+	
+	public static void addShortcut(Context context)
+	{
+	    Intent shortcut = new Intent("com.android.launcher.action.INSTALL_SHORTCUT");
+
+	    ApplicationInfo appInfo = context.getApplicationInfo();
+
+	    // Shortcut name
+	    shortcut.putExtra(Intent.EXTRA_SHORTCUT_NAME, appInfo.name);
+	    shortcut.putExtra("duplicate", false); // Just create once
+
+	    // Setup activity shoud be shortcut object 
+	    ComponentName component = new ComponentName(appInfo.packageName, appInfo.className);
+	    shortcut.putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(Intent.ACTION_MAIN).setComponent(component));
+
+	    // Set shortcut icon
+	    ShortcutIconResource iconResource = Intent.ShortcutIconResource.fromContext(context, appInfo.icon);
+	    shortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, iconResource);
+
+	    context.sendBroadcast(shortcut);
+	    Log.d("asd", "Firing add shortcut intent");
+	}
+
+	public static void deleteShortcut(Context context)
+	{
+	    Intent shortcut = new Intent("com.android.launcher.action.UNINSTALL_SHORTCUT");
+
+	    ApplicationInfo appInfo = context.getApplicationInfo();
+
+	    // Shortcut name
+	    shortcut.putExtra(Intent.EXTRA_SHORTCUT_NAME, appInfo.name);
+
+	    ComponentName comp = new ComponentName(appInfo.packageName, appInfo.className);
+	    shortcut.putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(Intent.ACTION_MAIN).setComponent(comp));
+
+	    context.sendBroadcast(shortcut);
+	}
+	/** NOTE: This receiver needs to be there somewhere.. dont know where.. 
+	<receiver android:name="YOUR.PACKAGE.PackageReplacedReceiver">
+    <intent-filter>
+        <action android:name="android.intent.action.PACKAGE_REPLACED" />
+        <data android:scheme="package" android:path="YOUR.PACKAGE" />
+    </intent-filter>
+	</receiver>
+	 */
+
 }
