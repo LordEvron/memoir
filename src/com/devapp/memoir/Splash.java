@@ -1,6 +1,8 @@
 package com.devapp.memoir;
 
 import android.app.Activity;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
@@ -31,7 +33,29 @@ public class Splash extends Activity {
 		if (!mPrefs.getBoolean("com.devapp.memoir.firsttime", false)) {
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		}
-		
+
+
+		if (!mPrefs.getBoolean("com.devapp.memoir.agreement", false)) {
+				new EndUserLicenseAgreement(this).show(new Dialog.OnClickListener() {
+	
+				@Override
+				public void onClick(DialogInterface arg0, int arg1) {
+					mPrefs.edit().putBoolean("com.devapp.memoir.agreement", true).commit();
+					proceed();
+				}
+				
+			}, new Dialog.OnClickListener() {
+	
+				@Override
+				public void onClick(DialogInterface arg0, int arg1) {
+					Splash.this.finish();
+				}
+				
+			});
+		} else {
+			proceed();
+		}
+
 		setContentView(R.layout.activity_splash);
 		ImageView iv = (ImageView)findViewById(R.id.splashIV);
 		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -43,6 +67,9 @@ public class Splash extends Activity {
 				R.anim.splashanimations);
 		iv.startAnimation(animation);
 
+	}
+	
+	public void proceed() {
 		Handler handler = new Handler();
 		handler.postDelayed(new Runnable() {
 
