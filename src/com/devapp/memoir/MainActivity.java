@@ -275,6 +275,8 @@ public class MainActivity extends Activity {
 					}
 				}
 
+				mVideo.length = Long.parseLong(mMediaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+				Log.d("asd", "Setting length as " + mVideo.length);
 				((MemoirApplication) getApplication()).getDBA()
 						.addVideo(mVideo);
 				((MemoirApplication) getApplication()).getDBA().selectVideo(
@@ -326,8 +328,10 @@ public class MainActivity extends Activity {
 			// data.getStringExtra("videoDate"));
 
 			long d = Long.parseLong(data.getStringExtra("videoDate"));
+			long length = data.getLongExtra("videoLength", 0);
+			Log.d("asd", "Setting length as " + length);
 			mVideo = new Video(0, d, data.getStringExtra("OutputFileName"),
-					false, 2, true);
+					false, length, true);
 			((MemoirApplication) getApplication()).getDBA().addVideo(mVideo);
 			((MemoirApplication) getApplication()).getDBA().selectVideo(mVideo);
 

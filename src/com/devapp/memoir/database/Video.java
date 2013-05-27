@@ -7,10 +7,10 @@ public class Video {
 	public String thumbnailPath;
 	public long date;
 	public boolean selected;
-	public int length;
+	public long length;
 	public boolean userTaken;
 	
-	public Video(int k, long d, String p, String tp, boolean s, int l, boolean userTaken) {
+	public Video(int k, long d, String p, String tp, boolean s, long l, boolean userTaken) {
 		this.key = k;
 		this.path = p;
 		this.thumbnailPath = tp;
@@ -20,7 +20,7 @@ public class Video {
 		this.userTaken = userTaken;
 	}
 
-	public Video(int k, long d, String p, boolean s, int l, boolean userTaken) {
+	public Video(int k, long d, String p, boolean s, long l, boolean userTaken) {
 		this.key = k;
 		this.path = p;
 		this.date = d;

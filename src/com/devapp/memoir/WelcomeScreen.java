@@ -48,12 +48,8 @@ public class WelcomeScreen extends Activity {
 
 				float sensitvity = 50;
 				if ((e1.getX() - e2.getX()) > sensitvity) {
-					mSwipeLeft.setVisibility(View.INVISIBLE);
-					mSwipeRight.setVisibility(View.INVISIBLE);
 					SwipeLeft();
 				} else if ((e2.getX() - e1.getX()) > sensitvity) {
-					mSwipeLeft.setVisibility(View.INVISIBLE);
-					mSwipeRight.setVisibility(View.INVISIBLE);
 					SwipeRight();
 				}
 				return true;
@@ -67,7 +63,7 @@ public class WelcomeScreen extends Activity {
 
 					@Override
 					public void onClick(View arg0) {
-						onBackPressed();
+						onExit();
 					}
 				});
 
@@ -85,7 +81,6 @@ public class WelcomeScreen extends Activity {
 		mSwipeRight.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				Log.d("asd", "On Touch first");
 				SwipeRight();
 				return;
 			}
@@ -95,6 +90,16 @@ public class WelcomeScreen extends Activity {
 	
 	@Override
 	public void onBackPressed() {
+		/* //Currently disabling back press
+		page.removeAllViews();
+		Intent i = new Intent(WelcomeScreen.this, MainActivity.class);
+		i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		startActivity(i);
+		finish();*/
+	}
+	
+	public void onExit() {
+		page.removeAllViews();
 		Intent i = new Intent(WelcomeScreen.this, MainActivity.class);
 		i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		startActivity(i);
@@ -102,6 +107,7 @@ public class WelcomeScreen extends Activity {
 	}
 
 	private void updateArrows(int displayedChild) {
+		Log.d("asd", "displayedChild" + displayedChild);
 		if(displayedChild == 0) {
 			mSwipeLeft.setVisibility(View.VISIBLE);
 			mSwipeRight.setVisibility(View.INVISIBLE);
@@ -136,7 +142,7 @@ public class WelcomeScreen extends Activity {
 			page.showNext();
 			updateArrows(page.getDisplayedChild());
 		} else {
-			onBackPressed();
+			onExit();
 		}
 	}
 

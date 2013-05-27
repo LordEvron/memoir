@@ -326,7 +326,7 @@ public class MyLifeFragment extends Fragment {
 //			mMyLifeIV.setBackgroundDrawable(new BitmapDrawable(getResources(),
 //					BitmapFactory.decodeFile(IVPath)));
 			
-			mMyLifeIV.setBackgroundResource(R.drawable.videothumbnail);
+			mMyLifeIV.setBackgroundResource(R.drawable.videothumbnail2);
 			mMyLifeIV.setTag(IVPath);
 
 			mMyLifeFullscreenIV.setVisibility(View.VISIBLE);

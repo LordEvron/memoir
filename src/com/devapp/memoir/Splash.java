@@ -35,9 +35,9 @@ public class Splash extends Activity {
 		setContentView(R.layout.activity_splash);
 		ImageView iv = (ImageView)findViewById(R.id.splashIV);
 		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-			iv.setImageResource(R.drawable.backgroundlandscape);
+			iv.setImageResource(R.drawable.backgroundlandscape2);
 		} else if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-			iv.setImageResource(R.drawable.backgroundportrait);
+			iv.setImageResource(R.drawable.backgroundportrait2);
 		}
 		Animation animation = AnimationUtils.loadAnimation(this,
 				R.anim.splashanimations);

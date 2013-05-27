@@ -25,6 +25,7 @@ import android.hardware.Camera.Parameters;
 import android.hardware.Camera.Size;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.provider.MediaStore.MediaColumns;
 import android.util.DisplayMetrics;
@@ -75,7 +76,8 @@ public class MemoirApplication extends Application {
 
 			setDefaultCameraResolution();
 
-			addShortcut(this);
+			//Not adding shortcut for now
+			//addShortcut(this);
 		}/* else {
 			Log.d("asd",
 					"com.devapp.memoir.startall > "
@@ -327,12 +329,20 @@ public class MemoirApplication extends Application {
 				}
 			}
 		}*/
-		
-		list = param.getSupportedPreviewSizes();
+
+		list = param.getSupportedVideoSizes();
 		if(list != null && list.size() > 0) {
 			maxWidth = 0;
 			for(Size s : list) {
-				Log.e("asd", "Height " + s.height + " Width" + s.width);
+				if(s.width > maxWidth) {
+					maxWidth = s.width;
+				}
+			}
+		}
+		list = param.getSupportedPreviewSizes();
+		if(list != null && list.size() > 0) {
+			for(Size s : list) {
+				Log.d("asd", "Height " + s.height + " Width" + s.width);
 				if(s.width > maxWidth) {
 					maxWidth = s.width;
 				}
@@ -378,11 +388,13 @@ public class MemoirApplication extends Application {
 
 	    // Shortcut name
 	    shortcut.putExtra(Intent.EXTRA_SHORTCUT_NAME, appInfo.name);
-	    shortcut.putExtra("duplicate", false); // Just create once
+//	    shortcut.putExtra("duplicate", false); // Just create once
 
 	    // Setup activity shoud be shortcut object 
-	    ComponentName component = new ComponentName(appInfo.packageName, appInfo.className);
-	    shortcut.putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(Intent.ACTION_MAIN).setComponent(component));
+//	    ComponentName component = new ComponentName(appInfo.packageName, appInfo.className);
+	    Intent i = new Intent(Intent.ACTION_MAIN);
+	    i.setClassName(context, appInfo.className);
+	    shortcut.putExtra(Intent.EXTRA_SHORTCUT_INTENT, i);
 
 	    // Set shortcut icon
 	    ShortcutIconResource iconResource = Intent.ShortcutIconResource.fromContext(context, appInfo.icon);
@@ -390,6 +402,24 @@ public class MemoirApplication extends Application {
 
 	    context.sendBroadcast(shortcut);
 	    Log.d("asd", "Firing add shortcut intent");
+	    
+	    
+/*	    
+	    
+        Intent shortcutIntent = new Intent(Intent.ACTION_MAIN);
+        shortcutIntent.setClassName(this, this.getClass().getName());
+        shortcutIntent.putExtra(EXTRA_KEY, "ApiDemos Provided This Shortcut");
+
+        // Then, set up the container intent (the response to the caller)
+
+        Intent intent = new Intent();
+        intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
+        intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, getString(R.string.shortcut_name));
+        Parcelable iconResource = Intent.ShortcutIconResource.fromContext(
+                this,  R.drawable.app_sample_code);
+        intent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, iconResource);
+        */
+
 	}
 
 	public static void deleteShortcut(Context context)

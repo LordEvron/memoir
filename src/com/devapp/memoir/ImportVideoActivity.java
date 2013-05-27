@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.channels.FileChannel;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -48,10 +51,14 @@ import android.widget.VideoView;
 
 import com.coremedia.iso.IsoFile;
 import com.coremedia.iso.boxes.MovieBox;
+import com.coremedia.iso.boxes.TimeToSampleBox;
 import com.coremedia.iso.boxes.TrackBox;
 import com.coremedia.iso.boxes.TrackHeaderBox;
 import com.coremedia.iso.boxes.UserDataBox;
 import com.devapp.memoir.services.TranscodingService;
+import com.googlecode.mp4parser.authoring.Movie;
+import com.googlecode.mp4parser.authoring.Track;
+import com.googlecode.mp4parser.authoring.container.mp4.MovieCreator;
 
 public class ImportVideoActivity extends Activity implements OnPreparedListener {
 
@@ -71,6 +78,8 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 	private TranscodingServiceBroadcastReceiver mDataBroadcastReceiver = null;
 	private MediaMetadataRetriever mMediaRetriever = null;
 	private SharedPreferences mPrefs = null;
+	private List<Track> tracks = null;
+	private double mCorrectedStart = 0, mCorrectedEnd = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -294,7 +303,42 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 				@Override
 				public void onProgressChanged(SeekBar view, int position,
 						boolean arg2) {
-					mVideoView.seekTo(position * 100);
+					Log.d("asd", "Position is " + position);
+					mCorrectedStart = (float)position/(float)10;
+					mCorrectedEnd = mCorrectedStart + (float)(mPrefs.getInt("com.devapp.memoir.noofseconds", 1));
+
+					Log.d("asd", "Original correctedStart " + mCorrectedStart + "  mCorrectedEnd" + mCorrectedEnd);
+					boolean timeCorrected = false;
+
+					// Here we try to find a track that has sync samples. Since we can only
+					// start decoding
+					// at such a sample we SHOULD make sure that the start of the new
+					// fragment is exactly
+					// such a frame
+					if(tracks != null) {
+						for (Track track : tracks) {
+							if (track.getSyncSamples() != null
+									&& track.getSyncSamples().length > 0) {
+								if (timeCorrected) {
+									// This exception here could be a false positive in case we
+									// have multiple tracks
+									// with sync samples at exactly the same positions. E.g. a
+									// single movie containing
+									// multiple qualities of the same video (Microsoft Smooth
+									// Streaming file)
+
+									throw new RuntimeException(
+											"The startTime has already been corrected by another track with SyncSample. Not Supported.");
+								}
+								mCorrectedStart = correctTimeToSyncSample(track, mCorrectedStart, false);
+								mCorrectedEnd = correctTimeToSyncSample(track, mCorrectedEnd, true);
+								timeCorrected = true;
+							}
+						}
+					}
+
+					Log.d("asd", "After Alteration correctedStart " + mCorrectedStart + "  mCorrectedEnd" + mCorrectedEnd);
+					mVideoView.seekTo((int) mCorrectedStart * 1000);
 					mPosition = position;
 				}
 
@@ -312,16 +356,18 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 				@Override
 				public void onClick(View view) {
 					mImageViewPlay.setVisibility(View.INVISIBLE);
+					long time = (long) ((mCorrectedEnd - mCorrectedStart)*1000);
 					mVideoView.start();
 					mVideoView.postDelayed(new Runnable() {
 
 						@Override
 						public void run() {
+							Log.d("asd", " Time after end" + System.currentTimeMillis());
 							mVideoView.pause();
-							mVideoView.seekTo(mPosition * 100);
+							mVideoView.seekTo((int) mCorrectedStart * 1000);
 							mImageViewPlay.setVisibility(View.VISIBLE);
 						}
-					}, mPrefs.getInt("com.devapp.memoir.noofseconds", 1) * 1000);
+					}, time);
 				}
 			});
 
@@ -355,12 +401,14 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 									TranscodingService.class);
 							intent.setAction(TranscodingService.ActionTrimVideo);
 							intent.putExtra("filePath", mPath);
-							intent.putExtra("startTime", (float) mPosition / 10);
+							intent.putExtra("startTime", mCorrectedStart);
+							intent.putExtra("endTime", mCorrectedEnd);
+/*							intent.putExtra("startTime", (float) mPosition / 10);
 							intent.putExtra(
 									"endTime",
 									(float) ((float) ((float) mPosition + (mPrefs
 											.getInt("com.devapp.memoir.noofseconds",
-													1) * 10.0)) / 10.0));
+													1) * 10.0)) / 10.0));*/
 							intent.putExtra(
 									"outputFilePath",
 									MemoirApplication
@@ -456,6 +504,17 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 			c.drawRect(imageWidth - 3, 0, imageWidth, containerHeight, p);
 		}
 
+		Movie movie = null;
+		try {
+			movie = MovieCreator.build(new FileInputStream(mPath).getChannel());
+		} catch (FileNotFoundException e1) {
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+
+		tracks = movie.getTracks();
+
 		Drawable drawable = new BitmapDrawable(getResources(), bm);
 		mSeekBar.setThumb(drawable);
 		mSeekBar.setThumbOffset((int) mdistanceToTimeRatio);
@@ -465,9 +524,44 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 				(int) (noOfFrames * containerImageWidth),
 				LayoutParams.MATCH_PARENT));
 		mSeekBar.setMax((int) Math.floor(mDuration * 10));
+		
 		Log.d("asd", "end of onPrepared");
 	}
 
+	private double correctTimeToSyncSample(Track track, double cutHere,
+			boolean next) {
+		double[] timeOfSyncSamples = new double[track.getSyncSamples().length];
+		long currentSample = 0;
+		double currentTime = 0;
+		for (int i = 0; i < track.getDecodingTimeEntries().size(); i++) {
+			TimeToSampleBox.Entry entry = track.getDecodingTimeEntries().get(i);
+			for (int j = 0; j < entry.getCount(); j++) {
+				if (Arrays.binarySearch(track.getSyncSamples(),
+						currentSample + 1) >= 0) {
+					// samples always start with 1 but we start with zero
+					// therefore +1
+					timeOfSyncSamples[Arrays.binarySearch(
+							track.getSyncSamples(), currentSample + 1)] = currentTime;
+				}
+				currentTime += (double) entry.getDelta()
+						/ (double) track.getTrackMetaData().getTimescale();
+				currentSample++;
+			}
+		}
+		double previous = 0;
+		for (double timeOfSyncSample : timeOfSyncSamples) {
+			if (timeOfSyncSample > cutHere) {
+				if (next) {
+					return timeOfSyncSample;
+				} else {
+					return previous;
+				}
+			}
+			previous = timeOfSyncSample;
+		}
+		return timeOfSyncSamples[timeOfSyncSamples.length - 1];
+	}
+	
 	@Override
 	protected void onPause() {
 		super.onPause();
@@ -483,6 +577,7 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 			if (intent.hasExtra("OutputFileName")) {
 				String outputFile = intent.getStringExtra("OutputFileName");
 				intent.putExtra("videoDate", mVideoDate);
+				intent.putExtra("videoLength", (long)((mCorrectedEnd - mCorrectedStart) * 1000));
 				if (!outputFile.isEmpty()) {
 					if (getParent() == null) {
 						ImportVideoActivity.this.setResult(Activity.RESULT_OK,
@@ -523,8 +618,8 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 			Bitmap b = mMediaRetriever.getFrameAtTime(struct.frameAt);
 			/** NOTE: reducing the size as original images are of 4MB each :( */
 			struct.b = Bitmap.createScaledBitmap (b, 160, 120, false);
-			Log.d("asd", "Bitmap size is > " + struct.b.getByteCount());
-			Log.d("asd", "Bitmap size is > " + b.getByteCount());
+			//Log.d("asd", "Bitmap size is > " + struct.b.getByteCount());
+			//Log.d("asd", "Bitmap size is > " + b.getByteCount());
 			return struct;
 		}
 

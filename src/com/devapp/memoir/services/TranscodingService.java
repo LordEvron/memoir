@@ -126,6 +126,8 @@ public class TranscodingService extends IntentService {
 		ArrayList<Video> videoList = null;
 		Video v = null;
 		ArrayList<Movie> inMovies = new ArrayList<Movie>();
+		ArrayList<String> inMoviesSubText = new ArrayList<String>();
+		ArrayList<Long> inMoviesSubTextTime = new ArrayList<Long>();
 		File videoFile = null;
 
 		Collections.reverse(dateList);
@@ -139,6 +141,8 @@ public class TranscodingService extends IntentService {
 				try {
 					inMovies.add(MovieCreator.build(new FileInputStream(
 							videoFile).getChannel()));
+					inMoviesSubText.add(MemoirApplication.convertDate(v.date, ""));
+					inMoviesSubTextTime.add(new Long(v.length));
 				} catch (FileNotFoundException e) {
 					Log.d("asd", "In FileNotFoundException " + e);
 					e.printStackTrace();
@@ -175,8 +179,7 @@ public class TranscodingService extends IntentService {
 						.toArray(new Track[videoTracks.size()])));
 			}
 
-			/** NOTE : TEMP */
-			
+			/** NOTE : Subtext */
 			TextTrackImpl subTitleEng = new TextTrackImpl() {
 	            // Hack to replace "text" with "sbtl"
 	            public String getHandler() { return "sbtl"; }
@@ -184,14 +187,19 @@ public class TranscodingService extends IntentService {
 	        
 			subTitleEng.getTrackMetaData().setLanguage("eng");
 
-			subTitleEng.getSubs().add(new TextTrackImpl.Line(0, 2000, "Hellllllllooooooooooooooooooooo"));
-			/*subTitleEng.getSubs().add(new TextTrackImpl.Line(8000, 9000, "Four"));
-			subTitleEng.getSubs().add(new TextTrackImpl.Line(12000, 13000, "Three"));
-			subTitleEng.getSubs().add(new TextTrackImpl.Line(16000, 17000, "Two"));
-			subTitleEng.getSubs().add(new TextTrackImpl.Line(20000, 21000, "one"));*/
-
+			int len = inMoviesSubText.size();
+			long time = 0;
+			long t = 0;
+			for(i = 0; i < len; i++) {
+				t = inMoviesSubTextTime.get(i).longValue();
+//PAID VERSION
+				subTitleEng.getSubs().add(new TextTrackImpl.Line(time, time + t, inMoviesSubText.get(i)));
+//FREE VERSION
+				//subTitleEng.getSubs().add(new TextTrackImpl.Line(time, time + t, "Copyrights Memoir Application"));
+				time = time + t;
+			}
 			result.addTrack(subTitleEng);
-			/** END OF TEMP */
+			/** END OF Subtext */
 			
 			IsoFile out = new DefaultMp4Builder().build(result);
 			FileOutputStream fos = new FileOutputStream(file);
@@ -272,10 +280,12 @@ public class TranscodingService extends IntentService {
 		List<Track> tracks = movie.getTracks();
 		movie.setTracks(new LinkedList<Track>());
 
-		double startTime1 = intent.getFloatExtra("startTime", 0);
-		double endTime1 = intent.getFloatExtra("endTime", 0);
+		double startTime1 = intent.getDoubleExtra("startTime", 0);
+		double endTime1 = intent.getDoubleExtra("endTime", 0);
 
-		boolean timeCorrected = false;
+/*		//NOTE : This has been moved to the ImportVideoActivity while showing the video itself
+ * 
+ * 		boolean timeCorrected = false;
 
 		// Here we try to find a track that has sync samples. Since we can only
 		// start decoding
@@ -300,7 +310,8 @@ public class TranscodingService extends IntentService {
 				endTime1 = correctTimeToSyncSample(track, endTime1, true);
 				timeCorrected = true;
 			}
-		}
+		}*/
+		Log.d("asd", "Corrected Time in Service is startTime" + startTime1 + "  endTime " + endTime1);
 
 		/*
 		 * for (Track track : tracks) { long currentSample = 0; double
@@ -348,6 +359,8 @@ public class TranscodingService extends IntentService {
 					currentSample++;
 				}
 			}
+			
+			Log.d("asd", "Start Sample " + startSample1 + "  endSample1 " + endSample1);
 			try {
 				movie.addTrack(new AppendTrack(new CroppedTrack(track,
 						startSample1, endSample1)));
