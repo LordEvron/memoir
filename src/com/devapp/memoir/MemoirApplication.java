@@ -44,6 +44,7 @@ public class MemoirApplication extends Application {
 	public static ThumbnailLoader mTL = null;
 	private static String[] getMonth = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 	private static String mExtFileDirectory = null;
+	public static long DAY_IN_MILLIS = 86400000;
 
 	@Override
 	public void onCreate() {
@@ -96,7 +97,6 @@ public class MemoirApplication extends Application {
 
 		this.sendBroadcast(new Intent(
 				"com.devapp.memoir.BootupBroadcastReceiver"));
-
 	}
 
 	public static String convertDate(long date, String defaultS) {
@@ -112,7 +112,6 @@ public class MemoirApplication extends Application {
 	public static String getDateStringWRTToday(long date) {
 		String daysAgo = null;
 
-		long DAY_IN_MILLIS = 86400000;
 		long now = System.currentTimeMillis();
 
 		Calendar cal1 = Calendar.getInstance();
@@ -127,7 +126,7 @@ public class MemoirApplication extends Application {
 
 		Log.d("asd", "What is the difference >" + difference);
 		if (difference >= DAY_IN_MILLIS - 10000/*Tolerance*/) {
-			ago = (int) (difference / DAY_IN_MILLIS);
+			ago = (int) Math.round(difference / DAY_IN_MILLIS);
 			if(ago == 1) {
 				daysAgo = String.format(Locale.ENGLISH, "%d day ago", ago);
 			} else if(ago <= 10) {

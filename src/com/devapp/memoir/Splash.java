@@ -108,6 +108,7 @@ public class Splash extends Activity {
 		protected Void doInBackground(MemoirDBA... arg0) {
 			MemoirDBA dba = arg0[0];
 			dba.updateDatabase();
+			dba.updateDatabaseForOlderEntries(45);
 			dba.getVideos(0, -1, false, PreferenceManager
 					.getDefaultSharedPreferences(Splash.this).getBoolean("com.devapp.memoir.showonlymultiple", false));
 			return null;

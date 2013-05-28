@@ -3,6 +3,7 @@ package com.devapp.memoir.database;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -84,6 +85,10 @@ public class MemoirDBA {
 	
 	public void setStartEndDates() {
 		mMDBHelper.setStartEndDates();
+	}
+	
+	public void updateDatabaseForOlderEntries(int noofdays) {
+		mMDBHelper.updateDatabaseForOlderEntries(noofdays);
 	}
 
 	private static class MemoirDBHelper extends SQLiteOpenHelper {
@@ -179,6 +184,7 @@ public class MemoirDBA {
 									: false);
 					currentVideoList.add(v);
 
+					Log.d("asd", "Entry " + c.getString(V_TABLE_PATH_INDEX) + c.getLong(V_TABLE_DATE_INDEX));
 					c.moveToNext();
 				}
 			}
@@ -355,6 +361,55 @@ public class MemoirDBA {
 			String whereClause = V_TABLE_PATH + " = '" + path + "'";
 			db.update(VIDEOS_TABLE_NAME, values, whereClause, null);
 		}
+		
+		public void updateDatabaseForOlderEntries(int noofdays) {
+			SQLiteDatabase db = this.getReadableDatabase();
 
+			Calendar cal = Calendar.getInstance();
+			cal.setTimeInMillis(cal.getTimeInMillis() - noofdays*MemoirApplication.DAY_IN_MILLIS - 1000);
+			
+			int month = cal.get(Calendar.MONTH) + 1;
+			int date = cal.get(Calendar.DATE);
+			long t1 = Long.parseLong("" + cal.get(Calendar.YEAR) + (month <10 ? ("0" + month) : month) + (date < 10 ? ("0" + date) : date));
+			
+			String selection = V_TABLE_DATE + " <= " + t1 + " AND " + V_TABLE_SELECTED + " = 0 ";
+			Log.d("asd", "Selection is " + selection);
+			String[] columns = { V_TABLE_PATH };
+			Cursor c = db.query(VIDEOS_TABLE_NAME, columns, selection, null, null, null, null);
+
+			ArrayList<String> videoList = null;
+
+			if (c.getCount() > 0) {
+				videoList = new ArrayList<String>();
+				if (c.moveToFirst()) {
+					while (!c.isAfterLast()) {
+						videoList.add(c.getString(0));
+						c.moveToNext();
+					}
+				}
+			}
+
+			c.close();
+
+			if(videoList != null) {
+				db = this.getWritableDatabase();
+				db.beginTransaction();
+				String whereClause = null;
+				
+				for(String path :videoList) {
+					whereClause = V_TABLE_PATH + " = '" + path + "'";
+					Log.d("asd", "Path " + path);
+					db.delete(VIDEOS_TABLE_NAME, whereClause, null);
+
+					File file = new File(path);
+					file.delete();
+
+					file = new File(path.substring(0, path.length() - 3) + "png");
+					file.delete();
+				}
+				db.setTransactionSuccessful();
+				db.endTransaction();
+			}
+		}
 	}
 }

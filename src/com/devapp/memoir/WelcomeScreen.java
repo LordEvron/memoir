@@ -44,7 +44,6 @@ public class WelcomeScreen extends Activity {
 			@Override
 			public boolean onFling(MotionEvent e1, MotionEvent e2,
 					float velocityX, float velocityY) {
-				Log.d("asd", "On Fling");
 
 				float sensitvity = 50;
 				if ((e1.getX() - e2.getX()) > sensitvity) {

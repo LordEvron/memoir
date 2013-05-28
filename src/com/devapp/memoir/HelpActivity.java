@@ -2,8 +2,10 @@ package com.devapp.memoir;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +13,7 @@ import android.view.WindowManager;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
+import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.TextView;
 
 public class HelpActivity extends Activity {
@@ -30,11 +33,24 @@ public class HelpActivity extends Activity {
 		ExpandableListAdapter adapter = new MyExpandableListAdapter(this);
 		mList.setAdapter(adapter);
 		mList.expandGroup(0);
+		mList.setOnGroupClickListener(new OnGroupClickListener() {
+			
+			@Override
+			public boolean onGroupClick(ExpandableListView arg0, View arg1, int group, long arg3) {
+				if(group == 6) {
+					Intent i = new Intent(HelpActivity.this, WelcomeScreen.class);
+					i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+					startActivity(i);
+					finish();
+				}
+				return false;
+			}
+		});
 	}
 
 	public class MyExpandableListAdapter extends BaseExpandableListAdapter {
-		private int[] groups = {  R.string.help_mt2, R.string.help_mt3, R.string.help_mt4, R.string.help_mt5, R.string.help_mt6 };
-		private int[][] children = { { R.string.help_t2}, { R.string.help_t3}, { R.string.help_t4}, { R.string.help_t5}, { R.string.help_t6}};
+		private int[] groups = {  R.string.help_mt1, R.string.help_mt2, R.string.help_mt3, R.string.help_mt4, R.string.help_mt5, R.string.help_mt6, R.string.help_mt7 };
+		private int[][] children = { { R.string.help_t1}, { R.string.help_t2}, { R.string.help_t3}, { R.string.help_t4}, { R.string.help_t5}, { R.string.help_t6}, {}};
 
 		private Context cxt;
 		private Resources res;
