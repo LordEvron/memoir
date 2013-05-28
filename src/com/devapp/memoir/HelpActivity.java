@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,28 +16,30 @@ import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.TextView;
 
 public class HelpActivity extends Activity {
-	
+
 	public ExpandableListView mList = null;
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-        
+
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 		setContentView(R.layout.activity_help);
 
-		mList = (ExpandableListView) findViewById(R.id.ActivityHelpELV);    
+		mList = (ExpandableListView) findViewById(R.id.ActivityHelpELV);
 		ExpandableListAdapter adapter = new MyExpandableListAdapter(this);
 		mList.setAdapter(adapter);
 		mList.expandGroup(0);
 		mList.setOnGroupClickListener(new OnGroupClickListener() {
-			
+
 			@Override
-			public boolean onGroupClick(ExpandableListView arg0, View arg1, int group, long arg3) {
-				if(group == 6) {
-					Intent i = new Intent(HelpActivity.this, WelcomeScreen.class);
+			public boolean onGroupClick(ExpandableListView arg0, View arg1,
+					int group, long arg3) {
+				if (group == 6) {
+					Intent i = new Intent(HelpActivity.this,
+							WelcomeScreen.class);
 					i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 					startActivity(i);
 					finish();
@@ -49,13 +50,17 @@ public class HelpActivity extends Activity {
 	}
 
 	public class MyExpandableListAdapter extends BaseExpandableListAdapter {
-		private int[] groups = {  R.string.help_mt1, R.string.help_mt2, R.string.help_mt3, R.string.help_mt4, R.string.help_mt5, R.string.help_mt6, R.string.help_mt7 };
-		private int[][] children = { { R.string.help_t1}, { R.string.help_t2}, { R.string.help_t3}, { R.string.help_t4}, { R.string.help_t5}, { R.string.help_t6}, {}};
+		private int[] groups = { R.string.help_mt1, R.string.help_mt2,
+				R.string.help_mt3, R.string.help_mt4, R.string.help_mt5,
+				R.string.help_mt6, R.string.help_mt7 };
+		private int[][] children = { { R.string.help_t1 },
+				{ R.string.help_t2 }, { R.string.help_t3 },
+				{ R.string.help_t4 }, { R.string.help_t5 },
+				{ R.string.help_t6 }, {} };
 
 		private Context cxt;
 		private Resources res;
 		private LayoutInflater mInflater = null;
-		
 
 		public MyExpandableListAdapter(Context cxt) {
 			this.cxt = cxt;
@@ -77,9 +82,10 @@ public class HelpActivity extends Activity {
 		public View getChildView(int groupPos, int childPos,
 				boolean isLastChild, View convertView, ViewGroup parent) {
 
-			TextView tv = (TextView)convertView;
-			if(convertView == null)
-				tv = (TextView) this.mInflater.inflate(R.layout.activity_help_child, null);
+			TextView tv = (TextView) convertView;
+			if (convertView == null)
+				tv = (TextView) this.mInflater.inflate(
+						R.layout.activity_help_child, null);
 			tv.setText(getChild(groupPos, childPos).toString());
 			return tv;
 		}
@@ -107,10 +113,11 @@ public class HelpActivity extends Activity {
 		@Override
 		public View getGroupView(int groupPos, boolean isExpanded,
 				View convertView, ViewGroup parent) {
-			
-			TextView tv = (TextView)convertView;
-			if(convertView == null)
-				tv = (TextView) this.mInflater.inflate(R.layout.activity_help_header, null);
+
+			TextView tv = (TextView) convertView;
+			if (convertView == null)
+				tv = (TextView) this.mInflater.inflate(
+						R.layout.activity_help_header, null);
 			tv.setText(getGroup(groupPos).toString());
 			return tv;
 		}
@@ -122,9 +129,9 @@ public class HelpActivity extends Activity {
 
 		@Override
 		public boolean isChildSelectable(int groupPos, int childPos) {
-			if(groupPos > 0)
+			if (groupPos > 0)
 				return true;
-			else 
+			else
 				return false;
 		}
 	}

@@ -1,6 +1,5 @@
 package com.devapp.memoir.database;
 
-
 public class Video {
 	public int key;
 	public String path;

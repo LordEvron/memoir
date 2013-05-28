@@ -12,7 +12,6 @@ import android.graphics.BitmapFactory;
 import android.media.ThumbnailUtils;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.widget.ImageView;
 
 import com.devapp.memoir.MemoirApplication;
@@ -24,7 +23,6 @@ public class ThumbnailLoader {
 		String imageUrl;
 		Bitmap imageBitmap;
 		ConcurrentLinkedQueue<ImageView> imageViews;
-//		ConcurrentLinkedQueue<WeakReference<ImageView>> imageViews;
 	}
 
 	static ThumbnailLoader TLRef;
@@ -53,13 +51,10 @@ public class ThumbnailLoader {
 	public void loadImage(String imageUrl, ImageView imageView) {
 
 		if ((imageUrl == null) || (imageUrl.length() == 0)) {
-			Log.e("asd", "Image URL is null or Empty");
 			return;
 		}
 
-		//Log.d("asd", "For Image URL " + imageUrl + " and imageView >" + imageView.toString());
 		if (imageCache.containsKey(imageUrl) == true) {
-			//Log.d("asd", "Found it in cache");
 			imageObject iO = imageCache.get(imageUrl);
 			if (iO != null && iO.imageBitmap != null) {
 
@@ -68,18 +63,14 @@ public class ThumbnailLoader {
 				}
 				ImageView iv;
 				while ((iv = (ImageView) iO.imageViews.poll()) != null) {
-//				while (iO.imageViews.poll() != null && (iv = (ImageView) iO.imageViews.poll().get()) != null) {
-//					if(iv != null)
-						iv.setImageBitmap(iO.imageBitmap);
+					iv.setImageBitmap(iO.imageBitmap);
 				}
 				return;
 			} else if (iO != null) {
 				boolean existsFlag = false;
 				for (Iterator<ImageView> it = iO.imageViews.iterator(); it
-//				for (Iterator<WeakReference<ImageView>> it = iO.imageViews.iterator(); it
 						.hasNext();) {
 					ImageView iv = (ImageView) it.next();
-//					ImageView iv = (ImageView) it.next().get();
 					if (iv == imageView) {
 						existsFlag = true;
 						break;
@@ -87,10 +78,8 @@ public class ThumbnailLoader {
 				}
 				if (existsFlag == false && imageView != null) {
 					iO.imageViews.add(imageView);
-//					iO.imageViews.add(new WeakReference<ImageView>(imageView));
 				}
 				return;
-			} else {
 			}
 		}
 
@@ -98,15 +87,13 @@ public class ThumbnailLoader {
 
 		if (f.exists()) {
 
-			//Log.d("asd", "png exists .. reading manually");
 			imageObject iO1 = new imageObject();
 			iO1 = new imageObject();
 			iO1.imageUrl = imageUrl;
 
 			iO1.imageViews = new ConcurrentLinkedQueue<ImageView>();
-//			iO1.imageViews = new ConcurrentLinkedQueue<WeakReference<ImageView>>();
-
-			iO1.imageBitmap = BitmapFactory.decodeFile(MemoirApplication.convertPath(imageUrl));
+			iO1.imageBitmap = BitmapFactory.decodeFile(MemoirApplication
+					.convertPath(imageUrl));
 
 			if (imageView != null) {
 				imageView.setImageBitmap(iO1.imageBitmap);
@@ -115,7 +102,6 @@ public class ThumbnailLoader {
 			synchronized (getClass()) {
 				imageCache.put(imageUrl, iO1);
 			}
-
 			return;
 		}
 
@@ -124,11 +110,9 @@ public class ThumbnailLoader {
 		iO1 = new imageObject();
 		iO1.imageUrl = imageUrl;
 		iO1.imageViews = new ConcurrentLinkedQueue<ImageView>();
-//		iO1.imageViews = new ConcurrentLinkedQueue<WeakReference<ImageView>>();
 
 		if (imageView != null) {
 			iO1.imageViews.add(imageView);
-//			iO1.imageViews.add(new WeakReference<ImageView>(imageView));
 		}
 
 		synchronized (getClass()) {
@@ -136,7 +120,6 @@ public class ThumbnailLoader {
 		}
 
 		fastQueue.add(iO1);
-		//Log.d("asd", "sending request to create png");
 
 		synchronized (mTaskLock) {
 			if (mTaskCounter < 5) {
@@ -148,13 +131,12 @@ public class ThumbnailLoader {
 	}
 
 	public Bitmap convertThumbnail(String path, int kind) {
-		/** Note: kind can be MediaStore.Video.Thumbnails.MICRO_KIND, 
+		/**
+		 * Note: kind can be MediaStore.Video.Thumbnails.MICRO_KIND,
 		 * MediaStore.Video.Thumbnails.MINI_KIND
 		 */
-//		Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(path,
-//				MediaStore.Video.Thumbnails.MINI_KIND);
-		Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(path,kind);
-				
+		Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(path, kind);
+
 		if (bitmap != null) {
 			try {
 				FileOutputStream out = new FileOutputStream(
@@ -176,7 +158,8 @@ public class ThumbnailLoader {
 
 			while (true) {
 				if ((iO = (imageObject) fastQueue.poll()) != null) {
-					iO.imageBitmap = convertThumbnail(iO.imageUrl, MediaStore.Video.Thumbnails.MICRO_KIND);
+					iO.imageBitmap = convertThumbnail(iO.imageUrl,
+							MediaStore.Video.Thumbnails.MICRO_KIND);
 					publishProgress(iO);
 					iO = null;
 					continue;
@@ -197,10 +180,7 @@ public class ThumbnailLoader {
 			ImageView iv = null;
 			if (values[0].imageBitmap != null) {
 				while ((iv = (ImageView) values[0].imageViews.poll()) != null) {
-//				while (values[0].imageViews.poll() != null && (iv = (ImageView) values[0].imageViews.poll().get()) != null) {
-					// Log.d(TAG, "setting imageUrl > " + values[0].imageUrl +
-					// "   imageView > " + iOP.iv);
-					if(iv != null)
+					if (iv != null)
 						iv.setImageBitmap(values[0].imageBitmap);
 				}
 			}
@@ -208,7 +188,6 @@ public class ThumbnailLoader {
 
 		@Override
 		protected void onPostExecute(Void result) {
-			// Log.d(TAG , "" + System.currentTimeMillis());
 		}
 	}
 }

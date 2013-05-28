@@ -6,10 +6,8 @@ import android.content.Intent;
 import android.os.Handler;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 
 import com.devapp.memoir.services.SecretCamera;
-
 
 public class BootupBroadcastReceiver extends BroadcastReceiver {
 
@@ -23,7 +21,6 @@ public class BootupBroadcastReceiver extends BroadcastReceiver {
 				case TelephonyManager.CALL_STATE_RINGING:
 					break;
 				case TelephonyManager.CALL_STATE_OFFHOOK:
-					Log.d("asd", "Received off hook atleast");
 					Handler handler = new Handler();
 					handler.postDelayed(new Runnable() {
 
@@ -38,10 +35,10 @@ public class BootupBroadcastReceiver extends BroadcastReceiver {
 				case TelephonyManager.CALL_STATE_IDLE:
 					break;
 				default:
-					Log.i("Default", "Unknown phone state=" + state);
+					break;
 				}
 			} catch (Exception e) {
-				Log.i("Exception", "PhoneStateListener() e = " + e);
+				e.printStackTrace();
 			}
 		}
 	};
@@ -54,5 +51,4 @@ public class BootupBroadcastReceiver extends BroadcastReceiver {
 		mTelephonyManager.listen(mPhoneListener,
 				PhoneStateListener.LISTEN_CALL_STATE);
 	}
-
 }

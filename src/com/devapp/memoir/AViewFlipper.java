@@ -29,8 +29,7 @@ public class AViewFlipper extends ViewFlipper {
 		canvas.save();
 		for (int i = 0; i < getChildCount(); i++) {
 			if (i == getDisplayedChild()) {
-				paint.setColor(Color.CYAN);
-//				paint.setColor(getResources().getColor(R.color.selectBlue));
+				paint.setColor(getResources().getColor(R.color.selectBlue));
 				canvas.drawCircle(cx, cy, radius, paint);
 
 			} else {

@@ -20,7 +20,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.provider.MediaStore;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.ViewGroup.LayoutParams;
@@ -53,7 +52,6 @@ public class SecretCamera extends Service {
 
 		MemoirDBA dba = ((MemoirApplication) getApplication()).getDBA();
 
-		Log.d("asd", "Checking checkVideoInLimit and CheckIfAnyUserVideo");
 		if (dba.checkVideoInLimit() && !dba.checkIfAnyUserVideo()
 				&& mPrefs.getBoolean("com.devapp.memoir.shootoncall", true)) {
 
@@ -86,21 +84,18 @@ public class SecretCamera extends Service {
 		// mCamera.setDisplayOrientation(180);
 		// mCamera.enableShutterSound(false);
 
-		//AudioManager mgr = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-		//mgr.setStreamMute(AudioManager.STREAM_MUSIC, true);
+		// AudioManager mgr = (AudioManager)
+		// getSystemService(Context.AUDIO_SERVICE);
+		// mgr.setStreamMute(AudioManager.STREAM_MUSIC, true);
 
 		mMediaRecorder.setPreviewDisplay(mPreview.getHolder().getSurface());
 		mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
 		mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
 
-/*	    mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-	    mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
-	    mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP);
-*/
-	    mMediaRecorder.setProfile(CamcorderProfile
+		mMediaRecorder.setProfile(CamcorderProfile
 				.get(CamcorderProfile.QUALITY_HIGH));
-	    
-		//mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+
+		// mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
 
 		SimpleDateFormat ft = new SimpleDateFormat("yyyyMMdd");
 		long d = Long.parseLong(ft.format(new Date()));
@@ -123,14 +118,11 @@ public class SecretCamera extends Service {
 		try {
 			mMediaRecorder.prepare();
 		} catch (IllegalStateException e) {
-			Log.d("asd",
-					"IllegalStateException preparing MediaRecorder: "
-							+ e.getMessage());
+			e.printStackTrace();
 			releaseMediaRecorder();
 			return false;
 		} catch (IOException e) {
-			Log.d("asd",
-					"IOException preparing MediaRecorder: " + e.getMessage());
+			e.printStackTrace();
 			releaseMediaRecorder();
 			return false;
 		}
@@ -149,13 +141,14 @@ public class SecretCamera extends Service {
 		try {
 			mMediaRecorder.stop();
 		} catch (Exception e) {
-			Log.d("asd", "Illegal State Exception " + e);
+			e.printStackTrace();
 		}
 		releaseMediaRecorder();
 		releaseCamera();
 		mWindowManager.removeView(mPreview);
-		//AudioManager mgr = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-		//mgr.setStreamMute(AudioManager.STREAM_MUSIC, false);
+		// AudioManager mgr = (AudioManager)
+		// getSystemService(Context.AUDIO_SERVICE);
+		// mgr.setStreamMute(AudioManager.STREAM_MUSIC, false);
 
 		((MemoirApplication) getApplication()).getDBA().addVideo(mVideo);
 		((MemoirApplication) getApplication()).getDBA().selectVideo(mVideo);
@@ -166,19 +159,18 @@ public class SecretCamera extends Service {
 				.commit();
 
 		showNotification(mVideo);
-
 		stopSelf();
 	}
 
 	public void showNotification(Video v) {
 
-/*		MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-		mmr.setDataSource(v.path);
-		Bitmap b = mmr.getFrameAtTime(2000000);
-	*/	
+		/*
+		 * MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+		 * mmr.setDataSource(v.path); Bitmap b = mmr.getFrameAtTime(2000000);
+		 */
 		Bitmap b = ThumbnailUtils.createVideoThumbnail(v.path,
 				MediaStore.Video.Thumbnails.MICRO_KIND);
-		
+
 		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(
 				this)
 				.setSmallIcon(R.drawable.memoiricon2)
@@ -195,7 +187,7 @@ public class SecretCamera extends Service {
 
 		mBuilder.setContentIntent(resultPendingIntent);
 
-		int mNotificationId = 001;
+		int mNotificationId = 1;
 		NotificationManager mNotifyMgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 		mNotifyMgr.notify(mNotificationId, mBuilder.build());
 	}
@@ -217,21 +209,12 @@ public class SecretCamera extends Service {
 		}
 	}
 
-/*	private boolean checkCameraHardware(Context context) {
-		if (context.getPackageManager().hasSystemFeature(
-				PackageManager.FEATURE_CAMERA)) {
-			return true;
-		} else {
-			return false;
-		}
-	}*/
-
 	public static Camera getCameraInstance() {
 		Camera c = null;
 		try {
 			c = Camera.open();
 		} catch (Exception e) {
-			Log.e("asd", "Camera is not available");
+			e.printStackTrace();
 		}
 		return c;
 	}
@@ -273,7 +256,7 @@ public class SecretCamera extends Service {
 					previewing = true;
 				}
 			} catch (Exception e) {
-				Log.d("asd", "Error starting camera preview: " + e.getMessage());
+				e.printStackTrace();
 			}
 		}
 	}

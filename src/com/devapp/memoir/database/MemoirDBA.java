@@ -24,7 +24,6 @@ public class MemoirDBA {
 	private String DATABASE_NAME = "memoir.db";
 	private int DATABASE_VERSION = 1;
 	private Context cxt = null;
-
 	private List<List<Video>> localVideos = null;
 	private long localSD = 0, localED = 0;
 	private boolean localSelected = false, localShowOnlyMultiple = false;
@@ -37,9 +36,11 @@ public class MemoirDBA {
 
 	public List<List<Video>> getVideos(long startDate, long endDate,
 			boolean selected, boolean showOnlyMultiple) {
-		if(localVideos == null || startDate != localSD || endDate != localED || selected != localSelected || showOnlyMultiple != localShowOnlyMultiple) {
-			localVideos = mMDBHelper.getVideos(this.cxt, startDate, endDate, selected,
-					showOnlyMultiple);
+		if (localVideos == null || startDate != localSD || endDate != localED
+				|| selected != localSelected
+				|| showOnlyMultiple != localShowOnlyMultiple) {
+			localVideos = mMDBHelper.getVideos(this.cxt, startDate, endDate,
+					selected, showOnlyMultiple);
 			localSD = startDate;
 			localED = endDate;
 			localSelected = selected;
@@ -82,11 +83,11 @@ public class MemoirDBA {
 	public void updateDatabaseForThumbnail(String path, String thumbnailPath) {
 		mMDBHelper.updateDatabaseForThumbnail(path, thumbnailPath);
 	}
-	
+
 	public void setStartEndDates() {
 		mMDBHelper.setStartEndDates();
 	}
-	
+
 	public void updateDatabaseForOlderEntries(int noofdays) {
 		mMDBHelper.updateDatabaseForOlderEntries(noofdays);
 	}
@@ -150,7 +151,6 @@ public class MemoirDBA {
 			if (selected) {
 				selection = selection + " AND " + V_TABLE_SELECTED + " = 1 ";
 			}
-			// Log.d("asd", "Selection Query = " + selection);
 			String orderBy = V_TABLE_DATE + " DESC ";
 
 			Cursor c = db.query(VIDEOS_TABLE_NAME, null, selection, null, null,
@@ -183,8 +183,6 @@ public class MemoirDBA {
 							c.getInt(V_TABLE_USER_TAKEN_INDEX) > 0 ? true
 									: false);
 					currentVideoList.add(v);
-
-					Log.d("asd", "Entry " + c.getString(V_TABLE_PATH_INDEX) + c.getLong(V_TABLE_DATE_INDEX));
 					c.moveToNext();
 				}
 			}
@@ -217,8 +215,6 @@ public class MemoirDBA {
 			values.put(V_TABLE_LENGTH, v.length);
 			values.put(V_TABLE_USER_TAKEN, v.userTaken == true ? 1 : 0);
 
-			// Log.d("asd", "Inserting values Date>" + v.date + "  Path>" +
-			// v.path + "   selected>" + v.selected + "  >length" + v.length);
 			return db.insert(VIDEOS_TABLE_NAME, null, values);
 		}
 
@@ -312,7 +308,6 @@ public class MemoirDBA {
 				}
 			}
 			c.close();
-			Log.d("asd", "Deleting video with id > " + sb.toString());
 			db = this.getWritableDatabase();
 			db.delete(VIDEOS_TABLE_NAME, sb.toString(), null);
 		}
@@ -343,17 +338,25 @@ public class MemoirDBA {
 				}
 			}
 			c.close();
-			
-			if(mPrefs.getLong("com.devapp.memoir.endselected", 0) > mPrefs.getLong("com.devapp.memoir.endall", 0)) {
-				mPrefs.edit().putLong("com.devapp.memoir.endselected", mPrefs.getLong("com.devapp.memoir.endall", 0)).commit();
+
+			if (mPrefs.getLong("com.devapp.memoir.endselected", 0) > mPrefs
+					.getLong("com.devapp.memoir.endall", 0)) {
+				mPrefs.edit()
+						.putLong("com.devapp.memoir.endselected",
+								mPrefs.getLong("com.devapp.memoir.endall", 0))
+						.commit();
 			}
-			
-			if(mPrefs.getLong("com.devapp.memoir.startselected", 0) < mPrefs.getLong("com.devapp.memoir.startall", 0)) {
-				mPrefs.edit().putLong("com.devapp.memoir.startselected", mPrefs.getLong("com.devapp.memoir.startall", 0)).commit();
+
+			if (mPrefs.getLong("com.devapp.memoir.startselected", 0) < mPrefs
+					.getLong("com.devapp.memoir.startall", 0)) {
+				mPrefs.edit()
+						.putLong("com.devapp.memoir.startselected",
+								mPrefs.getLong("com.devapp.memoir.startall", 0))
+						.commit();
 			}
-			
+
 		}
-		
+
 		public void updateDatabaseForThumbnail(String path, String thumbnailPath) {
 			SQLiteDatabase db = this.getWritableDatabase();
 			ContentValues values = new ContentValues();
@@ -361,21 +364,25 @@ public class MemoirDBA {
 			String whereClause = V_TABLE_PATH + " = '" + path + "'";
 			db.update(VIDEOS_TABLE_NAME, values, whereClause, null);
 		}
-		
+
 		public void updateDatabaseForOlderEntries(int noofdays) {
 			SQLiteDatabase db = this.getReadableDatabase();
 
 			Calendar cal = Calendar.getInstance();
-			cal.setTimeInMillis(cal.getTimeInMillis() - noofdays*MemoirApplication.DAY_IN_MILLIS - 1000);
-			
+			cal.setTimeInMillis(cal.getTimeInMillis() - noofdays
+					* MemoirApplication.DAY_IN_MILLIS - 1000);
+
 			int month = cal.get(Calendar.MONTH) + 1;
 			int date = cal.get(Calendar.DATE);
-			long t1 = Long.parseLong("" + cal.get(Calendar.YEAR) + (month <10 ? ("0" + month) : month) + (date < 10 ? ("0" + date) : date));
-			
-			String selection = V_TABLE_DATE + " <= " + t1 + " AND " + V_TABLE_SELECTED + " = 0 ";
-			Log.d("asd", "Selection is " + selection);
+			long t1 = Long.parseLong("" + cal.get(Calendar.YEAR)
+					+ (month < 10 ? ("0" + month) : month)
+					+ (date < 10 ? ("0" + date) : date));
+
+			String selection = V_TABLE_DATE + " <= " + t1 + " AND "
+					+ V_TABLE_SELECTED + " = 0 ";
 			String[] columns = { V_TABLE_PATH };
-			Cursor c = db.query(VIDEOS_TABLE_NAME, columns, selection, null, null, null, null);
+			Cursor c = db.query(VIDEOS_TABLE_NAME, columns, selection, null,
+					null, null, null);
 
 			ArrayList<String> videoList = null;
 
@@ -391,20 +398,20 @@ public class MemoirDBA {
 
 			c.close();
 
-			if(videoList != null) {
+			if (videoList != null) {
 				db = this.getWritableDatabase();
 				db.beginTransaction();
 				String whereClause = null;
-				
-				for(String path :videoList) {
+
+				for (String path : videoList) {
 					whereClause = V_TABLE_PATH + " = '" + path + "'";
-					Log.d("asd", "Path " + path);
 					db.delete(VIDEOS_TABLE_NAME, whereClause, null);
 
 					File file = new File(path);
 					file.delete();
 
-					file = new File(path.substring(0, path.length() - 3) + "png");
+					file = new File(path.substring(0, path.length() - 3)
+							+ "png");
 					file.delete();
 				}
 				db.setTransactionSuccessful();

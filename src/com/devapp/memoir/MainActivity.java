@@ -21,7 +21,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
@@ -47,10 +46,8 @@ public class MainActivity extends Activity {
 		mShareActionProvider = (ShareActionProvider) menu.findItem(
 				R.id.action_share_video).getActionProvider();
 
-		// new shareActionProviderTask().execute();
 		shareActionProviderTask();
 		return true;
-		// return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override
@@ -58,7 +55,6 @@ public class MainActivity extends Activity {
 		Intent intent;
 		switch (item.getItemId()) {
 		case android.R.id.home:
-			Log.d("asd", "my life selected");
 			/*
 			 * Intent intent = new Intent(this, HomeActivity.class);
 			 * intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -88,15 +84,12 @@ public class MainActivity extends Activity {
 
 				Intent takeVideoIntent = new Intent(
 						MediaStore.ACTION_VIDEO_CAPTURE);
-				// Intent takeVideoIntent = new Intent(this,
-				// CameraLandscapeDummyActivity.class);
 
 				takeVideoIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT,
 						mPrefs.getInt("com.devapp.memoir.noofseconds", 2));
 				takeVideoIntent.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION,
 						ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 				File videoFile = new File(mVideo.path);
-				Log.d("asd", "Vido PAth is " + mVideo.path);
 				takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT,
 						Uri.fromFile(videoFile));
 
@@ -133,25 +126,16 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		Log.d("asd", "OnCreate of Main Activity");
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-		Log.d("asd", "orintation > "
-				+ getResources().getConfiguration().orientation + "  >"
-				+ Configuration.ORIENTATION_PORTRAIT);
-		Log.d("asd", "Activity Layout main 's reference "
-				+ R.layout.activity_main_portrait);
-
 		/**
-		 * NOTE: for some reason my activity was not alke to pick up correct xml
+		 * NOTE: for some reason my activity was not able to pick up correct xml
 		 * file based on orientation hence I have done this
 		 */
 		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-			Log.d("asd", "Launching landscape activity");
 			setContentView(R.layout.activity_main_landscape);
 		} else if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-			Log.d("asd", "Launching portrait activity");
 			setContentView(R.layout.activity_main_portrait);
 		}
 		ActionBar actionBar = getActionBar();
@@ -160,14 +144,6 @@ public class MainActivity extends Activity {
 
 		mPrefs = this.getSharedPreferences("com.devapp.memoir",
 				Context.MODE_PRIVATE);
-	}
-
-	@Override
-	public void onStart() {
-		super.onStart();
-		// if(mShareActionProvider != null) {
-		// new shareActionProviderTask().execute();
-		// }
 	}
 
 	public class TranscodingServiceBroadcastReceiver extends BroadcastReceiver {
@@ -180,7 +156,6 @@ public class MainActivity extends Activity {
 				if (!outputFile.isEmpty()) {
 					if (mShareActionProvider != null) {
 						shareActionProviderTask();
-						// new shareActionProviderTask().execute();
 					}
 				}
 			}
@@ -208,16 +183,9 @@ public class MainActivity extends Activity {
 	}
 
 	@Override
-	public void onStop() {
-		super.onStop();
-
-	}
-
-	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 
-		Log.d("asd", " On Activity result for activity " + data);
 		boolean isPhoneLikeS3 = false;
 		boolean doesFileExists = false;
 		Uri VideoUri = null;
@@ -232,9 +200,9 @@ public class MainActivity extends Activity {
 				doesFileExists = new File(mVideo.path).exists() ? true : false;
 			} else {
 				VideoUri = data.getData();
-				Log.d("zxc", "VideoUri.getPath() >" + VideoUri.getPath()
-						+ " mVideo.path>" + mVideo.path + " Video URI >"
-						+ VideoUri);
+				// Log.i("zxc", "VideoUri.getPath() >" + VideoUri.getPath()
+				// + " mVideo.path>" + mVideo.path + " Video URI >"
+				// + VideoUri);
 			}
 
 			if ((isPhoneLikeS3 && doesFileExists)
@@ -275,8 +243,9 @@ public class MainActivity extends Activity {
 					}
 				}
 
-				mVideo.length = Long.parseLong(mMediaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
-				Log.d("asd", "Setting length as " + mVideo.length);
+				mVideo.length = Long
+						.parseLong(mMediaRetriever
+								.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
 				((MemoirApplication) getApplication()).getDBA()
 						.addVideo(mVideo);
 				((MemoirApplication) getApplication()).getDBA().selectVideo(
@@ -305,14 +274,12 @@ public class MainActivity extends Activity {
 
 					if (videos1 != null) {
 						if (videos2 == null || videos1.size() != videos2.size()) {
-							Log.d("asd", "Calling on Start again");
 							((MyLifeFragment) mFragment).onStart();
 						} else {
 							int len = videos1.size();
 							for (int i = 0; i < len; i++) {
 								if (videos1.get(i).size() != videos2.get(i)
 										.size()) {
-									Log.d("asd", "Calling on Start again");
 									((MyLifeFragment) mFragment).onStart();
 								}
 							}
@@ -321,15 +288,8 @@ public class MainActivity extends Activity {
 				}
 			}
 		} else if (requestCode == VIDEO_IMPORT && resultCode == RESULT_OK) {
-			// Log.d("asd",
-			// "video after import is > "
-			// + data.getStringExtra("OutputFileName"));
-			// Log.d("asd", "video date is > " +
-			// data.getStringExtra("videoDate"));
-
 			long d = Long.parseLong(data.getStringExtra("videoDate"));
 			long length = data.getLongExtra("videoLength", 0);
-			Log.d("asd", "Setting length as " + length);
 			mVideo = new Video(0, d, data.getStringExtra("OutputFileName"),
 					false, length, true);
 			((MemoirApplication) getApplication()).getDBA().addVideo(mVideo);
@@ -358,13 +318,11 @@ public class MainActivity extends Activity {
 
 				if (videos1 != null) {
 					if (videos2 == null || videos1.size() != videos2.size()) {
-						Log.d("asd", "Calling on Start again");
 						((MyLifeFragment) mFragment).onStart();
 					} else {
 						int len = videos1.size();
 						for (int i = 0; i < len; i++) {
 							if (videos1.get(i).size() != videos2.get(i).size()) {
-								Log.d("asd", "Calling on Start again");
 								((MyLifeFragment) mFragment).onStart();
 							}
 						}
@@ -376,7 +334,6 @@ public class MainActivity extends Activity {
 
 	@Override
 	public void onAttachFragment(Fragment fragment) {
-		Log.d("asd", "Fragment Attached called");
 		mFragment = fragment;
 		super.onAttachFragment(fragment);
 	}
@@ -393,41 +350,4 @@ public class MainActivity extends Activity {
 			mShareActionProvider.setShareIntent(shareIntent);
 		}
 	}
-
-	/*
-	 * public class shareActionProviderTask extends AsyncTask<Void, Void,
-	 * String> {
-	 * 
-	 * public String copy(String inputFile) { String filePath =
-	 * getApplicationContext()
-	 * .getExternalFilesDir(Environment.DIRECTORY_MOVIES) .getAbsolutePath() +
-	 * "/Memoir/Memoir-" + MemoirApplication.convertDate(mPrefs.getLong(
-	 * "com.devapp.memoir.startselected",0), "Day 1") .replaceAll("/", "-") +
-	 * "-" +
-	 * MemoirApplication.convertDate(mPrefs.getLong("com.devapp.memoir.endselected"
-	 * ,0), "Now") .replaceAll("/", "-") + ".mp4";
-	 * 
-	 * try { InputStream in = new FileInputStream(new File(inputFile));
-	 * OutputStream out = new FileOutputStream(new File(filePath));
-	 * 
-	 * byte[] buf = new byte[1024]; int len; while ((len = in.read(buf)) > 0) {
-	 * out.write(buf, 0, len); } in.close(); out.close(); } catch (IOException
-	 * e) { Log.e("asd", "Exception While Copying" ); e.printStackTrace(); }
-	 * return filePath; }
-	 * 
-	 * @Override protected String doInBackground(Void... arg0) {
-	 * 
-	 * Video v =
-	 * ((MemoirApplication)getApplication()).getMyLifeFile(getApplicationContext
-	 * ());
-	 * 
-	 * if (v != null) { return copy(v.path); } return null; }
-	 * 
-	 * @Override protected void onPostExecute(String result) { if(result!= null
-	 * && mShareActionProvider != null) { Intent shareIntent = new
-	 * Intent(Intent.ACTION_SEND); shareIntent.setType("video/mp4");
-	 * shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new
-	 * File(result))); mShareActionProvider.setShareIntent(shareIntent); }
-	 * super.onPostExecute(result); } }
-	 */
 }

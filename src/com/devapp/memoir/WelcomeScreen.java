@@ -9,7 +9,6 @@ import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
@@ -17,12 +16,12 @@ import android.widget.ViewFlipper;
 
 public class WelcomeScreen extends Activity {
 
-	ViewFlipper page;
-	Animation animFlipInForeward;
-	Animation animFlipOutForeward;
-	Animation animFlipInBackward;
-	Animation animFlipOutBackward;
-	GestureDetector gestureDetector = null;
+	private ViewFlipper page;
+	private Animation animFlipInForeward;
+	private Animation animFlipOutForeward;
+	private Animation animFlipInBackward;
+	private Animation animFlipOutBackward;
+	private GestureDetector gestureDetector = null;
 	private ImageView mSwipeLeft = null, mSwipeRight = null;
 
 	@Override
@@ -68,7 +67,7 @@ public class WelcomeScreen extends Activity {
 
 		mSwipeLeft = (ImageView) findViewById(R.id.WelcomeScreenSwipeLeft);
 		mSwipeRight = (ImageView) findViewById(R.id.WelcomeScreenSwipeRight);
-		
+
 		mSwipeLeft.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
@@ -76,7 +75,7 @@ public class WelcomeScreen extends Activity {
 				return;
 			}
 		});
-		
+
 		mSwipeRight.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
@@ -86,17 +85,17 @@ public class WelcomeScreen extends Activity {
 		});
 		updateArrows(0);
 	}
-	
+
 	@Override
 	public void onBackPressed() {
-		/* //Currently disabling back press
-		page.removeAllViews();
-		Intent i = new Intent(WelcomeScreen.this, MainActivity.class);
-		i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		startActivity(i);
-		finish();*/
+		/*
+		 * //Currently disabling back press page.removeAllViews(); Intent i =
+		 * new Intent(WelcomeScreen.this, MainActivity.class);
+		 * i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); startActivity(i);
+		 * finish();
+		 */
 	}
-	
+
 	public void onExit() {
 		page.removeAllViews();
 		Intent i = new Intent(WelcomeScreen.this, MainActivity.class);
@@ -106,11 +105,10 @@ public class WelcomeScreen extends Activity {
 	}
 
 	private void updateArrows(int displayedChild) {
-		Log.d("asd", "displayedChild" + displayedChild);
-		if(displayedChild == 0) {
+		if (displayedChild == 0) {
 			mSwipeLeft.setVisibility(View.VISIBLE);
 			mSwipeRight.setVisibility(View.INVISIBLE);
-		} else if(displayedChild == 5) {
+		} else if (displayedChild == 5) {
 			mSwipeLeft.setVisibility(View.INVISIBLE);
 			mSwipeRight.setVisibility(View.VISIBLE);
 		} else {
@@ -118,7 +116,7 @@ public class WelcomeScreen extends Activity {
 			mSwipeRight.setVisibility(View.VISIBLE);
 		}
 	}
-	
+
 	private void SwipeRight() {
 		if (page.getDisplayedChild() != 0) {
 			mSwipeLeft.setVisibility(View.INVISIBLE);

@@ -68,11 +68,11 @@ public class SettingsActivity extends Activity {
 					@Override
 					public void onCheckedChanged(CompoundButton arg0,
 							boolean arg1) {
-						CheckBox cb = (CheckBox)arg0;
+						CheckBox cb = (CheckBox) arg0;
 						mPrefs.edit()
 								.putBoolean(
-										"com.devapp.memoir.showonlymultiple",cb.isChecked()
-										).commit();
+										"com.devapp.memoir.showonlymultiple",
+										cb.isChecked()).commit();
 					}
 
 				}));
@@ -85,7 +85,7 @@ public class SettingsActivity extends Activity {
 					@Override
 					public void onCheckedChanged(CompoundButton arg0,
 							boolean arg1) {
-						CheckBox cb = (CheckBox)arg0;
+						CheckBox cb = (CheckBox) arg0;
 						mPrefs.edit()
 								.putBoolean("com.devapp.memoir.shootoncall",
 										cb.isChecked()).commit();
@@ -94,8 +94,9 @@ public class SettingsActivity extends Activity {
 				}));
 
 		mArrayList.add(new SettingsItem(
-				"Choose the number of seconds to record", "No Of Seconds Currently : " + mPrefs
-				.getInt("com.devapp.memoir.noofseconds", 2)));
+				"Choose the number of seconds to record",
+				"No Of Seconds Currently : "
+						+ mPrefs.getInt("com.devapp.memoir.noofseconds", 2)));
 
 		mSettingsView = (ListView) findViewById(R.id.SettingLV);
 		mSettingsView.setOnItemClickListener(new OnItemClickListener() {
@@ -217,21 +218,23 @@ public class SettingsActivity extends Activity {
 								SettingsActivity.this.getFragmentManager(),
 								"datePicker");
 					}
-				} else if(position == 4) {
+				} else if (position == 4) {
 					NumberPickerFragment newFragment = new NumberPickerFragment();
-					newFragment.setDefault(mPrefs.getInt(
-							"com.devapp.memoir.noofseconds", 1), new OnValueChangeListener() {
+					newFragment.setDefault(
+							mPrefs.getInt("com.devapp.memoir.noofseconds", 1),
+							new OnValueChangeListener() {
 
 								@Override
-								public void onValueChange(NumberPicker arg0, int arg1,
-										int arg2) {
+								public void onValueChange(NumberPicker arg0,
+										int arg1, int arg2) {
 									mPrefs.edit()
-									.putInt("com.devapp.memoir.noofseconds", arg1).commit();
-									mArrayList.get(4).text2 = "No Of Seconds Currently : " + arg1;
+											.putInt("com.devapp.memoir.noofseconds",
+													arg1).commit();
+									mArrayList.get(4).text2 = "No Of Seconds Currently : "
+											+ arg1;
 									mSettingsView.invalidateViews();
-									
-									Toast.makeText(
-											SettingsActivity.this,
+
+									Toast.makeText(SettingsActivity.this,
 											"No Of Seconds Set To " + arg1,
 											Toast.LENGTH_SHORT).show();
 								}
@@ -239,20 +242,10 @@ public class SettingsActivity extends Activity {
 					newFragment.show(
 							SettingsActivity.this.getFragmentManager(),
 							"numberPicker");
-					
+
 				}
 			}
 		});
-	}
-
-	@Override
-	protected void onPause() {
-		super.onPause();
-	}
-
-	@Override
-	protected void onResume() {
-		super.onResume();
 	}
 
 	@Override
@@ -260,11 +253,6 @@ public class SettingsActivity extends Activity {
 		super.onStart();
 		mSettingsAdapter = new SettingsArrayAdapter(this, mArrayList);
 		mSettingsView.setAdapter(mSettingsAdapter);
-	}
-
-	@Override
-	protected void onStop() {
-		super.onStop();
 	}
 
 	public class SettingsItem {
@@ -295,13 +283,11 @@ public class SettingsActivity extends Activity {
 
 		private ArrayList<SettingsItem> mList;
 		private LayoutInflater mInflater;
-		private Context mContext;
 
 		public SettingsArrayAdapter(Context context,
 				ArrayList<SettingsItem> List) {
 			super(context, R.layout.activity_settings_item);
 
-			this.mContext = context;
 			this.mList = List;
 			this.mInflater = LayoutInflater.from(context);
 		}
@@ -421,12 +407,12 @@ public class SettingsActivity extends Activity {
 		NumberPicker mNumberPicker = null;
 		int defaultValue = 2;
 		OnValueChangeListener listener = null;
-		
+
 		public void setDefault(int dValue, OnValueChangeListener l) {
 			this.defaultValue = dValue;
 			listener = l;
 		}
-		
+
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
 
@@ -436,12 +422,13 @@ public class SettingsActivity extends Activity {
 			mNumberPicker.setMaxValue(5);
 			mNumberPicker.setValue(defaultValue);
 			builder.setView(mNumberPicker);
-			
+
 			builder.setNeutralButton("Set", new OnClickListener() {
 				@Override
 				public void onClick(DialogInterface arg0, int arg1) {
 					mNumberPicker.getValue();
-					listener.onValueChange(mNumberPicker, mNumberPicker.getValue(), 0);
+					listener.onValueChange(mNumberPicker,
+							mNumberPicker.getValue(), 0);
 				}
 			});
 			return builder.create();
