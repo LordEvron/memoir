@@ -37,7 +37,7 @@ public class HelpActivity extends Activity {
 			@Override
 			public boolean onGroupClick(ExpandableListView arg0, View arg1,
 					int group, long arg3) {
-				if (group == 6) {
+				if (group == 1) {
 					Intent i = new Intent(HelpActivity.this,
 							WelcomeScreen.class);
 					i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -54,9 +54,9 @@ public class HelpActivity extends Activity {
 				R.string.help_mt3, R.string.help_mt4, R.string.help_mt5,
 				R.string.help_mt6, R.string.help_mt7 };
 		private int[][] children = { { R.string.help_t1 },
-				{ R.string.help_t2 }, { R.string.help_t3 },
+				{}, { R.string.help_t3 },
 				{ R.string.help_t4 }, { R.string.help_t5 },
-				{ R.string.help_t6 }, {} };
+				{ R.string.help_t6 }, { R.string.help_t7} };
 
 		private Context cxt;
 		private Resources res;

@@ -6,6 +6,8 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.view.LayoutInflater;
+import android.widget.ScrollView;
 
 public class EndUserLicenseAgreement {
 
@@ -33,10 +35,10 @@ public class EndUserLicenseAgreement {
 		String title = mActivity.getString(R.string.app_name) + " v"
 				+ versionInfo.versionName;
 
-		String message = mActivity.getString(R.string.eula);
-
+		ScrollView sv = (ScrollView) LayoutInflater.from(mActivity).inflate(
+				R.layout.eulaview, null);
 		AlertDialog.Builder builder = new AlertDialog.Builder(mActivity)
-				.setTitle(title).setMessage(message)
+				.setTitle(title).setView(sv)
 				.setPositiveButton("Accept", new Dialog.OnClickListener() {
 
 					@Override
