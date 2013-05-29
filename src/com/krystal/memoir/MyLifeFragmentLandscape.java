@@ -1,11 +1,10 @@
-package com.devapp.memoir;
+package com.krystal.memoir;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.os.Bundle;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -105,7 +104,6 @@ public class MyLifeFragmentLandscape extends MyLifeFragment {
 		mMyLifeContainerFL.setLayoutParams(new RelativeLayout.LayoutParams(
 				LayoutParams.MATCH_PARENT, newHeight));
 
-		Log.d("asd", "Video view width >" + newHeight * mWidth / mHeight);
 		mMyLifeFL.setLayoutParams(new FrameLayout.LayoutParams(newHeight
 				* mWidth / mHeight, LayoutParams.MATCH_PARENT, Gravity.LEFT));
 

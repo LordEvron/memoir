@@ -1,4 +1,4 @@
-package com.devapp.memoir;
+package com.krystal.memoir;
 
 import java.lang.ref.WeakReference;
 import java.util.Formatter;

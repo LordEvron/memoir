@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/mylifefragmentlandscape"
-        android:name="com.devapp.memoir.MyLifeFragmentLandscape"
+        android:name="com.krystal.memoir.MyLifeFragmentLandscape"
         android:layout_width="fill_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />

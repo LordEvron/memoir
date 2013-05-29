@@ -1,4 +1,4 @@
-package com.devapp.memoir;
+package com.krystal.memoir;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -23,11 +23,10 @@ import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.MediaStore.MediaColumns;
-import android.util.Log;
 
-import com.devapp.memoir.database.MemoirDBA;
-import com.devapp.memoir.database.Video;
-import com.devapp.memoir.services.ThumbnailLoader;
+import com.krystal.memoir.database.MemoirDBA;
+import com.krystal.memoir.database.Video;
+import com.krystal.memoir.services.ThumbnailLoader;
 
 public class MemoirApplication extends Application {
 
@@ -44,24 +43,24 @@ public class MemoirApplication extends Application {
 	public void onCreate() {
 		mDBA = new MemoirDBA(getApplicationContext());
 		mTL = ThumbnailLoader.initialize(this, mDBA);
-		mPrefs = this.getSharedPreferences("com.devapp.memoir",
+		mPrefs = this.getSharedPreferences("com.krystal.memoir",
 				Context.MODE_PRIVATE);
 
 		mExtFileDirectory = getApplicationContext().getExternalFilesDir(
 				Environment.DIRECTORY_MOVIES).getAbsolutePath();
 
-		if (!mPrefs.contains("com.devapp.memoir.startall")) {
+		if (!mPrefs.contains("com.krystal.memoir.startall")) {
 			SharedPreferences.Editor editor = mPrefs.edit();
 			SimpleDateFormat ft = new SimpleDateFormat("yyyyMMdd");
 			long date = Long.parseLong(ft.format(new Date()));
-			editor.putLong("com.devapp.memoir.startall", date);
-			editor.putLong("com.devapp.memoir.endall", date);
-			editor.putLong("com.devapp.memoir.startselected", date);
-			editor.putLong("com.devapp.memoir.endselected", date);
-			editor.putBoolean("com.devapp.memoir.datachanged", false);
-			editor.putBoolean("com.devapp.memoir.showonlymultiple", false);
-			editor.putBoolean("com.devapp.memoir.shootoncall", true);
-			editor.putInt("com.devapp.memoir.noofseconds", 2);
+			editor.putLong("com.krystal.memoir.startall", date);
+			editor.putLong("com.krystal.memoir.endall", date);
+			editor.putLong("com.krystal.memoir.startselected", date);
+			editor.putLong("com.krystal.memoir.endselected", date);
+			editor.putBoolean("com.krystal.memoir.datachanged", false);
+			editor.putBoolean("com.krystal.memoir.showonlymultiple", false);
+			editor.putBoolean("com.krystal.memoir.shootoncall", true);
+			editor.putInt("com.krystal.memoir.noofseconds", 2);
 			editor.commit();
 
 			Video v = getMyLifeFile(this);
@@ -77,7 +76,7 @@ public class MemoirApplication extends Application {
 		}
 		
 		this.sendBroadcast(new Intent(
-				"com.devapp.memoir.BootupBroadcastReceiver"));
+				"com.krystal.memoir.BootupBroadcastReceiver"));
 	}
 
 	public static String convertDate(long date, String defaultS) {
@@ -337,8 +336,8 @@ public class MemoirApplication extends Application {
 			maxHeight = 96;
 		}
 
-		mPrefs.edit().putInt("com.devapp.memoir.standardheight", maxHeight)
-				.putInt("com.devapp.memoir.standardwidth", maxWidth).commit();
+		mPrefs.edit().putInt("com.krystal.memoir.standardheight", maxHeight)
+				.putInt("com.krystal.memoir.standardwidth", maxWidth).commit();
 	}
 
 	public static void addShortcut(Context context) {

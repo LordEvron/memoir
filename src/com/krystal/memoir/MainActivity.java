@@ -1,4 +1,4 @@
-package com.devapp.memoir;
+package com.krystal.memoir;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -27,8 +27,8 @@ import android.view.WindowManager;
 import android.widget.ShareActionProvider;
 import android.widget.Toast;
 
-import com.devapp.memoir.database.Video;
-import com.devapp.memoir.services.TranscodingService;
+import com.krystal.memoir.database.Video;
+import com.krystal.memoir.services.TranscodingService;
 
 public class MainActivity extends Activity {
 	private ShareActionProvider mShareActionProvider;
@@ -62,10 +62,10 @@ public class MainActivity extends Activity {
 			 */
 			return true;
 		case R.id.action_shoot_video:
-			if (!mPrefs.getBoolean("com.devapp.memoir.firsttimeshootvideo",
+			if (!mPrefs.getBoolean("com.krystal.memoir.firsttimeshootvideo",
 					false)) {
 				mPrefs.edit()
-						.putBoolean("com.devapp.memoir.firsttimeshootvideo",
+						.putBoolean("com.krystal.memoir.firsttimeshootvideo",
 								true).commit();
 				Toast.makeText(
 						MainActivity.this,
@@ -86,7 +86,7 @@ public class MainActivity extends Activity {
 						MediaStore.ACTION_VIDEO_CAPTURE);
 
 				takeVideoIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT,
-						mPrefs.getInt("com.devapp.memoir.noofseconds", 2));
+						mPrefs.getInt("com.krystal.memoir.noofseconds", 2));
 				takeVideoIntent.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION,
 						ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 				File videoFile = new File(mVideo.path);
@@ -142,7 +142,7 @@ public class MainActivity extends Activity {
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
 		actionBar.setDisplayShowTitleEnabled(false);
 
-		mPrefs = this.getSharedPreferences("com.devapp.memoir",
+		mPrefs = this.getSharedPreferences("com.krystal.memoir",
 				Context.MODE_PRIVATE);
 	}
 
@@ -253,9 +253,9 @@ public class MainActivity extends Activity {
 
 				SimpleDateFormat ft = new SimpleDateFormat("yyyyMMdd");
 				long date = Long.parseLong(ft.format(new Date()));
-				mPrefs.edit().putBoolean("com.devapp.memoir.datachanged", true)
-						.putLong("com.devapp.memoir.endall", date)
-						.putLong("com.devapp.memoir.endselected", date)
+				mPrefs.edit().putBoolean("com.krystal.memoir.datachanged", true)
+						.putLong("com.krystal.memoir.endall", date)
+						.putLong("com.krystal.memoir.endselected", date)
 						.commit();
 
 				if (mFragment != null) {
@@ -267,7 +267,7 @@ public class MainActivity extends Activity {
 									-1,
 									false,
 									mPrefs.getBoolean(
-											"com.devapp.memoir.showonlymultiple",
+											"com.krystal.memoir.showonlymultiple",
 											false));
 
 					List<List<Video>> videos2 = ((MyLifeFragment) mFragment).mVideos;
@@ -295,13 +295,13 @@ public class MainActivity extends Activity {
 			((MemoirApplication) getApplication()).getDBA().addVideo(mVideo);
 			((MemoirApplication) getApplication()).getDBA().selectVideo(mVideo);
 
-			mPrefs.edit().putBoolean("com.devapp.memoir.datachanged", true)
+			mPrefs.edit().putBoolean("com.krystal.memoir.datachanged", true)
 					.commit();
-			if (mPrefs.getLong("com.devapp.memoir.startall", 0) > d) {
-				mPrefs.edit().putLong("com.devapp.memoir.startall", d).commit();
+			if (mPrefs.getLong("com.krystal.memoir.startall", 0) > d) {
+				mPrefs.edit().putLong("com.krystal.memoir.startall", d).commit();
 			}
-			if (mPrefs.getLong("com.devapp.memoir.startselected", 0) > d) {
-				mPrefs.edit().putLong("com.devapp.memoir.startselected", d)
+			if (mPrefs.getLong("com.krystal.memoir.startselected", 0) > d) {
+				mPrefs.edit().putLong("com.krystal.memoir.startselected", d)
 						.commit();
 			}
 
@@ -311,7 +311,7 @@ public class MainActivity extends Activity {
 						0,
 						-1,
 						false,
-						mPrefs.getBoolean("com.devapp.memoir.showonlymultiple",
+						mPrefs.getBoolean("com.krystal.memoir.showonlymultiple",
 								false));
 
 				List<List<Video>> videos2 = ((MyLifeFragment) mFragment).mVideos;

@@ -1,4 +1,4 @@
-package com.devapp.memoir.services;
+package com.krystal.memoir.services;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,8 +19,8 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import com.coremedia.iso.IsoFile;
 import com.coremedia.iso.boxes.TimeToSampleBox;
-import com.devapp.memoir.MemoirApplication;
-import com.devapp.memoir.database.Video;
+import com.krystal.memoir.MemoirApplication;
+import com.krystal.memoir.database.Video;
 import com.googlecode.mp4parser.authoring.Movie;
 import com.googlecode.mp4parser.authoring.Track;
 import com.googlecode.mp4parser.authoring.builder.DefaultMp4Builder;

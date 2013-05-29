@@ -2,7 +2,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
 
-    <com.devapp.memoir.AViewFlipper
+    <com.krystal.memoir.AViewFlipper
         android:id="@+id/welcomeVF"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" >
@@ -68,7 +68,7 @@
                 android:layout_gravity="center_vertical|right"
                 android:src="@drawable/start" />
         </FrameLayout>
-    </com.devapp.memoir.AViewFlipper>
+    </com.krystal.memoir.AViewFlipper>
 
     <ImageView
         android:id="@+id/WelcomeScreenSwipeRight"

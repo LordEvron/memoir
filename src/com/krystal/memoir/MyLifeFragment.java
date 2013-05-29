@@ -1,4 +1,4 @@
-package com.devapp.memoir;
+package com.krystal.memoir;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -41,8 +41,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
-import com.devapp.memoir.database.Video;
-import com.devapp.memoir.services.TranscodingService;
+import com.krystal.memoir.database.Video;
+import com.krystal.memoir.services.TranscodingService;
 
 public class MyLifeFragment extends Fragment {
 
@@ -64,7 +64,7 @@ public class MyLifeFragment extends Fragment {
 			Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_my_life, container,
 				false);
-		mPrefs = this.getActivity().getSharedPreferences("com.devapp.memoir",
+		mPrefs = this.getActivity().getSharedPreferences("com.krystal.memoir",
 				Context.MODE_PRIVATE);
 
 		return rootView;
@@ -200,7 +200,7 @@ public class MyLifeFragment extends Fragment {
 						0,
 						-1,
 						false,
-						mPrefs.getBoolean("com.devapp.memoir.showonlymultiple",
+						mPrefs.getBoolean("com.krystal.memoir.showonlymultiple",
 								false));
 
 		mDateAdapter = new MyLifeDateListArrayAdapter(getActivity(), mVideos);
@@ -217,9 +217,9 @@ public class MyLifeFragment extends Fragment {
 		Intent intent = new Intent(getActivity(), TranscodingService.class);
 		intent.setAction(TranscodingService.ActionCreateMyLife);
 		intent.putExtra("startDate",
-				mPrefs.getLong("com.devapp.memoir.startselected", 0));
+				mPrefs.getLong("com.krystal.memoir.startselected", 0));
 		intent.putExtra("endDate",
-				mPrefs.getLong("com.devapp.memoir.endselected", 0));
+				mPrefs.getLong("com.krystal.memoir.endselected", 0));
 		getActivity().startService(intent);
 		mMyLifeVideo = null;
 	}
@@ -236,8 +236,8 @@ public class MyLifeFragment extends Fragment {
 		LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
 				mDataBroadcastReceiver, intentFilter);
 
-		if (mPrefs.getBoolean("com.devapp.memoir.datachanged", true) == true) {
-			mPrefs.edit().putBoolean("com.devapp.memoir.datachanged", false)
+		if (mPrefs.getBoolean("com.krystal.memoir.datachanged", true) == true) {
+			mPrefs.edit().putBoolean("com.krystal.memoir.datachanged", false)
 					.commit();
 			refreshLifeTimeVideo();
 		} else {
@@ -286,11 +286,11 @@ public class MyLifeFragment extends Fragment {
 		mMyLifePB.setVisibility(PBVis);
 
 		String text = MemoirApplication.convertDate(
-				mPrefs.getLong("com.devapp.memoir.startselected", 0),
+				mPrefs.getLong("com.krystal.memoir.startselected", 0),
 				"Long Time Ago")
 				+ " - "
 				+ MemoirApplication.convertDate(
-						mPrefs.getLong("com.devapp.memoir.endselected", 0),
+						mPrefs.getLong("com.krystal.memoir.endselected", 0),
 						"Now");
 		mMyLifeTV.setText(text);
 		mMyLifeTV.setVisibility(TVVis);

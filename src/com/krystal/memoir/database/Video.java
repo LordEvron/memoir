@@ -1,4 +1,4 @@
-package com.devapp.memoir.database;
+package com.krystal.memoir.database;
 
 public class Video {
 	public int key;

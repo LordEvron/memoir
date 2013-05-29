@@ -1,4 +1,4 @@
-package com.devapp.memoir;
+package com.krystal.memoir;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;

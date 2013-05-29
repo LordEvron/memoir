@@ -1,4 +1,4 @@
-package com.devapp.memoir;
+package com.krystal.memoir;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -46,23 +46,23 @@ public class SettingsActivity extends Activity {
 
 		setContentView(R.layout.activity_settings);
 
-		mPrefs = this.getSharedPreferences("com.devapp.memoir",
+		mPrefs = this.getSharedPreferences("com.krystal.memoir",
 				Context.MODE_PRIVATE);
 
 		mArrayList = new ArrayList<SettingsItem>();
 
 		mArrayList.add(new SettingsItem("Set start date", MemoirApplication
 				.convertDate(
-						mPrefs.getLong("com.devapp.memoir.startselected", 0),
+						mPrefs.getLong("com.krystal.memoir.startselected", 0),
 						"No Start Date Set")));
 		mArrayList.add(new SettingsItem("Set end date", MemoirApplication
 				.convertDate(
-						mPrefs.getLong("com.devapp.memoir.endselected", 0),
+						mPrefs.getLong("com.krystal.memoir.endselected", 0),
 						"No End Date Set")));
 
 		mArrayList.add(new SettingsItem("Adjust view",
 				"Hide days with single video", mPrefs.getBoolean(
-						"com.devapp.memoir.showonlymultiple", false),
+						"com.krystal.memoir.showonlymultiple", false),
 				new OnCheckedChangeListener() {
 
 					@Override
@@ -71,7 +71,7 @@ public class SettingsActivity extends Activity {
 						CheckBox cb = (CheckBox) arg0;
 						mPrefs.edit()
 								.putBoolean(
-										"com.devapp.memoir.showonlymultiple",
+										"com.krystal.memoir.showonlymultiple",
 										cb.isChecked()).commit();
 					}
 
@@ -79,7 +79,7 @@ public class SettingsActivity extends Activity {
 
 		mArrayList.add(new SettingsItem("Auto shoot",
 				"Allow Memoir to auto shoot on call", mPrefs.getBoolean(
-						"com.devapp.memoir.shootoncall", true),
+						"com.krystal.memoir.shootoncall", true),
 				new OnCheckedChangeListener() {
 
 					@Override
@@ -87,14 +87,14 @@ public class SettingsActivity extends Activity {
 							boolean arg1) {
 						CheckBox cb = (CheckBox) arg0;
 						mPrefs.edit()
-								.putBoolean("com.devapp.memoir.shootoncall",
+								.putBoolean("com.krystal.memoir.shootoncall",
 										cb.isChecked()).commit();
 					}
 
 				}));
 
 		mArrayList.add(new SettingsItem("Seconds to record", ""
-				+ mPrefs.getInt("com.devapp.memoir.noofseconds", 2)));
+				+ mPrefs.getInt("com.krystal.memoir.noofseconds", 2)));
 
 		mArrayList.add(new SettingsItem("Reset", "Remove all videos"));
 
@@ -106,44 +106,44 @@ public class SettingsActivity extends Activity {
 					int position, long arg3) {
 				if (position == 0) {
 
-					if (mPrefs.getLong("com.devapp.memoir.startall", 0) == mPrefs
-							.getLong("com.devapp.memoir.endselected", 0)) {
+					if (mPrefs.getLong("com.krystal.memoir.startall", 0) == mPrefs
+							.getLong("com.krystal.memoir.endselected", 0)) {
 						Toast.makeText(SettingsActivity.this,
 								"Only possible start date is the one selected",
 								Toast.LENGTH_SHORT).show();
 					} else {
 						DatePickerFragment newFragment = new DatePickerFragment();
 						newFragment.setDefaultDate(mPrefs.getLong(
-								"com.devapp.memoir.startselected", 0), mPrefs
-								.getLong("com.devapp.memoir.startall", 0),
-								mPrefs.getLong("com.devapp.memoir.endselected",
+								"com.krystal.memoir.startselected", 0), mPrefs
+								.getLong("com.krystal.memoir.startall", 0),
+								mPrefs.getLong("com.krystal.memoir.endselected",
 										0), new setDateInterface() {
 									@Override
 									public void setDate(long d) {
 
 										if (d < mPrefs
 												.getLong(
-														"com.devapp.memoir.startall",
+														"com.krystal.memoir.startall",
 														0)) {
 											d = mPrefs
 													.getLong(
-															"com.devapp.memoir.startall",
+															"com.krystal.memoir.startall",
 															0);
 										} else if (d > mPrefs
 												.getLong(
-														"com.devapp.memoir.endselected",
+														"com.krystal.memoir.endselected",
 														0)) {
 											d = mPrefs
 													.getLong(
-															"com.devapp.memoir.endselected",
+															"com.krystal.memoir.endselected",
 															0);
 										}
 										mPrefs.edit()
 												.putLong(
-														"com.devapp.memoir.startselected",
+														"com.krystal.memoir.startselected",
 														d)
 												.putBoolean(
-														"com.devapp.memoir.datachanged",
+														"com.krystal.memoir.datachanged",
 														true).commit();
 										mArrayList.get(0).text2 = MemoirApplication
 												.convertDate(d, "");
@@ -163,41 +163,41 @@ public class SettingsActivity extends Activity {
 								"datePicker");
 					}
 				} else if (position == 1) {
-					if (mPrefs.getLong("com.devapp.memoir.startselected", 0) == mPrefs
-							.getLong("com.devapp.memoir.endall", 0)) {
+					if (mPrefs.getLong("com.krystal.memoir.startselected", 0) == mPrefs
+							.getLong("com.krystal.memoir.endall", 0)) {
 						Toast.makeText(SettingsActivity.this,
 								"Only possible end date is the one selected",
 								Toast.LENGTH_SHORT).show();
 					} else {
 						DatePickerFragment newFragment = new DatePickerFragment();
 						newFragment.setDefaultDate(mPrefs.getLong(
-								"com.devapp.memoir.endselected", 0), mPrefs
-								.getLong("com.devapp.memoir.startselected", 0),
-								mPrefs.getLong("com.devapp.memoir.endall", 0),
+								"com.krystal.memoir.endselected", 0), mPrefs
+								.getLong("com.krystal.memoir.startselected", 0),
+								mPrefs.getLong("com.krystal.memoir.endall", 0),
 								new setDateInterface() {
 									@Override
 									public void setDate(long d) {
 										if (d < mPrefs
 												.getLong(
-														"com.devapp.memoir.startselected",
+														"com.krystal.memoir.startselected",
 														0)) {
 											d = mPrefs
 													.getLong(
-															"com.devapp.memoir.startselected",
+															"com.krystal.memoir.startselected",
 															0);
 										} else if (d > mPrefs.getLong(
-												"com.devapp.memoir.endall", 0)) {
+												"com.krystal.memoir.endall", 0)) {
 											d = mPrefs.getLong(
-													"com.devapp.memoir.endall",
+													"com.krystal.memoir.endall",
 													0);
 										}
 
 										mPrefs.edit()
 												.putLong(
-														"com.devapp.memoir.endselected",
+														"com.krystal.memoir.endselected",
 														d)
 												.putBoolean(
-														"com.devapp.memoir.datachanged",
+														"com.krystal.memoir.datachanged",
 														true).commit();
 										mArrayList.get(1).text2 = MemoirApplication
 												.convertDate(d, "");
@@ -219,14 +219,14 @@ public class SettingsActivity extends Activity {
 				} else if (position == 4) {
 					NumberPickerFragment newFragment = new NumberPickerFragment();
 					newFragment.setDefault(
-							mPrefs.getInt("com.devapp.memoir.noofseconds", 1),
+							mPrefs.getInt("com.krystal.memoir.noofseconds", 1),
 							new OnValueChangeListener() {
 
 								@Override
 								public void onValueChange(NumberPicker arg0,
 										int arg1, int arg2) {
 									mPrefs.edit()
-											.putInt("com.devapp.memoir.noofseconds",
+											.putInt("com.krystal.memoir.noofseconds",
 													arg1).commit();
 									mArrayList.get(4).text2 = "" + arg1;
 									mSettingsView.invalidateViews();

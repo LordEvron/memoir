@@ -1,4 +1,4 @@
-package com.devapp.memoir.services;
+package com.krystal.memoir.services;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -25,11 +25,11 @@ import android.view.SurfaceView;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 
-import com.devapp.memoir.MainActivity;
-import com.devapp.memoir.MemoirApplication;
-import com.devapp.memoir.R;
-import com.devapp.memoir.database.MemoirDBA;
-import com.devapp.memoir.database.Video;
+import com.krystal.memoir.MainActivity;
+import com.krystal.memoir.MemoirApplication;
+import com.krystal.memoir.R;
+import com.krystal.memoir.database.MemoirDBA;
+import com.krystal.memoir.database.Video;
 
 // TODO : Add orientation support right now if the phone is held in right hand the videos would be 180 degree reversed.
 // Remove the camera sound 
@@ -47,13 +47,13 @@ public class SecretCamera extends Service {
 	public void onCreate() {
 		super.onCreate();
 
-		mPrefs = this.getSharedPreferences("com.devapp.memoir",
+		mPrefs = this.getSharedPreferences("com.krystal.memoir",
 				Context.MODE_PRIVATE);
 
 		MemoirDBA dba = ((MemoirApplication) getApplication()).getDBA();
 
 		if (dba.checkVideoInLimit() && !dba.checkIfAnyUserVideo()
-				&& mPrefs.getBoolean("com.devapp.memoir.shootoncall", true)) {
+				&& mPrefs.getBoolean("com.krystal.memoir.shootoncall", true)) {
 
 			mCamera = getCameraInstance();
 
@@ -105,7 +105,7 @@ public class SecretCamera extends Service {
 		mMediaRecorder.setOutputFile(mVideo.path);
 
 		mMediaRecorder.setMaxDuration(mPrefs.getInt(
-				"com.devapp.memoir.noofseconds", 1) * 1000);
+				"com.krystal.memoir.noofseconds", 1) * 1000);
 		mMediaRecorder.setOnInfoListener(new MediaRecorder.OnInfoListener() {
 			@Override
 			public void onInfo(MediaRecorder mr, int what, int extra) {
@@ -154,8 +154,8 @@ public class SecretCamera extends Service {
 		((MemoirApplication) getApplication()).getDBA().selectVideo(mVideo);
 
 		SharedPreferences mPrefs = this.getSharedPreferences(
-				"com.devapp.memoir", Context.MODE_PRIVATE);
-		mPrefs.edit().putBoolean("com.devapp.memoir.datachanged", true)
+				"com.krystal.memoir", Context.MODE_PRIVATE);
+		mPrefs.edit().putBoolean("com.krystal.memoir.datachanged", true)
 				.commit();
 
 		showNotification(mVideo);

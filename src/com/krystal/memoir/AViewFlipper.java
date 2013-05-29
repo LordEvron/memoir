@@ -1,4 +1,4 @@
-package com.devapp.memoir;
+package com.krystal.memoir;
 
 import android.content.Context;
 import android.graphics.Canvas;

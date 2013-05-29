@@ -1,4 +1,4 @@
-package com.devapp.memoir.database;
+package com.krystal.memoir.database;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -15,7 +15,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.devapp.memoir.MemoirApplication;
+import com.krystal.memoir.MemoirApplication;
 
 public class MemoirDBA {
 
@@ -127,7 +127,7 @@ public class MemoirDBA {
 		public MemoirDBHelper(Context context, String name,
 				CursorFactory factory, int version) {
 			super(context, name, factory, version);
-			mPrefs = context.getSharedPreferences("com.devapp.memoir",
+			mPrefs = context.getSharedPreferences("com.krystal.memoir",
 					Context.MODE_PRIVATE);
 		}
 
@@ -304,7 +304,7 @@ public class MemoirDBA {
 							new File(c.getString(2)).delete();
 							mPrefs.edit()
 									.putBoolean(
-											"com.devapp.memoir.datachanged",
+											"com.krystal.memoir.datachanged",
 											true).commit();
 						}
 						c.moveToNext();
@@ -325,7 +325,7 @@ public class MemoirDBA {
 			if (c.getCount() > 0) {
 				if (c.moveToFirst()) {
 					mPrefs.edit()
-							.putLong("com.devapp.memoir.endall", c.getInt(0))
+							.putLong("com.krystal.memoir.endall", c.getInt(0))
 							.commit();
 				}
 			}
@@ -337,25 +337,25 @@ public class MemoirDBA {
 			if (c.getCount() > 0) {
 				if (c.moveToFirst()) {
 					mPrefs.edit()
-							.putLong("com.devapp.memoir.startall", c.getInt(0))
+							.putLong("com.krystal.memoir.startall", c.getInt(0))
 							.commit();
 				}
 			}
 			c.close();
 
-			if (mPrefs.getLong("com.devapp.memoir.endselected", 0) > mPrefs
-					.getLong("com.devapp.memoir.endall", 0)) {
+			if (mPrefs.getLong("com.krystal.memoir.endselected", 0) > mPrefs
+					.getLong("com.krystal.memoir.endall", 0)) {
 				mPrefs.edit()
-						.putLong("com.devapp.memoir.endselected",
-								mPrefs.getLong("com.devapp.memoir.endall", 0))
+						.putLong("com.krystal.memoir.endselected",
+								mPrefs.getLong("com.krystal.memoir.endall", 0))
 						.commit();
 			}
 
-			if (mPrefs.getLong("com.devapp.memoir.startselected", 0) < mPrefs
-					.getLong("com.devapp.memoir.startall", 0)) {
+			if (mPrefs.getLong("com.krystal.memoir.startselected", 0) < mPrefs
+					.getLong("com.krystal.memoir.startall", 0)) {
 				mPrefs.edit()
-						.putLong("com.devapp.memoir.startselected",
-								mPrefs.getLong("com.devapp.memoir.startall", 0))
+						.putLong("com.krystal.memoir.startselected",
+								mPrefs.getLong("com.krystal.memoir.startall", 0))
 						.commit();
 			}
 

@@ -1,4 +1,4 @@
-package com.devapp.memoir;
+package com.krystal.memoir;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -53,10 +53,10 @@ import com.coremedia.iso.boxes.MovieBox;
 import com.coremedia.iso.boxes.TimeToSampleBox;
 import com.coremedia.iso.boxes.TrackBox;
 import com.coremedia.iso.boxes.TrackHeaderBox;
-import com.devapp.memoir.services.TranscodingService;
 import com.googlecode.mp4parser.authoring.Movie;
 import com.googlecode.mp4parser.authoring.Track;
 import com.googlecode.mp4parser.authoring.container.mp4.MovieCreator;
+import com.krystal.memoir.services.TranscodingService;
 
 public class ImportVideoActivity extends Activity implements OnPreparedListener {
 
@@ -84,7 +84,7 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		mPrefs = this.getSharedPreferences("com.devapp.memoir",
+		mPrefs = this.getSharedPreferences("com.krystal.memoir",
 				Context.MODE_PRIVATE);
 	}
 
@@ -140,9 +140,9 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 					TrackHeaderBox thb = track.getTrackHeaderBox();
 
 					if (thb.getWidth() != mPrefs.getInt(
-							"com.devapp.memoir.standardwidth", 0)
+							"com.krystal.memoir.standardwidth", 0)
 							|| thb.getHeight() != mPrefs.getInt(
-									"com.devapp.memoir.standardheight", 0)) {
+									"com.krystal.memoir.standardheight", 0)) {
 						mPath = null;
 					}
 					// Log.i("asd", "movie box details are " + thb.getHeight() +
@@ -266,7 +266,7 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 					mCorrectedStart = (float) position / (float) 10;
 					mCorrectedEnd = mCorrectedStart
 							+ (float) (mPrefs.getInt(
-									"com.devapp.memoir.noofseconds", 1));
+									"com.krystal.memoir.noofseconds", 1));
 
 					// Log.i("asd", "Original correctedStart " + mCorrectedStart
 					// + "  mCorrectedEnd" + mCorrectedEnd);
@@ -423,7 +423,7 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 				LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
 
 		int imageWidth = Math.round(mdistanceToTimeRatio
-				* mPrefs.getInt("com.devapp.memoir.noofseconds", 1));
+				* mPrefs.getInt("com.krystal.memoir.noofseconds", 1));
 		Bitmap bm = Bitmap.createBitmap(imageWidth, containerHeight,
 				Bitmap.Config.ARGB_8888);
 		Canvas c = new Canvas(bm);

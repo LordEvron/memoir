@@ -1,10 +1,4 @@
-package com.devapp.memoir;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+package com.krystal.memoir;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -15,27 +9,16 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
-import com.coremedia.iso.IsoFile;
-import com.devapp.memoir.database.MemoirDBA;
-import com.googlecode.mp4parser.authoring.Movie;
-import com.googlecode.mp4parser.authoring.Track;
-import com.googlecode.mp4parser.authoring.builder.DefaultMp4Builder;
-import com.googlecode.mp4parser.authoring.builder.FragmentedMp4Builder;
-import com.googlecode.mp4parser.authoring.builder.SyncSampleIntersectFinderImpl;
-import com.googlecode.mp4parser.authoring.container.mp4.MovieCreator;
+import com.krystal.memoir.database.MemoirDBA;
 
 public class Splash extends Activity {
 
 	private boolean mIsBackButtonPressed;
-	private static final int SPLASH_DURATION = 2000;
 	private SharedPreferences mPrefs = null;
 
 	@Override
@@ -44,7 +27,7 @@ public class Splash extends Activity {
 
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(Splash.this);
 
-		if (!mPrefs.getBoolean("com.devapp.memoir.firsttime", false)) {
+		if (!mPrefs.getBoolean("com.krystal.memoir.firsttime", false)) {
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		}
 
@@ -56,7 +39,7 @@ public class Splash extends Activity {
 			iv.setImageResource(R.drawable.backgroundportrait);
 		}
 
-		if (!mPrefs.getBoolean("com.devapp.memoir.agreement", false)) {
+		if (!mPrefs.getBoolean("com.krystal.memoir.agreement", false)) {
 			Animation animation = AnimationUtils.loadAnimation(this,
 					R.anim.splashanimations);
 			iv.startAnimation(animation);
@@ -72,7 +55,7 @@ public class Splash extends Activity {
 										int arg1) {
 									mPrefs.edit()
 											.putBoolean(
-													"com.devapp.memoir.agreement",
+													"com.krystal.memoir.agreement",
 													true).commit();
 									proceed();
 								}
@@ -101,8 +84,8 @@ public class Splash extends Activity {
 		 * Handler handler = new Handler(); handler.postDelayed(new Runnable() {
 		 * 
 		 * @Override public void run() { if (!mIsBackButtonPressed) { Intent i;
-		 * if (!mPrefs .getBoolean("com.devapp.memoir.firsttime", false)) {
-		 * mPrefs.edit() .putBoolean("com.devapp.memoir.firsttime", true)
+		 * if (!mPrefs .getBoolean("com.krystal.memoir.firsttime", false)) {
+		 * mPrefs.edit() .putBoolean("com.krystal.memoir.firsttime", true)
 		 * .commit(); i = new Intent(Splash.this, WelcomeScreen.class);
 		 * i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); } else { i = new
 		 * Intent(Splash.this, MainActivity.class);
@@ -135,7 +118,7 @@ public class Splash extends Activity {
 					-1,
 					false,
 					PreferenceManager.getDefaultSharedPreferences(Splash.this)
-							.getBoolean("com.devapp.memoir.showonlymultiple",
+							.getBoolean("com.krystal.memoir.showonlymultiple",
 									false));
 			return null;
 		}
@@ -144,9 +127,9 @@ public class Splash extends Activity {
 		protected void onPostExecute(Void result) {
 			if (!mIsBackButtonPressed) {
 				Intent i;
-				if (!mPrefs.getBoolean("com.devapp.memoir.firsttime", false)) {
+				if (!mPrefs.getBoolean("com.krystal.memoir.firsttime", false)) {
 					mPrefs.edit()
-							.putBoolean("com.devapp.memoir.firsttime", true)
+							.putBoolean("com.krystal.memoir.firsttime", true)
 							.commit();
 					i = new Intent(Splash.this, WelcomeScreen.class);
 					i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

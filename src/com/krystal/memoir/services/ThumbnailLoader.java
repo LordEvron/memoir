@@ -1,4 +1,4 @@
-package com.devapp.memoir.services;
+package com.krystal.memoir.services;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -14,8 +14,8 @@ import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.widget.ImageView;
 
-import com.devapp.memoir.MemoirApplication;
-import com.devapp.memoir.database.MemoirDBA;
+import com.krystal.memoir.MemoirApplication;
+import com.krystal.memoir.database.MemoirDBA;
 
 public class ThumbnailLoader {
 

@@ -1,4 +1,4 @@
-package com.devapp.memoir;
+package com.krystal.memoir;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -7,7 +7,7 @@ import android.os.Handler;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 
-import com.devapp.memoir.services.SecretCamera;
+import com.krystal.memoir.services.SecretCamera;
 
 public class BootupBroadcastReceiver extends BroadcastReceiver {
 
