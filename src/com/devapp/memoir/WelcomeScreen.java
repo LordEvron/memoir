@@ -108,7 +108,7 @@ public class WelcomeScreen extends Activity {
 		if (displayedChild == 0) {
 			mSwipeLeft.setVisibility(View.VISIBLE);
 			mSwipeRight.setVisibility(View.INVISIBLE);
-		} else if (displayedChild == 5) {
+		} else if (displayedChild == 6) {
 			mSwipeLeft.setVisibility(View.INVISIBLE);
 			mSwipeRight.setVisibility(View.VISIBLE);
 		} else {
@@ -130,7 +130,7 @@ public class WelcomeScreen extends Activity {
 	}
 
 	private void SwipeLeft() {
-		if (page.getDisplayedChild() != 5) {
+		if (page.getDisplayedChild() != 6) {
 			mSwipeLeft.setVisibility(View.INVISIBLE);
 			mSwipeRight.setVisibility(View.INVISIBLE);
 

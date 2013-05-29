@@ -38,85 +38,14 @@ public class Splash extends Activity {
 	private static final int SPLASH_DURATION = 2000;
 	private SharedPreferences mPrefs = null;
 
-	private void mux() {
-		String video1 = "/storage/emulated/0/Badtameez Dil.mp4";
-		String video2 = "/storage/emulated/0/DCIM/Camera/VID_20130514_185014.mp4";
-
-		try {
-
-			Movie Video1 = MovieCreator.build(new FileInputStream(video1)
-					.getChannel());
-			Movie Video2 = MovieCreator.build(new FileInputStream(video2)
-					.getChannel());
-
-			Track audioTrack = Video1.getTracks().get(0);
-			//audioTrack.getTrackMetaData().setLanguage("eng");
-
-			Video2.addTrack(audioTrack);
-
-			String outputFilename = this
-					.getExternalFilesDir(Environment.DIRECTORY_MOVIES)
-					.getAbsolutePath();
-			{
-				IsoFile out = new DefaultMp4Builder().build(Video2);
-				FileOutputStream fos = new FileOutputStream(new File(outputFilename + "/output.mp4"));
-				out.getBox(fos.getChannel());
-				fos.close();
-				
-				Log.d("asd", "Making output file at " + outputFilename + "/output.mp4");
-			}
-			{
-				FragmentedMp4Builder fragmentedMp4Builder = new FragmentedMp4Builder();
-				fragmentedMp4Builder
-						.setIntersectionFinder(new SyncSampleIntersectFinderImpl());
-				IsoFile out = fragmentedMp4Builder.build(Video2);
-				FileOutputStream fos = new FileOutputStream(new File(
-						outputFilename + "/output-frag.mp4"));
-				out.getBox(fos.getChannel());
-				fos.close();
-				Log.d("asd", "Making output file at " + outputFilename + "/output-frag.mp4");
-			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-		//mux();
-		
+
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(Splash.this);
 
 		if (!mPrefs.getBoolean("com.devapp.memoir.firsttime", false)) {
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-		}
-
-		if (!mPrefs.getBoolean("com.devapp.memoir.agreement", false)) {
-			new EndUserLicenseAgreement(this).show(
-					new Dialog.OnClickListener() {
-
-						@Override
-						public void onClick(DialogInterface arg0, int arg1) {
-							mPrefs.edit()
-									.putBoolean("com.devapp.memoir.agreement",
-											true).commit();
-							proceed();
-						}
-
-					}, new Dialog.OnClickListener() {
-
-						@Override
-						public void onClick(DialogInterface arg0, int arg1) {
-							Splash.this.finish();
-						}
-
-					});
-		} else {
-			proceed();
 		}
 
 		setContentView(R.layout.activity_splash);
@@ -126,36 +55,60 @@ public class Splash extends Activity {
 		} else if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
 			iv.setImageResource(R.drawable.backgroundportrait);
 		}
-		Animation animation = AnimationUtils.loadAnimation(this,
-				R.anim.splashanimations);
-		iv.startAnimation(animation);
+
+		if (!mPrefs.getBoolean("com.devapp.memoir.agreement", false)) {
+			Animation animation = AnimationUtils.loadAnimation(this,
+					R.anim.splashanimations);
+			iv.startAnimation(animation);
+
+			iv.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					new EndUserLicenseAgreement(Splash.this).show(
+							new Dialog.OnClickListener() {
+
+								@Override
+								public void onClick(DialogInterface arg0,
+										int arg1) {
+									mPrefs.edit()
+											.putBoolean(
+													"com.devapp.memoir.agreement",
+													true).commit();
+									proceed();
+								}
+
+							}, new Dialog.OnClickListener() {
+
+								@Override
+								public void onClick(DialogInterface arg0,
+										int arg1) {
+									Splash.this.finish();
+								}
+
+							});
+
+				}
+			}, 1000);
+
+		} else {
+			proceed();
+		}
 
 	}
 
 	public void proceed() {
-		Handler handler = new Handler();
-		handler.postDelayed(new Runnable() {
-
-			@Override
-			public void run() {
-				if (!mIsBackButtonPressed) {
-					Intent i;
-					if (!mPrefs
-							.getBoolean("com.devapp.memoir.firsttime", false)) {
-						mPrefs.edit()
-								.putBoolean("com.devapp.memoir.firsttime", true)
-								.commit();
-						i = new Intent(Splash.this, WelcomeScreen.class);
-						i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-					} else {
-						i = new Intent(Splash.this, MainActivity.class);
-						i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-					}
-					startActivity(i);
-					finish();
-				}
-			}
-		}, SPLASH_DURATION);
+		/*
+		 * Handler handler = new Handler(); handler.postDelayed(new Runnable() {
+		 * 
+		 * @Override public void run() { if (!mIsBackButtonPressed) { Intent i;
+		 * if (!mPrefs .getBoolean("com.devapp.memoir.firsttime", false)) {
+		 * mPrefs.edit() .putBoolean("com.devapp.memoir.firsttime", true)
+		 * .commit(); i = new Intent(Splash.this, WelcomeScreen.class);
+		 * i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); } else { i = new
+		 * Intent(Splash.this, MainActivity.class);
+		 * i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); } startActivity(i);
+		 * finish(); } } }, SPLASH_DURATION);
+		 */
 
 		new BackgroundTasks().execute(((MemoirApplication) getApplication())
 				.getDBA());
@@ -174,7 +127,9 @@ public class Splash extends Activity {
 		protected Void doInBackground(MemoirDBA... arg0) {
 			MemoirDBA dba = arg0[0];
 			dba.updateDatabase();
-			dba.updateDatabaseForOlderEntries(45);
+			for(int i = 0; i < 450 ; i++) {
+				dba.updateDatabaseForOlderEntries(45);
+			}
 			dba.getVideos(
 					0,
 					-1,
@@ -183,6 +138,26 @@ public class Splash extends Activity {
 							.getBoolean("com.devapp.memoir.showonlymultiple",
 									false));
 			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Void result) {
+			if (!mIsBackButtonPressed) {
+				Intent i;
+				if (!mPrefs.getBoolean("com.devapp.memoir.firsttime", false)) {
+					mPrefs.edit()
+							.putBoolean("com.devapp.memoir.firsttime", true)
+							.commit();
+					i = new Intent(Splash.this, WelcomeScreen.class);
+					i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				} else {
+					i = new Intent(Splash.this, MainActivity.class);
+					i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				}
+				startActivity(i);
+				finish();
+			}
+			super.onPostExecute(result);
 		}
 	}
 }

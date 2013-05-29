@@ -69,7 +69,7 @@ public class MainActivity extends Activity {
 								true).commit();
 				Toast.makeText(
 						MainActivity.this,
-						"Shoot videos only in landscape mode. Portrait videos are not selected",
+						"Shoot videos in landscape mode only. Portrait videos will not be added.",
 						Toast.LENGTH_LONG).show();
 			}
 
@@ -98,7 +98,7 @@ public class MainActivity extends Activity {
 			} else {
 				Toast.makeText(
 						MainActivity.this,
-						"More than 5 Videos are not allowed for a day, Please delete some videos to shoot more videos.",
+						"Max videos reached for the day. Please delete some videos.",
 						Toast.LENGTH_LONG).show();
 			}
 			return true;
@@ -222,7 +222,7 @@ public class MainActivity extends Activity {
 					if (bmp.getHeight() > bmp.getWidth()) {
 						Toast.makeText(
 								this,
-								"This video is in portrait mode and can not be imported",
+								"This video is in portrait mode and cannot be imported",
 								Toast.LENGTH_LONG).show();
 						findViewById(R.id.action_shoot_video).callOnClick();
 						return;
@@ -236,7 +236,7 @@ public class MainActivity extends Activity {
 					if (rotationAngle == 90 || rotationAngle == 270) {
 						Toast.makeText(
 								this,
-								"This video is in portrait mode and can not be imported",
+								"This video is in portrait mode and cannot be imported",
 								Toast.LENGTH_LONG).show();
 						findViewById(R.id.action_shoot_video).callOnClick();
 						return;

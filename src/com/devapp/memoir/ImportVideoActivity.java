@@ -162,7 +162,7 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 			if (mPath == null) {
 				Toast.makeText(
 						this,
-						"This video can not be imported as it is either not local on the phone or of portrait mode or unsupported format, Please select another video",
+						"Error importing. See help for details.",
 						Toast.LENGTH_LONG).show();
 				return;
 			}

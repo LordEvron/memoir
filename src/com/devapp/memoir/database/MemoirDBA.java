@@ -14,7 +14,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 import com.devapp.memoir.MemoirApplication;
 
@@ -60,6 +59,11 @@ public class MemoirDBA {
 		if (!v.path.isEmpty())
 			return mMDBHelper.deleteVideo(v);
 		return 0;
+	}
+
+	public void resetAll() {
+		localVideos = null;
+		mMDBHelper.resetAll();
 	}
 
 	public boolean selectVideo(Video v) {
@@ -417,6 +421,44 @@ public class MemoirDBA {
 				db.setTransactionSuccessful();
 				db.endTransaction();
 			}
+		}
+
+		public void resetAll() {
+			SQLiteDatabase db = this.getReadableDatabase();
+
+			String[] columns = { V_TABLE_PATH };
+			Cursor c = db.query(VIDEOS_TABLE_NAME, columns, null, null,
+					null, null, null);
+
+			ArrayList<String> videoList = null;
+
+			if (c.getCount() > 0) {
+				videoList = new ArrayList<String>();
+				if (c.moveToFirst()) {
+					while (!c.isAfterLast()) {
+						videoList.add(c.getString(0));
+						c.moveToNext();
+					}
+				}
+			}
+
+			c.close();
+
+			if (videoList != null) {
+				for (String path : videoList) {
+					File file = new File(path);
+					file.delete();
+
+					file = new File(path.substring(0, path.length() - 3)
+							+ "png");
+					file.delete();
+				}
+			}
+			
+			db = this.getWritableDatabase();
+			db.execSQL("DROP TABLE IF EXISTS " + VIDEOS_TABLE_NAME);
+			db.execSQL(VIDEOS_TABLE_CREATE);
+
 		}
 	}
 }

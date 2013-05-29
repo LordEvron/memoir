@@ -157,6 +157,29 @@ public class MemoirApplication extends Application {
 		}
 		return null;
 	}
+	
+	public void deleteMyLifeFile(Context c) {
+		String outputFilename = null;
+
+		if (useExternal) {
+			outputFilename = c
+					.getExternalFilesDir(Environment.DIRECTORY_MOVIES)
+					.getAbsolutePath();
+		} else
+			outputFilename = c.getFilesDir().getAbsolutePath();
+
+		outputFilename = outputFilename.concat("/Memoir/MyLife.mp4");
+		File f = new File(outputFilename);
+		if (f.exists()) {
+			f.delete();
+		}
+		
+		f = new File(outputFilename.substring(0, outputFilename.length() - 3)
+				+ "png");
+		if (f.exists()) {
+			f.delete();
+		}
+	}
 
 	public static Video getMyLifeFileStatic() {
 		String outputFilename = mExtFileDirectory.concat("/Memoir/MyLife.mp4");

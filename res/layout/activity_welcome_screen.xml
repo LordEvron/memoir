@@ -8,6 +8,13 @@
         android:layout_height="fill_parent" >
 
         <ImageView
+            android:id="@+id/WelcomeScreenIV0"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:scaleType="fitXY"
+            android:src="@drawable/f0" />
+        
+        <ImageView
             android:id="@+id/WelcomeScreenIV1"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"

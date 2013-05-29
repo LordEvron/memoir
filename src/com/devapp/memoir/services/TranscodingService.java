@@ -163,7 +163,7 @@ public class TranscodingService extends IntentService {
 			broadcastIntent
 					.putExtra(
 							"Error",
-							"Video that was recently imported is of different quality. Only videos with same quality can be imported. Please delete the same.");
+							"Error creating video. Try removing recent imports.");
 			LocalBroadcastManager.getInstance(this).sendBroadcast(
 					broadcastIntent);
 

@@ -51,18 +51,18 @@ public class SettingsActivity extends Activity {
 
 		mArrayList = new ArrayList<SettingsItem>();
 
-		mArrayList.add(new SettingsItem("Set Start Date", MemoirApplication
+		mArrayList.add(new SettingsItem("Set start date", MemoirApplication
 				.convertDate(
 						mPrefs.getLong("com.devapp.memoir.startselected", 0),
 						"No Start Date Set")));
-		mArrayList.add(new SettingsItem("Set End Date", MemoirApplication
+		mArrayList.add(new SettingsItem("Set end date", MemoirApplication
 				.convertDate(
 						mPrefs.getLong("com.devapp.memoir.endselected", 0),
 						"No End Date Set")));
 
-		mArrayList.add(new SettingsItem("Show Rows With Multiple Videos Only",
-				"You can disable rows which have only single video",
-				mPrefs.getBoolean("com.devapp.memoir.showonlymultiple", false),
+		mArrayList.add(new SettingsItem("Adjust view",
+				"Hide days with single video", mPrefs.getBoolean(
+						"com.devapp.memoir.showonlymultiple", false),
 				new OnCheckedChangeListener() {
 
 					@Override
@@ -77,9 +77,9 @@ public class SettingsActivity extends Activity {
 
 				}));
 
-		mArrayList.add(new SettingsItem("Allow Memoir to shoot videos on Call",
-				"Memoir shoots videos while you are on a call", mPrefs
-						.getBoolean("com.devapp.memoir.shootoncall", true),
+		mArrayList.add(new SettingsItem("Auto shoot",
+				"Allow Memoir to auto shoot on call", mPrefs.getBoolean(
+						"com.devapp.memoir.shootoncall", true),
 				new OnCheckedChangeListener() {
 
 					@Override
@@ -93,10 +93,10 @@ public class SettingsActivity extends Activity {
 
 				}));
 
-		mArrayList.add(new SettingsItem(
-				"Choose the number of seconds to record",
-				"No Of Seconds Currently : "
-						+ mPrefs.getInt("com.devapp.memoir.noofseconds", 2)));
+		mArrayList.add(new SettingsItem("Seconds to record", ""
+				+ mPrefs.getInt("com.devapp.memoir.noofseconds", 2)));
+
+		mArrayList.add(new SettingsItem("Reset", "Remove all videos"));
 
 		mSettingsView = (ListView) findViewById(R.id.SettingLV);
 		mSettingsView.setOnItemClickListener(new OnItemClickListener() {
@@ -108,9 +108,8 @@ public class SettingsActivity extends Activity {
 
 					if (mPrefs.getLong("com.devapp.memoir.startall", 0) == mPrefs
 							.getLong("com.devapp.memoir.endselected", 0)) {
-						Toast.makeText(
-								SettingsActivity.this,
-								"Only possible start date is the one already selected",
+						Toast.makeText(SettingsActivity.this,
+								"Only possible start date is the one selected",
 								Toast.LENGTH_SHORT).show();
 					} else {
 						DatePickerFragment newFragment = new DatePickerFragment();
@@ -152,7 +151,7 @@ public class SettingsActivity extends Activity {
 
 										Toast.makeText(
 												SettingsActivity.this,
-												"Setting Start Date To"
+												"Setting start date to"
 														+ MemoirApplication
 																.convertDate(d,
 																		""),
@@ -166,9 +165,8 @@ public class SettingsActivity extends Activity {
 				} else if (position == 1) {
 					if (mPrefs.getLong("com.devapp.memoir.startselected", 0) == mPrefs
 							.getLong("com.devapp.memoir.endall", 0)) {
-						Toast.makeText(
-								SettingsActivity.this,
-								"Only possible end date is the one already selected",
+						Toast.makeText(SettingsActivity.this,
+								"Only possible end date is the one selected",
 								Toast.LENGTH_SHORT).show();
 					} else {
 						DatePickerFragment newFragment = new DatePickerFragment();
@@ -207,7 +205,7 @@ public class SettingsActivity extends Activity {
 
 										Toast.makeText(
 												SettingsActivity.this,
-												"Setting End Date To"
+												"Setting end date to"
 														+ MemoirApplication
 																.convertDate(d,
 																		""),
@@ -230,19 +228,22 @@ public class SettingsActivity extends Activity {
 									mPrefs.edit()
 											.putInt("com.devapp.memoir.noofseconds",
 													arg1).commit();
-									mArrayList.get(4).text2 = "No Of Seconds Currently : "
-											+ arg1;
+									mArrayList.get(4).text2 = "" + arg1;
 									mSettingsView.invalidateViews();
 
 									Toast.makeText(SettingsActivity.this,
-											"No Of Seconds Set To " + arg1,
+											"No of seconds set to " + arg1,
 											Toast.LENGTH_SHORT).show();
 								}
 							});
 					newFragment.show(
 							SettingsActivity.this.getFragmentManager(),
 							"numberPicker");
-
+				} else if (position == 5) {
+					MemoirApplication app = (MemoirApplication) SettingsActivity.this
+							.getApplication();
+					app.getDBA().resetAll();
+					app.deleteMyLifeFile(getApplicationContext());
 				}
 			}
 		});
