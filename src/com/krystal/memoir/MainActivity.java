@@ -253,22 +253,21 @@ public class MainActivity extends Activity {
 
 				SimpleDateFormat ft = new SimpleDateFormat("yyyyMMdd");
 				long date = Long.parseLong(ft.format(new Date()));
-				mPrefs.edit().putBoolean("com.krystal.memoir.datachanged", true)
+				mPrefs.edit()
+						.putBoolean("com.krystal.memoir.datachanged", true)
 						.putLong("com.krystal.memoir.endall", date)
 						.putLong("com.krystal.memoir.endselected", date)
 						.commit();
 
 				if (mFragment != null) {
 					List<List<Video>> videos1 = ((MemoirApplication) this
-							.getApplication())
-							.getDBA()
-							.getVideos(
-									0,
-									-1,
-									false,
-									mPrefs.getBoolean(
-											"com.krystal.memoir.showonlymultiple",
-											false));
+							.getApplication()).getDBA().getVideos(
+							0,
+							-1,
+							false,
+							mPrefs.getBoolean(
+									"com.krystal.memoir.showonlymultiple",
+									false));
 
 					List<List<Video>> videos2 = ((MyLifeFragment) mFragment).mVideos;
 
@@ -298,10 +297,18 @@ public class MainActivity extends Activity {
 			mPrefs.edit().putBoolean("com.krystal.memoir.datachanged", true)
 					.commit();
 			if (mPrefs.getLong("com.krystal.memoir.startall", 0) > d) {
-				mPrefs.edit().putLong("com.krystal.memoir.startall", d).commit();
+				mPrefs.edit().putLong("com.krystal.memoir.startall", d)
+						.commit();
 			}
 			if (mPrefs.getLong("com.krystal.memoir.startselected", 0) > d) {
 				mPrefs.edit().putLong("com.krystal.memoir.startselected", d)
+						.commit();
+			}
+			if (mPrefs.getLong("com.krystal.memoir.endall", 0) < d) {
+				mPrefs.edit().putLong("com.krystal.memoir.endall", d).commit();
+			}
+			if (mPrefs.getLong("com.krystal.memoir.endselected", 0) < d) {
+				mPrefs.edit().putLong("com.krystal.memoir.endselected", d)
 						.commit();
 			}
 
@@ -311,8 +318,8 @@ public class MainActivity extends Activity {
 						0,
 						-1,
 						false,
-						mPrefs.getBoolean("com.krystal.memoir.showonlymultiple",
-								false));
+						mPrefs.getBoolean(
+								"com.krystal.memoir.showonlymultiple", false));
 
 				List<List<Video>> videos2 = ((MyLifeFragment) mFragment).mVideos;
 

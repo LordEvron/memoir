@@ -8,13 +8,10 @@ import java.util.List;
 import java.util.Locale;
 
 import android.app.Application;
-import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.Intent.ShortcutIconResource;
 import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
 import android.database.Cursor;
 import android.hardware.Camera;
 import android.hardware.Camera.Parameters;
@@ -70,11 +67,8 @@ public class MemoirApplication extends Application {
 			}
 
 			setDefaultCameraResolution();
-
-			// Not adding shortcut for now
-			// addShortcut(this);
 		}
-		
+
 		this.sendBroadcast(new Intent(
 				"com.krystal.memoir.BootupBroadcastReceiver"));
 	}
@@ -156,7 +150,7 @@ public class MemoirApplication extends Application {
 		}
 		return null;
 	}
-	
+
 	public void deleteMyLifeFile(Context c) {
 		String outputFilename = null;
 
@@ -172,7 +166,7 @@ public class MemoirApplication extends Application {
 		if (f.exists()) {
 			f.delete();
 		}
-		
+
 		f = new File(outputFilename.substring(0, outputFilename.length() - 3)
 				+ "png");
 		if (f.exists()) {
@@ -201,9 +195,9 @@ public class MemoirApplication extends Application {
 		if (useExternal) {
 			String state = Environment.getExternalStorageState();
 			if (Environment.MEDIA_MOUNTED.equals(state)) {
-				File mediaStorageDir = new File(
-						c.getExternalFilesDir(Environment.DIRECTORY_MOVIES)
-								.getAbsolutePath(), "Memoir");
+				File mediaStorageDir = new File(c.getExternalFilesDir(
+						Environment.DIRECTORY_MOVIES).getAbsolutePath(),
+						"Memoir");
 				if (!mediaStorageDir.exists()) {
 					if (!mediaStorageDir.mkdirs()) {
 						return null;
@@ -339,44 +333,4 @@ public class MemoirApplication extends Application {
 		mPrefs.edit().putInt("com.krystal.memoir.standardheight", maxHeight)
 				.putInt("com.krystal.memoir.standardwidth", maxWidth).commit();
 	}
-
-	public static void addShortcut(Context context) {
-		Intent shortcut = new Intent(
-				"com.android.launcher.action.INSTALL_SHORTCUT");
-
-		ApplicationInfo appInfo = context.getApplicationInfo();
-
-		shortcut.putExtra(Intent.EXTRA_SHORTCUT_NAME, appInfo.name);
-		// shortcut.putExtra("duplicate", false); // Just create once
-
-		Intent i = new Intent(Intent.ACTION_MAIN);
-		i.setClassName(context, appInfo.className);
-		shortcut.putExtra(Intent.EXTRA_SHORTCUT_INTENT, i);
-
-		ShortcutIconResource iconResource = Intent.ShortcutIconResource
-				.fromContext(context, appInfo.icon);
-		shortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, iconResource);
-
-		context.sendBroadcast(shortcut);
-	}
-
-	public static void deleteShortcut(Context context) {
-		Intent shortcut = new Intent(
-				"com.android.launcher.action.UNINSTALL_SHORTCUT");
-		ApplicationInfo appInfo = context.getApplicationInfo();
-		shortcut.putExtra(Intent.EXTRA_SHORTCUT_NAME, appInfo.name);
-		ComponentName comp = new ComponentName(appInfo.packageName,
-				appInfo.className);
-		shortcut.putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(
-				Intent.ACTION_MAIN).setComponent(comp));
-		context.sendBroadcast(shortcut);
-	}
-	/**
-	 * NOTE: This receiver needs to be there somewhere.. dont know where..
-	 * <receiver android:name="YOUR.PACKAGE.PackageReplacedReceiver">
-	 * <intent-filter> <action
-	 * android:name="android.intent.action.PACKAGE_REPLACED" /> <data
-	 * android:scheme="package" android:path="YOUR.PACKAGE" /> </intent-filter>
-	 * </receiver>
-	 */
 }
