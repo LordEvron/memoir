@@ -173,7 +173,7 @@ public class SecretCamera extends Service {
 
 		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(
 				this)
-				.setSmallIcon(R.drawable.memoiricon2)
+				.setSmallIcon(R.drawable.icon)
 				.setAutoCancel(true)
 				.setLargeIcon(b)
 				.setContentTitle(

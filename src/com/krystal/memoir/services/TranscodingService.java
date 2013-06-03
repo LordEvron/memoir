@@ -19,8 +19,6 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import com.coremedia.iso.IsoFile;
 import com.coremedia.iso.boxes.TimeToSampleBox;
-import com.krystal.memoir.MemoirApplication;
-import com.krystal.memoir.database.Video;
 import com.googlecode.mp4parser.authoring.Movie;
 import com.googlecode.mp4parser.authoring.Track;
 import com.googlecode.mp4parser.authoring.builder.DefaultMp4Builder;
@@ -28,6 +26,8 @@ import com.googlecode.mp4parser.authoring.container.mp4.MovieCreator;
 import com.googlecode.mp4parser.authoring.tracks.AppendTrack;
 import com.googlecode.mp4parser.authoring.tracks.CroppedTrack;
 import com.googlecode.mp4parser.authoring.tracks.TextTrackImpl;
+import com.krystal.memoir.MemoirApplication;
+import com.krystal.memoir.database.Video;
 
 public class TranscodingService extends IntentService {
 
@@ -139,13 +139,9 @@ public class TranscodingService extends IntentService {
 			long t = 0;
 			for (i = 0; i < len; i++) {
 				t = inMoviesSubTextTime.get(i).longValue();
-				// PAID VERSION
 				subTitleEng.getSubs().add(
 						new TextTrackImpl.Line(time, time + t, inMoviesSubText
 								.get(i)));
-				// FREE VERSION
-				// subTitleEng.getSubs().add(new TextTrackImpl.Line(time, time +
-				// t, "Copyrights Memoir Application"));
 				time = time + t;
 			}
 			result.addTrack(subTitleEng);

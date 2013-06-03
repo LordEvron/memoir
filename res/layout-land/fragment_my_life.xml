@@ -3,16 +3,14 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
 
-<!--    <com.google.ads.AdView
+    <com.google.ads.AdView
         android:id="@+id/adView"
         android:layout_width="wrap_content"
         android:layout_height="32dp"
         android:layout_alignParentBottom="true"
         ads:adSize="SMART_BANNER"
         ads:adUnitId="a15193e40da70d7"
-        ads:loadAdOnCreate="true"
-        ads:testDevices="0149CC8419017017" />
-    -->
+        ads:loadAdOnCreate="true" />
 
     <FrameLayout
         android:id="@+id/MyLifeContainerFL"
@@ -45,7 +43,7 @@
                 android:id="@+id/MyLifeIV"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-	            android:scaleType="center"
+                android:scaleType="center"
                 android:src="@drawable/no_video"
                 android:visibility="invisible" />
 
@@ -72,8 +70,8 @@
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:layout_gravity="center_vertical|right"
-            android:padding="1dp"
-            android:background="@drawable/border" >
+            android:background="@drawable/border"
+            android:padding="1dp" >
 
             <ImageView
                 android:id="@+id/MyLifeDrawerIV"
