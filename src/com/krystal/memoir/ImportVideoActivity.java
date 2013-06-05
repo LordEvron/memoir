@@ -168,7 +168,22 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 			}
 
 			mMediaRetriever = new MediaMetadataRetriever();
-			mMediaRetriever.setDataSource(this, selectedVideoLocation);
+			try {
+				mMediaRetriever.setDataSource(this, selectedVideoLocation);
+			} catch(IllegalArgumentException e) {
+				try{
+					mMediaRetriever.setDataSource(mPath);
+				}catch(IllegalArgumentException e1) {
+					if (mPath == null) {
+						Toast.makeText(
+								this,
+								"Error importing. See help for details.",
+								Toast.LENGTH_LONG).show();
+						return;
+					}
+				}
+			}
+
 			mVideoWidth = Integer
 					.parseInt(mMediaRetriever
 							.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
