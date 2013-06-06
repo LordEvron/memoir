@@ -84,17 +84,18 @@ public class TranscodingService extends IntentService {
 			for (j = 0; j < videoList.size(); j++) {
 				v = videoList.get(j);
 				videoFile = new File(v.path);
-
-				try {
-					inMovies.add(MovieCreator.build(new FileInputStream(
-							videoFile).getChannel()));
-					inMoviesSubText.add(MemoirApplication.convertDate(v.date,
-							""));
-					inMoviesSubTextTime.add(new Long(v.length));
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
+				if(videoFile != null) {
+					try {
+						inMovies.add(MovieCreator.build(new FileInputStream(
+								videoFile).getChannel()));
+						inMoviesSubText.add(MemoirApplication.convertDate(v.date,
+								""));
+						inMoviesSubTextTime.add(new Long(v.length));
+					} catch (FileNotFoundException e) {
+						e.printStackTrace();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		}
