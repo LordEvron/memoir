@@ -84,13 +84,19 @@ public class TranscodingService extends IntentService {
 			for (j = 0; j < videoList.size(); j++) {
 				v = videoList.get(j);
 				videoFile = new File(v.path);
-				if(videoFile != null) {
+				if (videoFile != null) {
 					try {
-						inMovies.add(MovieCreator.build(new FileInputStream(
-								videoFile).getChannel()));
-						inMoviesSubText.add(MemoirApplication.convertDate(v.date,
-								""));
-						inMoviesSubTextTime.add(new Long(v.length));
+						FileInputStream fis = new FileInputStream(videoFile);
+						if (fis != null) {
+							FileChannel fc = fis.getChannel();
+							if (fc != null) {
+								inMovies.add(MovieCreator.build(fc));
+								inMoviesSubText.add(MemoirApplication
+										.convertDate(v.date, ""));
+								inMoviesSubTextTime.add(new Long(v.length));
+							}
+							fis.close();
+						}
 					} catch (FileNotFoundException e) {
 						e.printStackTrace();
 					} catch (IOException e) {
@@ -146,6 +152,7 @@ public class TranscodingService extends IntentService {
 				time = time + t;
 			}
 			result.addTrack(subTitleEng);
+
 			/** END OF Subtext */
 
 			IsoFile out = new DefaultMp4Builder().build(result);
@@ -157,10 +164,8 @@ public class TranscodingService extends IntentService {
 			fc.close();
 		} catch (IOException e) {
 			broadcastIntent.putExtra("OutputFileName", "");
-			broadcastIntent
-					.putExtra(
-							"Error",
-							"Error creating video. Try removing recent imports.");
+			broadcastIntent.putExtra("Error",
+					"Error creating video. Try removing recent imports.");
 			LocalBroadcastManager.getInstance(this).sendBroadcast(
 					broadcastIntent);
 

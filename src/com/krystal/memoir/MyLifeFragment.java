@@ -202,7 +202,6 @@ public class MyLifeFragment extends Fragment {
 						false,
 						mPrefs.getBoolean("com.krystal.memoir.showonlymultiple",
 								false));
-
 		mDateAdapter = new MyLifeDateListArrayAdapter(getActivity(), mVideos);
 		ListView mDateList = (ListView) getActivity().findViewById(
 				R.id.MyLifeDateLV);

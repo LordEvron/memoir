@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -20,6 +21,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.MediaStore.MediaColumns;
+import android.widget.Toast;
 
 import com.krystal.memoir.database.MemoirDBA;
 import com.krystal.memoir.database.Video;
@@ -43,6 +45,13 @@ public class MemoirApplication extends Application {
 		mPrefs = this.getSharedPreferences("com.krystal.memoir",
 				Context.MODE_PRIVATE);
 
+		if(getApplicationContext().getExternalFilesDir(
+				Environment.DIRECTORY_MOVIES) == null) {
+			Toast.makeText(this,
+					"Please restart the phone as your external files directory is not accessible",
+					Toast.LENGTH_LONG).show();
+			return;
+		}
 		mExtFileDirectory = getApplicationContext().getExternalFilesDir(
 				Environment.DIRECTORY_MOVIES).getAbsolutePath();
 
@@ -56,7 +65,7 @@ public class MemoirApplication extends Application {
 			editor.putLong("com.krystal.memoir.endselected", date);
 			editor.putBoolean("com.krystal.memoir.datachanged", false);
 			editor.putBoolean("com.krystal.memoir.showonlymultiple", false);
-			editor.putBoolean("com.krystal.memoir.shootoncall", true);
+			editor.putBoolean("com.krystal.memoir.shootoncall", false);
 			editor.putInt("com.krystal.memoir.noofseconds", 2);
 			editor.commit();
 
@@ -228,6 +237,7 @@ public class MemoirApplication extends Application {
 		return null;
 	}
 
+	@SuppressLint("InlinedApi")
 	public static String getFilePathFromContentUri(Uri selectedVideoUri,
 			ContentResolver contentResolver) {
 		String filePath;

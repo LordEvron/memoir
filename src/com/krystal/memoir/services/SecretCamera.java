@@ -130,9 +130,14 @@ public class SecretCamera extends Service {
 	}
 
 	public void startRecording() {
-		if (prepareVideoRecorder()) {
-			mMediaRecorder.start();
-		} else {
+		try {
+			if (prepareVideoRecorder()) {
+				mMediaRecorder.start();
+			} else {
+				releaseMediaRecorder();
+			}
+		} catch (IllegalStateException e) {
+			e.printStackTrace();
 			releaseMediaRecorder();
 		}
 	}

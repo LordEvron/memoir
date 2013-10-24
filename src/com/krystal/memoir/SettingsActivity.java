@@ -4,15 +4,20 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.PendingIntent;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +33,10 @@ import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.NumberPicker.OnValueChangeListener;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
+
+import com.krystal.memoir.services.ReminderService;
 
 public class SettingsActivity extends Activity {
 
@@ -36,6 +44,7 @@ public class SettingsActivity extends Activity {
 	public SettingsArrayAdapter mSettingsAdapter = null;
 	public ListView mSettingsView = null;
 	public SharedPreferences mPrefs = null;
+	private String mReminderTime = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +107,13 @@ public class SettingsActivity extends Activity {
 
 		mArrayList.add(new SettingsItem("Reset", "Remove all videos"));
 
+		mReminderTime = mPrefs.getString("com.krystal.memoir.reminderTime",
+				null);
+		if (mReminderTime != null) {
+			mArrayList.add(new SettingsItem("Change reminder", mReminderTime));
+		} else {
+			mArrayList.add(new SettingsItem("Set reminder", ""));
+		}
 		mSettingsView = (ListView) findViewById(R.id.SettingLV);
 		mSettingsView.setOnItemClickListener(new OnItemClickListener() {
 
@@ -116,15 +132,15 @@ public class SettingsActivity extends Activity {
 						newFragment.setDefaultDate(mPrefs.getLong(
 								"com.krystal.memoir.startselected", 0), mPrefs
 								.getLong("com.krystal.memoir.startall", 0),
-								mPrefs.getLong("com.krystal.memoir.endselected",
-										0), new setDateInterface() {
+								mPrefs.getLong(
+										"com.krystal.memoir.endselected", 0),
+								new setDateInterface() {
 									@Override
 									public void setDate(long d) {
 
-										if (d < mPrefs
-												.getLong(
-														"com.krystal.memoir.startall",
-														0)) {
+										if (d < mPrefs.getLong(
+												"com.krystal.memoir.startall",
+												0)) {
 											d = mPrefs
 													.getLong(
 															"com.krystal.memoir.startall",
@@ -171,8 +187,9 @@ public class SettingsActivity extends Activity {
 					} else {
 						DatePickerFragment newFragment = new DatePickerFragment();
 						newFragment.setDefaultDate(mPrefs.getLong(
-								"com.krystal.memoir.endselected", 0), mPrefs
-								.getLong("com.krystal.memoir.startselected", 0),
+								"com.krystal.memoir.endselected", 0),
+								mPrefs.getLong(
+										"com.krystal.memoir.startselected", 0),
 								mPrefs.getLong("com.krystal.memoir.endall", 0),
 								new setDateInterface() {
 									@Override
@@ -187,9 +204,10 @@ public class SettingsActivity extends Activity {
 															0);
 										} else if (d > mPrefs.getLong(
 												"com.krystal.memoir.endall", 0)) {
-											d = mPrefs.getLong(
-													"com.krystal.memoir.endall",
-													0);
+											d = mPrefs
+													.getLong(
+															"com.krystal.memoir.endall",
+															0);
 										}
 
 										mPrefs.edit()
@@ -244,6 +262,58 @@ public class SettingsActivity extends Activity {
 							.getApplication();
 					app.getDBA().resetAll();
 					app.deleteMyLifeFile(getApplicationContext());
+				} else if (position == 6) {
+					TimePickerFragment newFragment = new TimePickerFragment();
+					newFragment.setTime(new setTimeInterface() {
+
+						@Override
+						public void setTime(long hofd, long min) {
+							if (hofd == -1 && min == -1) {
+								mPrefs.edit()
+										.remove("com.krystal.memoir.reminderTime")
+										.commit();
+								AlarmManager am = (AlarmManager) SettingsActivity.this
+										.getSystemService(Context.ALARM_SERVICE);
+								Intent i = new Intent(SettingsActivity.this,
+										ReminderService.class);
+								PendingIntent pi = PendingIntent.getService(
+										SettingsActivity.this, 0, i, 0);
+								am.cancel(pi);
+								mArrayList.get(6).text1 = "Set reminder";
+								mArrayList.get(6).text2 = "";
+							} else {
+								String reminderTime = String.format(
+										"%02d:%02d", hofd, min);
+								mPrefs.edit()
+										.putString(
+												"com.krystal.memoir.reminderTime",
+												reminderTime).commit();
+								Calendar c = Calendar.getInstance();
+								int currHofd = c.get(Calendar.HOUR_OF_DAY);
+								int currMin = c.get(Calendar.MINUTE);
+
+								AlarmManager am = (AlarmManager) SettingsActivity.this
+										.getSystemService(Context.ALARM_SERVICE);
+								Intent i = new Intent(SettingsActivity.this,
+										ReminderService.class);
+								PendingIntent pi = PendingIntent.getService(
+										SettingsActivity.this, 0, i, 0);
+								am.setRepeating(AlarmManager.RTC,
+										System.currentTimeMillis()
+												+ (((hofd - currHofd) * 60)
+														+ min - currMin) * 60
+												* 1000,
+										AlarmManager.INTERVAL_DAY, pi);
+
+								mArrayList.get(6).text1 = "Change reminder";
+								mArrayList.get(6).text2 = reminderTime;
+							}
+							mSettingsView.invalidateViews();
+						}
+					});
+					newFragment.show(
+							SettingsActivity.this.getFragmentManager(),
+							"timePicker");
 				}
 			}
 		});
@@ -353,8 +423,13 @@ public class SettingsActivity extends Activity {
 		public void setDefaultDate(long dD, long minDate, long maxDate,
 				setDateInterface setDateI) {
 			this.defaultDate = dD;
-			this.minDate = minDate;
-			this.maxDate = maxDate;
+			if (minDate <= maxDate) {
+				this.minDate = minDate;
+				this.maxDate = maxDate;
+			} else {
+				this.minDate = maxDate;
+				this.maxDate = minDate;
+			}
 			this.setDateI = setDateI;
 		}
 
@@ -433,6 +508,53 @@ public class SettingsActivity extends Activity {
 				}
 			});
 			return builder.create();
+		}
+	}
+
+	public interface setTimeInterface {
+		public void setTime(long hofd, long min);
+	}
+
+	public static class TimePickerFragment extends DialogFragment implements
+			TimePickerDialog.OnTimeSetListener {
+
+		setTimeInterface setTimeI = null;
+		boolean fired = false;
+
+		public void setTime(setTimeInterface setTimeI) {
+			this.setTimeI = setTimeI;
+		}
+
+		@Override
+		public Dialog onCreateDialog(Bundle savedInstanceState) {
+			fired = false;
+			// Use the current time as the default values for the picker
+			final Calendar c = Calendar.getInstance();
+			int hour = c.get(Calendar.HOUR_OF_DAY);
+			int minute = c.get(Calendar.MINUTE);
+
+			// Create a new instance of TimePickerDialog and return it
+			TimePickerDialog dialog = new TimePickerDialog(getActivity(), this, hour, minute,
+					DateFormat.is24HourFormat(getActivity()));
+
+			dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel",
+                    new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+        			if (!fired) {
+        				fired = true;
+        				setTimeI.setTime(-1, -1);
+        			}
+                }
+			});
+			return dialog;
+		}
+
+		public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+			if (!fired) {
+				fired = true;
+				this.setTimeI.setTime(hourOfDay, minute);
+			}
 		}
 	}
 }

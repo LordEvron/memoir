@@ -122,6 +122,7 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 		super.onActivityResult(requestCode, resultCode, data);
 
 		if (requestCode == VIDEO_IMPORT_FROM_GALLERY && resultCode == RESULT_OK) {
+			boolean verified = false;
 			Uri selectedVideoLocation = data.getData();
 			mPath = MemoirApplication.getFilePathFromContentUri(
 					selectedVideoLocation, getContentResolver());
@@ -134,21 +135,35 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 				if (isoFile != null
 						&& isoFile.getBoxes(MovieBox.class).size() > 0)
 					moov = isoFile.getBoxes(MovieBox.class).get(0);
-
 				if (moov != null && moov.getBoxes(TrackBox.class).size() > 0) {
-					TrackBox track = moov.getBoxes(TrackBox.class).get(0);
-					TrackHeaderBox thb = track.getTrackHeaderBox();
-
-					if (thb.getWidth() != mPrefs.getInt(
-							"com.krystal.memoir.standardwidth", 0)
-							|| thb.getHeight() != mPrefs.getInt(
-									"com.krystal.memoir.standardheight", 0)) {
-						mPath = null;
+					for(TrackBox track : moov.getBoxes(TrackBox.class)) {
+						TrackHeaderBox thb = track.getTrackHeaderBox();
+						
+						if(thb.getWidth() == 0 && thb.getHeight() == 0) {
+							verified = false;
+						} else if (thb.getWidth() != mPrefs.getInt(
+								"com.krystal.memoir.standardwidth", 0)
+								|| thb.getHeight() != mPrefs.getInt(
+										"com.krystal.memoir.standardheight", 0)) {
+							mPath = null;
+							verified = false;
+							break;
+						} else {
+							if(thb.getMatrix()[3] == -1) {
+								//Log.d("asd", "This video seems to be rotated by 90");
+								mPath = null;
+								verified = false;
+							} else {
+								verified = true;
+							}
+							break;
+						}
 					}
 					// Log.i("asd", "movie box details are " + thb.getHeight() +
 					// "   getWidth" + thb.getWidth());
 				} else {
-					mPath = null;
+					//mPath = null;
+					verified = false;
 				}
 				isoFile.close();
 				f.close();
@@ -160,9 +175,7 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 			}
 
 			if (mPath == null) {
-				Toast.makeText(
-						this,
-						"Error importing. See help for details.",
+				Toast.makeText(this, "Error importing. See help for details.",
 						Toast.LENGTH_LONG).show();
 				return;
 			}
@@ -170,27 +183,42 @@ public class ImportVideoActivity extends Activity implements OnPreparedListener 
 			mMediaRetriever = new MediaMetadataRetriever();
 			try {
 				mMediaRetriever.setDataSource(this, selectedVideoLocation);
-			} catch(IllegalArgumentException e) {
-				try{
+			} catch (IllegalArgumentException e) {
+				try {
 					mMediaRetriever.setDataSource(mPath);
-				}catch(IllegalArgumentException e1) {
+				} catch (IllegalArgumentException e1) {
 					if (mPath == null) {
-						Toast.makeText(
-								this,
+						Toast.makeText(this,
 								"Error importing. See help for details.",
 								Toast.LENGTH_LONG).show();
 						return;
 					}
 				}
 			}
-
 			mVideoWidth = Integer
 					.parseInt(mMediaRetriever
 							.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
 			mVideoHeight = Integer
 					.parseInt(mMediaRetriever
 							.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
-
+			if(!verified) {
+				if (mVideoWidth != mPrefs.getInt(
+						"com.krystal.memoir.standardwidth", 0)
+						|| mVideoHeight != mPrefs.getInt(
+								"com.krystal.memoir.standardheight", 0)) {
+					
+					verified = false;
+				} else {
+					verified = true;
+				}
+			}
+			
+			if(!verified) {
+				Toast.makeText(this, "Error importing. See help for details.",
+						Toast.LENGTH_LONG).show();
+				mPath = null;
+				return;
+			}
 			/*
 			 * if (android.os.Build.VERSION.SDK_INT >= 14 &&
 			 * android.os.Build.VERSION.SDK_INT <= 16) {

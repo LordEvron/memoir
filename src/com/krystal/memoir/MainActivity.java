@@ -200,6 +200,9 @@ public class MainActivity extends Activity {
 				doesFileExists = new File(mVideo.path).exists() ? true : false;
 			} else {
 				VideoUri = data.getData();
+				if(VideoUri == null) {
+					isPhoneLikeS3 = true;
+				}
 				// Log.i("zxc", "VideoUri.getPath() >" + VideoUri.getPath()
 				// + " mVideo.path>" + mVideo.path + " Video URI >"
 				// + VideoUri);
